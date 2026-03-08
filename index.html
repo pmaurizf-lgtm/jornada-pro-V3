@@ -20,6 +20,47 @@
 
 <body>
 
+<!-- Splash de carga -->
+<div id="splashScreen" class="splash-screen" aria-hidden="false">
+  <div class="splash-content">
+    <img src="icons/logo-navantia.png" alt="" class="splash-logo" width="80" height="80">
+    <p class="splash-title">Jornada Pro</p>
+    <p class="splash-subtitle">NAVANTIA Ferrol</p>
+    <div class="splash-spinner" aria-hidden="true"></div>
+  </div>
+</div>
+
+<!-- Contenedor de toasts -->
+<div id="toastContainer" class="toast-container" role="region" aria-label="Notificaciones"></div>
+
+<!-- Onboarding (primera vez) -->
+<div id="onboardingModal" class="onboarding-modal" role="dialog" aria-labelledby="onboardingTitulo" aria-modal="true" hidden>
+  <div class="onboarding-backdrop"></div>
+  <div class="onboarding-box">
+    <div id="onboardingSlide1" class="onboarding-slide onboarding-slide--active">
+      <h2 id="onboardingTitulo" class="onboarding-titulo">Bienvenido a Jornada Pro</h2>
+      <p class="onboarding-texto">Registra tu jornada, horas extra y saldos. Todo se guarda en tu dispositivo.</p>
+      <img src="icons/logo-navantia.png" alt="" class="onboarding-img" width="64" height="64">
+    </div>
+    <div id="onboardingSlide2" class="onboarding-slide">
+      <h2 class="onboarding-titulo">Iniciar y terminar</h2>
+      <p class="onboarding-texto">Pulsa <strong>Iniciar jornada</strong> al llegar. Para terminar, desliza el control o introduce la hora de salida y guarda.</p>
+    </div>
+    <div id="onboardingSlide3" class="onboarding-slide">
+      <h2 class="onboarding-titulo">Backup y configuración</h2>
+      <p class="onboarding-texto">En el menú (☰) puedes exportar copia de seguridad, restaurar datos y ajustar tema, notificaciones y jornada.</p>
+    </div>
+    <div class="onboarding-footer">
+      <button type="button" id="onboardingCerrar" class="onboarding-btn onboarding-btn-primary">Empezar</button>
+      <div class="onboarding-dots" aria-hidden="true">
+        <span class="onboarding-dot onboarding-dot--active" data-slide="0"></span>
+        <span class="onboarding-dot" data-slide="1"></span>
+        <span class="onboarding-dot" data-slide="2"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <header class="header">
   <h1 id="headerTitle" class="header-title">Jornada Pro NAVANTIA (Ferrol)</h1>
   <img src="icons/logo-navantia.png" alt="NAVANTIA" class="header-logo">
@@ -351,9 +392,32 @@
       <button type="button" id="btnAbrirGuia" class="config-btn config-btn-guia">Ver guía de la app</button>
     </div>
 
-    <div class="config-app-info">
-      <span class="config-app-name">Jornada Pro</span> <span class="config-app-version">© 1.0</span>
-      <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap">Autor</span>: Pablo Mouriz Fontao</div>
+    <!-- Acerca de: versión, novedades, contacto -->
+    <details class="config-details config-details-about">
+      <summary class="config-summary">Acerca de</summary>
+      <div class="config-details-body">
+        <div class="config-app-info">
+          <span class="config-app-name">Jornada Pro</span> <span id="configAppVersion" class="config-app-version">v1.0</span>
+          <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap">Autor</span>: Pablo Mouriz Fontao</div>
+        </div>
+        <div class="config-changelog">
+          <p class="config-changelog-title">Novedades</p>
+          <ul id="configChangelogList" class="config-changelog-list">
+            <li>Toasts y mensajes de confirmación.</li>
+            <li>Onboarding en el primer uso.</li>
+            <li>Resumen del mes en portada y estado vacío en calendario.</li>
+            <li>Backup y restaurar desde JSON.</li>
+          </ul>
+        </div>
+        <div class="config-contacto">
+          <p class="config-contacto-title">Contacto / soporte</p>
+          <p id="configContactoText" class="config-contacto-text">Para sugerencias o incidencias, contacta al autor desde tu cliente de correo.</p>
+        </div>
+      </div>
+    </details>
+
+    <div class="config-app-info config-app-info-footer" aria-hidden="true">
+      <span class="config-app-name">Jornada Pro</span> <span id="configAppVersionFooter" class="config-app-version">v1.0</span>
     </div>
     <div id="configDevMenu" class="config-dev-menu" hidden>
       <p class="config-dev-title">Desarrollador</p>
@@ -364,6 +428,18 @@
     </div>
   </div>
   <div id="configPanelBackdrop" class="config-panel-backdrop" aria-hidden="true"></div>
+</div>
+
+<!-- Resumen rápido del mes (portada) -->
+<div id="resumenPortada" class="resumen-portada card" hidden>
+  <div class="resumen-portada-line">
+    <span id="resumenPortadaMesLabel">Este mes</span>
+    <strong id="resumenPortadaHoras">--</strong>
+  </div>
+  <div class="resumen-portada-line resumen-portada-festivo" id="resumenPortadaFestivoWrap" hidden>
+    <span>Próximo festivo</span>
+    <span id="resumenPortadaFestivo">--</span>
+  </div>
 </div>
 
 <!-- REGISTRO DIARIO -->
@@ -526,6 +602,10 @@
     </div>
 
     <div id="calendarGrid" class="calendar-grid"></div>
+    <div id="emptyStateCalendar" class="empty-state empty-state--calendar" hidden>
+      <p class="empty-state-text">Aún no hay registros este mes</p>
+      <p class="empty-state-hint">Usa «Iniciar jornada» o selecciona un día y guarda para empezar.</p>
+    </div>
 
     <div id="calendarLegend" class="cal-leyenda" aria-label="Leyenda del mes visible"></div>
 

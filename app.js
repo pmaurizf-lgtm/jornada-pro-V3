@@ -24,6 +24,8 @@ import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.j
 import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
 import { renderGrafico } from "./ui/charts.js";
 
+const APP_VERSION = "1.0";
+
 document.addEventListener("DOMContentLoaded", () => {
 
   let state = loadState();
@@ -40,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const EXTEND_PROMPT_KEY = "jornadaPro_extendPrompt";
   const GP_ELIGIDO_KEY = "jornadaPro_modalGPShown";
+  const ONBOARDING_KEY = "jornadaPro_onboardingDone";
 
   function getHoyISO() {
     const d = new Date();
@@ -66,6 +69,34 @@ document.addEventListener("DOMContentLoaded", () => {
   const barra = document.getElementById("barra");
   const progresoTxt = document.getElementById("progresoTxt");
   const progresoInside = document.getElementById("progresoInside");
+
+  const splashScreen = document.getElementById("splashScreen");
+  const toastContainer = document.getElementById("toastContainer");
+  const emptyStateCalendar = document.getElementById("emptyStateCalendar");
+  const resumenPortada = document.getElementById("resumenPortada");
+  const resumenPortadaHoras = document.getElementById("resumenPortadaHoras");
+  const resumenPortadaMesLabel = document.getElementById("resumenPortadaMesLabel");
+  const resumenPortadaFestivoWrap = document.getElementById("resumenPortadaFestivoWrap");
+  const resumenPortadaFestivo = document.getElementById("resumenPortadaFestivo");
+
+  function showToast(message, type) {
+    if (!toastContainer) return;
+    const toast = document.createElement("div");
+    toast.className = "toast toast--" + (type || "info");
+    toast.setAttribute("role", "alert");
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 3200);
+  }
+
+  function hideSplash() {
+    if (splashScreen) {
+      splashScreen.classList.add("splash-screen--hidden");
+      splashScreen.setAttribute("aria-hidden", "true");
+    }
+  }
 
   // 🔥 RESUMEN
   const resumenDia = document.getElementById("resumenDia");
@@ -366,7 +397,7 @@ if (guardarConfig) {
     state.config.nombreCompleto = (cfgNombreCompleto && cfgNombreCompleto.value) ? cfgNombreCompleto.value.trim() : "";
     let sap = (cfgNumeroSAP && cfgNumeroSAP.value) ? String(cfgNumeroSAP.value).replace(/\D/g, "").slice(0, 8) : "";
     if (sap.length > 0 && sap.length !== 8) {
-      alert("El número SAP debe tener exactamente 8 cifras.");
+      showToast("El número SAP debe tener exactamente 8 cifras.", "error");
       return;
     }
     state.config.numeroSAP = sap;
@@ -405,6 +436,7 @@ if (guardarConfig) {
     renderCalendario();
     actualizarResumenDia();
     actualizarEstadoIniciarJornada();
+    showToast("Configuración guardada", "success");
     closeConfigPanel();
   });
 }
@@ -1943,6 +1975,7 @@ function controlarNotificaciones() {
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
+    showToast("Día guardado", "success");
   };
 
   if (btnVacaciones) btnVacaciones.onclick = () => {
@@ -1952,7 +1985,7 @@ function controlarNotificaciones() {
 
     const anioDescontado = descontarDiaVacacion(state, fecha.value);
     if (anioDescontado == null) {
-      alert("No hay días de vacaciones disponibles en el banco. Revisa la pestaña Vacaciones/LD.");
+      showToast("No hay días de vacaciones disponibles. Revisa la pestaña Vacaciones/LD.", "error");
       return;
     }
 
@@ -2300,6 +2333,7 @@ function controlarNotificaciones() {
     modalEliminarSi.addEventListener("click", () => {
       ejecutarEliminarRegistroDia();
       cerrarModalConfirmarEliminar();
+      showToast("Registro eliminado", "success");
     });
   }
   if (modalEliminarCancelar) {
@@ -2342,6 +2376,7 @@ function controlarNotificaciones() {
       actualizarResumenDia();
       actualizarProgreso();
       if (modalElegirGP) modalElegirGP.hidden = false;
+      showToast("Configuración restaurada", "success");
     });
   }
   if (modalFabricaCancelar) {
@@ -2368,6 +2403,12 @@ function controlarNotificaciones() {
     // Tras elegir grupo la primera vez, ofrecer indicar días LD del año en curso
     const anioCurso = new Date().getFullYear();
     setTimeout(() => { abrirModalLDAnio(anioCurso); }, 100);
+    if (!localStorage.getItem(ONBOARDING_KEY)) {
+      setTimeout(() => {
+        const om = document.getElementById("onboardingModal");
+        if (om) om.hidden = false;
+      }, 400);
+    }
   }
 
   [modalElegirGP1, modalElegirGP2, modalElegirGP3, modalElegirGP4].forEach(function (btn) {
@@ -2652,6 +2693,7 @@ if (btnBackup) {
     a.click();
 
     URL.revokeObjectURL(url);
+    showToast("Backup descargado correctamente", "success");
   });
 }
 
@@ -2687,9 +2729,10 @@ if (btnRestore) {
         actualizarEstadoEliminar();
         actualizarEstadoIniciarJornada();
         actualizarResumenDia();
+        showToast("Datos restaurados correctamente", "success");
 
       } catch {
-        alert("Archivo de backup no válido");
+        showToast("Archivo de backup no válido", "error");
       }
     };
 
@@ -2902,9 +2945,56 @@ if(festivos && festivos[fechaISO]){
     }
   }
 
+  let tieneRegistrosMes = false;
+  const prefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-`;
+  for (const key of Object.keys(state.registros || {})) {
+    if (key.startsWith(prefix)) { tieneRegistrosMes = true; break; }
+  }
+  if (emptyStateCalendar) {
+    emptyStateCalendar.hidden = tieneRegistrosMes;
+  }
+
+  actualizarResumenPortada();
   actualizarBanco();
   actualizarGrafico();
 }
+
+  function actualizarResumenPortada() {
+    if (!resumenPortada) return;
+    const prefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-`;
+    let totalMin = 0;
+    for (const [key, reg] of Object.entries(state.registros || {})) {
+      if (!key.startsWith(prefix)) continue;
+      if (reg && reg.trabajadosMin != null) totalMin += reg.trabajadosMin;
+    }
+    const nombreMes = new Date(currentYear, currentMonth).toLocaleString("es-ES", { month: "long" });
+    const mesStr = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1) + " " + currentYear;
+    if (resumenPortadaMesLabel) resumenPortadaMesLabel.textContent = mesStr;
+    if (resumenPortadaHoras) {
+      const h = Math.floor(totalMin / 60);
+      const m = totalMin % 60;
+      resumenPortadaHoras.textContent = m > 0 ? `${h}h ${m}m` : `${h}h`;
+    }
+    resumenPortada.hidden = false;
+    const festivos = obtenerFestivos(currentYear);
+    const hoyISO = getHoyISO();
+    let nextFestivo = null;
+    if (festivos) {
+      const keys = Object.keys(festivos).sort();
+      for (const k of keys) {
+        if (k > hoyISO) { nextFestivo = { fecha: k, ...festivos[k] }; break; }
+      }
+    }
+    if (resumenPortadaFestivoWrap && resumenPortadaFestivo) {
+      if (nextFestivo) {
+        resumenPortadaFestivoWrap.hidden = false;
+        const d = new Date(nextFestivo.fecha + "T12:00:00");
+        resumenPortadaFestivo.textContent = d.toLocaleDateString("es-ES", { weekday: "short", day: "numeric", month: "short" }) + (nextFestivo.nombre ? " (" + nextFestivo.nombre + ")" : "");
+      } else {
+        resumenPortadaFestivoWrap.hidden = true;
+      }
+    }
+  }
 
   function cargarFormularioDesdeRegistro(fechaISO) {
     const registro = state.registros[fechaISO];
@@ -3013,6 +3103,54 @@ if(festivos && festivos[fechaISO]){
   });
 
   window.addEventListener("focus", checkExtendPromptFromUrl);
+
+  // Versión en configuración
+  const configAppVersion = document.getElementById("configAppVersion");
+  const configAppVersionFooter = document.getElementById("configAppVersionFooter");
+  if (configAppVersion) configAppVersion.textContent = "v" + APP_VERSION;
+  if (configAppVersionFooter) configAppVersionFooter.textContent = "v" + APP_VERSION;
+
+  // Ocultar splash tras carga inicial
+  setTimeout(() => {
+    hideSplash();
+    try {
+      if (!localStorage.getItem(ONBOARDING_KEY)) {
+        if (localStorage.getItem(GP_ELIGIDO_KEY)) {
+          const onboardingModal = document.getElementById("onboardingModal");
+          if (onboardingModal) onboardingModal.hidden = false;
+        }
+      }
+    } catch (e) {}
+  }, 450);
+
+  // Onboarding: slides y cerrar
+  const onboardingModal = document.getElementById("onboardingModal");
+  const onboardingCerrar = document.getElementById("onboardingCerrar");
+  const onboardingSlides = ["onboardingSlide1", "onboardingSlide2", "onboardingSlide3"];
+  const onboardingDots = document.querySelectorAll(".onboarding-dot");
+  let onboardingSlideIndex = 0;
+  function setOnboardingSlide(i) {
+    onboardingSlideIndex = Math.max(0, Math.min(i, 2));
+    onboardingSlides.forEach((id, idx) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle("onboarding-slide--active", idx === onboardingSlideIndex);
+    });
+    onboardingDots.forEach((dot, idx) => dot.classList.toggle("onboarding-dot--active", idx === onboardingSlideIndex));
+    if (onboardingCerrar) onboardingCerrar.textContent = onboardingSlideIndex === 2 ? "Empezar" : "Siguiente";
+  }
+  if (onboardingCerrar) {
+    onboardingCerrar.addEventListener("click", () => {
+      if (onboardingSlideIndex < 2) setOnboardingSlide(onboardingSlideIndex + 1);
+      else {
+        try { localStorage.setItem(ONBOARDING_KEY, "1"); } catch (e) {}
+        if (onboardingModal) onboardingModal.hidden = true;
+      }
+    });
+  }
+  onboardingDots.forEach((dot, idx) => {
+    dot.addEventListener("click", () => setOnboardingSlide(idx));
+  });
+  setOnboardingSlide(0);
 
   // Primera vez: mostrar modal para elegir grupo profesional
   try {

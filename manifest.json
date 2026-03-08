@@ -1,10 +1,11 @@
 {
-  "name": "Mi Jornada Pro",
-  "short_name": "Jornada",
+  "name": "Jornada Pro NAVANTIA",
+  "short_name": "Jornada Pro",
+  "description": "Control de jornada laboral, horas extra y saldos. NAVANTIA Ferrol.",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#111827",
-  "theme_color": "#111827",
+  "background_color": "#005dba",
+  "theme_color": "#005dba",
   "orientation": "portrait",
   "icons": [
     {
