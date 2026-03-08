@@ -2404,10 +2404,7 @@ function controlarNotificaciones() {
     const anioCurso = new Date().getFullYear();
     setTimeout(() => { abrirModalLDAnio(anioCurso); }, 100);
     if (!localStorage.getItem(ONBOARDING_KEY)) {
-      setTimeout(() => {
-        const om = document.getElementById("onboardingModal");
-        if (om) om.hidden = false;
-      }, 400);
+      setTimeout(mostrarOnboarding, 400);
     }
   }
 
@@ -3114,11 +3111,8 @@ if(festivos && festivos[fechaISO]){
   setTimeout(() => {
     hideSplash();
     try {
-      if (!localStorage.getItem(ONBOARDING_KEY)) {
-        if (localStorage.getItem(GP_ELIGIDO_KEY)) {
-          const onboardingModal = document.getElementById("onboardingModal");
-          if (onboardingModal) onboardingModal.hidden = false;
-        }
+      if (!localStorage.getItem(ONBOARDING_KEY) && localStorage.getItem(GP_ELIGIDO_KEY)) {
+        mostrarOnboarding();
       }
     } catch (e) {}
   }, 450);
@@ -3138,13 +3132,31 @@ if(festivos && festivos[fechaISO]){
     onboardingDots.forEach((dot, idx) => dot.classList.toggle("onboarding-dot--active", idx === onboardingSlideIndex));
     if (onboardingCerrar) onboardingCerrar.textContent = onboardingSlideIndex === 2 ? "Empezar" : "Siguiente";
   }
+  function cerrarOnboarding() {
+    try { localStorage.setItem(ONBOARDING_KEY, "1"); } catch (e) {}
+    if (onboardingModal) {
+      onboardingModal.hidden = true;
+      onboardingModal.setAttribute("aria-hidden", "true");
+      onboardingModal.style.display = "none";
+    }
+  }
+  function mostrarOnboarding() {
+    const om = document.getElementById("onboardingModal");
+    if (om) {
+      om.hidden = false;
+      om.removeAttribute("aria-hidden");
+      om.style.display = "";
+    }
+  }
   if (onboardingCerrar) {
-    onboardingCerrar.addEventListener("click", () => {
-      if (onboardingSlideIndex < 2) setOnboardingSlide(onboardingSlideIndex + 1);
-      else {
-        try { localStorage.setItem(ONBOARDING_KEY, "1"); } catch (e) {}
-        if (onboardingModal) onboardingModal.hidden = true;
+    onboardingCerrar.addEventListener("click", (e) => {
+      e.preventDefault();
+      const esBotonEmpezar = (onboardingCerrar.textContent || "").trim().toLowerCase().includes("empezar");
+      if (esBotonEmpezar || onboardingSlideIndex >= 2) {
+        cerrarOnboarding();
+        return;
       }
+      setOnboardingSlide(onboardingSlideIndex + 1);
     });
   }
   onboardingDots.forEach((dot, idx) => {
