@@ -1,0 +1,28 @@
+[
+  {
+    "version": "1.1",
+    "date": "2025-02",
+    "items": [
+      "Resumen portada: fecha completa, reloj, esta semana, comparativa mes anterior, días trabajados/vac/LD.",
+      "Indicador «Fichado desde» y accesos rápidos Fichar entrada / Fichar salida.",
+      "Atajos de teclado: E (hoy), G (guardar), I (iniciar jornada).",
+      "Calendario: colores por tipo de día (vacaciones, LD, TxT, jornada).",
+      "Última modificación por día en el resumen del día.",
+      "Exportar Excel y Backup con rango de fechas opcional.",
+      "Informe PDF mensual (imprimir).",
+      "Al restaurar backup: aviso si hay datos más recientes locales.",
+      "Recordatorio de hacer backup (cada 7 días).",
+      "Modo desarrollador y Plof: 5 toques en «Autor» o 7 en la versión."
+    ]
+  },
+  {
+    "version": "1.0",
+    "date": "2025-01",
+    "items": [
+      "Toasts y mensajes de confirmación.",
+      "Onboarding en el primer uso.",
+      "Resumen del mes en portada y estado vacío en calendario.",
+      "Backup y restaurar desde JSON."
+    ]
+  }
+]

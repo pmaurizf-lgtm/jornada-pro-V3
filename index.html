@@ -20,6 +20,15 @@
 
 <body>
 
+<!-- Overlay PIN (bloqueo al abrir) -->
+<div id="pinOverlay" class="pin-overlay" hidden>
+  <div class="pin-box">
+    <h3 class="pin-titulo">Introduce el PIN</h3>
+    <input type="password" id="pinInput" class="pin-input" inputmode="numeric" maxlength="8" placeholder="PIN" autocomplete="off">
+    <button type="button" id="pinUnlock" class="config-btn config-btn-primary">Desbloquear</button>
+  </div>
+</div>
+
 <!-- Splash de carga -->
 <div id="splashScreen" class="splash-screen" aria-hidden="false">
   <div class="splash-content">
@@ -234,6 +243,19 @@
   </div>
 </div>
 
+<!-- Modal: Confirmar restaurar backup (datos más recientes locales) -->
+<div id="modalConfirmarRestaurar" class="modal-extender" role="dialog" aria-labelledby="modalConfirmarRestaurarTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalConfirmarRestaurarTitulo" class="modal-extender-titulo">Datos más recientes en este dispositivo</h3>
+    <p class="modal-extender-texto" id="modalConfirmarRestaurarTexto">Hay registros modificados después del backup. ¿Sobrescribir todo con el archivo de backup?</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalRestaurarCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
+      <button type="button" id="modalRestaurarSi" class="modal-extender-btn modal-extender-si">Sobrescribir</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Primera vez – elegir grupo profesional -->
 <div id="modalElegirGP" class="modal-extender" role="dialog" aria-labelledby="modalElegirGPTitulo" aria-modal="true" hidden>
   <div class="modal-extender-box modal-elegir-gp">
@@ -308,6 +330,23 @@
             <input type="number" id="cfgAviso" class="config-input" min="0">
           </label>
           <p class="config-hint">Aviso previo y fin de jornada solo cuando la app está abierta.</p>
+          <label class="config-row">
+            <span class="config-label">Recordatorio fichar (hora)</span>
+            <input type="time" id="cfgRecordatorioFichar" class="config-input">
+          </label>
+          <p class="config-hint">Si no has fichado entrada ese día, se mostrará un aviso a esa hora (una vez al día).</p>
+        </div>
+      </div>
+    </details>
+    <details class="config-details">
+      <summary class="config-summary">Seguridad</summary>
+      <div class="config-details-body">
+        <label class="config-row config-toggle-row">
+          <input type="checkbox" id="cfgPinEnabled" class="config-checkbox">
+          <span class="config-label">Requerir PIN al abrir</span>
+        </label>
+        <div class="config-actions">
+          <button type="button" id="btnEstablecerPin" class="config-btn">Establecer / cambiar PIN</button>
         </div>
       </div>
     </details>
@@ -376,9 +415,18 @@
     <details class="config-details">
       <summary class="config-summary">Copia de datos y seguridad</summary>
       <div class="config-details-body">
+        <div class="config-row config-export-range">
+          <span class="config-label">Rango (opcional)</span>
+          <div class="config-range-inputs">
+            <input type="date" id="exportDesde" class="config-input config-input-date" aria-label="Exportar desde">
+            <span class="config-range-sep">–</span>
+            <input type="date" id="exportHasta" class="config-input config-input-date" aria-label="Exportar hasta">
+          </div>
+        </div>
         <div class="config-actions">
           <button type="button" id="excel" class="config-btn">Exportar Excel</button>
           <button type="button" id="backup" class="config-btn">Backup</button>
+          <button type="button" id="informePdf" class="config-btn">Informe PDF (mes)</button>
           <label class="config-btn config-btn-file">
             Restaurar
             <input type="file" id="restore" class="config-file-input">
@@ -443,9 +491,29 @@
       <span id="resumenPortadaReloj" class="resumen-portada-card-value resumen-portada-reloj-value">--:--</span>
     </div>
   </div>
+  <div id="resumenPortadaJornadaEnCurso" class="resumen-portada-jornada-en-curso" hidden aria-live="polite">
+    <span class="resumen-jornada-icon" aria-hidden="true">●</span>
+    <span id="resumenPortadaJornadaTexto">Fichado desde 08:00</span>
+  </div>
+  <div id="resumenPortadaAccesosRapidos" class="resumen-portada-accesos-rapidos" hidden>
+    <button type="button" id="resumenBtnFicharEntrada" class="resumen-btn-rapido resumen-btn-iniciar">Fichar entrada</button>
+    <button type="button" id="resumenBtnFicharSalida" class="resumen-btn-rapido resumen-btn-terminar" hidden>Fichar salida</button>
+  </div>
+  <div class="resumen-portada-line" id="resumenPortadaSemanaWrap">
+    <span id="resumenPortadaSemanaLabel">Esta semana</span>
+    <strong id="resumenPortadaSemanaHoras">--</strong>
+  </div>
   <div class="resumen-portada-line">
     <span id="resumenPortadaMesLabel">Este mes</span>
     <strong id="resumenPortadaHoras">--</strong>
+  </div>
+  <div class="resumen-portada-line resumen-portada-comparativa" id="resumenPortadaComparativaWrap">
+    <span id="resumenPortadaComparativaLabel">Mes pasado</span>
+    <strong id="resumenPortadaComparativaHoras">--</strong>
+  </div>
+  <div class="resumen-portada-line resumen-portada-dias" id="resumenPortadaDiasWrap">
+    <span id="resumenPortadaDiasLabel">Días</span>
+    <span id="resumenPortadaDiasValor">--</span>
   </div>
   <div class="resumen-portada-line resumen-portada-festivo" id="resumenPortadaFestivoWrap" hidden>
     <span>Próximo festivo</span>
@@ -581,6 +649,10 @@
       <span>Negativa</span>
       <strong id="rNegativa">--</strong>
     </div>
+    <div class="resumen-line resumen-ultima-mod" id="resumenDiaUltimaModWrap">
+      <span>Últ. mod.</span>
+      <span id="resumenDiaUltimaMod" class="resumen-ultima-mod-value">--</span>
+    </div>
   </div>
   <div id="resumenDiaMinutosWrap" class="resumen-dia-minutos" hidden>
     <div class="resumen-line">
@@ -637,6 +709,10 @@
   <!-- GRÁFICO LATERAL -->
   <div id="chartCard" class="card chart-card">
     <canvas id="chart"></canvas>
+  </div>
+  <div id="chartEvolucionCard" class="card chart-card chart-evolucion-card">
+    <h4 class="chart-evolucion-title">Evolución saldo TxT (año en curso)</h4>
+    <canvas id="chartEvolucion"></canvas>
   </div>
 
 </section>

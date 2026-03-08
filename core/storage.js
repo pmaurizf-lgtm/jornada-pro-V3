@@ -24,9 +24,19 @@ export function saveState(state) {
   localStorage.setItem(KEY, JSON.stringify(state));
 }
 
-/** Exporta el estado completo: registros, config (datos personales, jornada, saldo previo), deducciones, etc. */
-export function exportBackup(state) {
-  return JSON.stringify(state, null, 2);
+/** Exporta el estado completo (o un rango de fechas). options: { fromISO, toISO } para filtrar registros. */
+export function exportBackup(state, options) {
+  if (!options || (!options.fromISO && !options.toISO)) {
+    return JSON.stringify(state, null, 2);
+  }
+  const from = options.fromISO || "0000-01-01";
+  const to = options.toISO || "9999-12-31";
+  const registros = {};
+  for (const [k, v] of Object.entries(state.registros || {})) {
+    if (k >= from && k <= to) registros[k] = v;
+  }
+  const out = { ...state, registros };
+  return JSON.stringify(out, null, 2);
 }
 
 export function importBackup(json) {

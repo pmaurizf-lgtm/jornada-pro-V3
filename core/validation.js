@@ -48,6 +48,9 @@ export function validateState(state) {
   if (typeof state.config.vacacionesDiasPrevio !== "number" || state.config.vacacionesDiasPrevio < 0) {
     state.config.vacacionesDiasPrevio = 0;
   }
+  if (typeof state.config.recordatorioFicharHora !== "string") state.config.recordatorioFicharHora = "";
+  if (typeof state.config.pinEnabled !== "boolean") state.config.pinEnabled = false;
+  if (typeof state.config.pinHash !== "string") state.config.pinHash = "";
   if (!state.vacacionesDiasPorAnio || typeof state.vacacionesDiasPorAnio !== "object") {
     state.vacacionesDiasPorAnio = {};
   }

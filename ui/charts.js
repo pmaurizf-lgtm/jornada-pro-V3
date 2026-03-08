@@ -69,3 +69,47 @@ export function renderGrafico(canvas, resumen) {
     }
   });
 }
+
+let chartEvolucionInstance = null;
+
+export function renderGraficoEvolucion(canvas, monthlySaldoHours, year) {
+  if (!canvas || typeof Chart === "undefined") return;
+  const theme = getChartThemeColors();
+  if (chartEvolucionInstance && typeof chartEvolucionInstance.destroy === "function") {
+    chartEvolucionInstance.destroy();
+  }
+  const labels = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  chartEvolucionInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels.slice(0, monthlySaldoHours.length),
+      datasets: [{
+        label: "Saldo TxT (h)",
+        data: monthlySaldoHours,
+        borderColor: theme.barPositive,
+        backgroundColor: "rgba(34, 197, 94, 0.1)",
+        fill: true,
+        tension: 0.2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: theme.text } }
+      },
+      scales: {
+        x: {
+          ticks: { color: theme.text },
+          grid: { color: theme.grid }
+        },
+        y: {
+          ticks: { color: theme.text },
+          grid: { color: theme.grid }
+        }
+      }
+    }
+  });
+}

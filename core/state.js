@@ -28,7 +28,13 @@ export function createInitialState() {
       horasExtraInicialMin: 0,
       excesoJornadaInicialMin: 0,
       /** Saldo de días de vacaciones previo (año 2025) al usar la app. */
-      vacacionesDiasPrevio: 0
+      vacacionesDiasPrevio: 0,
+      /** Hora del recordatorio de fichar "HH:MM" o "" si no usar. */
+      recordatorioFicharHora: "",
+      /** Bloqueo con PIN al abrir. */
+      pinEnabled: false,
+      /** Hash simple del PIN (no almacenar PIN en claro). */
+      pinHash: ""
     }
   };
 }
