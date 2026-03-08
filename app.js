@@ -74,6 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const toastContainer = document.getElementById("toastContainer");
   const emptyStateCalendar = document.getElementById("emptyStateCalendar");
   const resumenPortada = document.getElementById("resumenPortada");
+  const resumenPortadaFecha = document.getElementById("resumenPortadaFecha");
+  const resumenPortadaReloj = document.getElementById("resumenPortadaReloj");
   const resumenPortadaHoras = document.getElementById("resumenPortadaHoras");
   const resumenPortadaMesLabel = document.getElementById("resumenPortadaMesLabel");
   const resumenPortadaFestivoWrap = document.getElementById("resumenPortadaFestivoWrap");
@@ -254,6 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalElegirGP4 = document.getElementById("modalElegirGP4");
   const btnRestaurarFabrica = document.getElementById("restaurarFabrica");
   const configAuthorTapTarget = document.getElementById("configAuthorTapTarget");
+  const configAppVersionDev = document.getElementById("configAppVersion");
   const configDevMenu = document.getElementById("configDevMenu");
   const btnResetDiaCurso = document.getElementById("btnResetDiaCurso");
   const plofTapTarget = document.getElementById("plofTapTarget");
@@ -577,7 +580,8 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     return gp === "GP1" || gp === "GP2";
   }
 
-  /** Aplica reglas TxT fin de semana/festivo (solo GP3/GP4). Si el día es sábado, domingo o festivo, sustituye extra/exceso por el TxT calculado. */
+  /** Aplica reglas TxT fin de semana/festivo (solo GP3/GP4). Si el día es sábado, domingo o festivo, sustituye extra/exceso por el TxT calculado.
+   * En estos días no existe jornada ordinaria: no se descuenta nada de TxT por "completar" jornada; solo se registra el tiempo trabajado como TxT. */
   function aplicarTxTSiFinDeSemanaOFestivo(registro, fechaISO) {
     if (esModoMinutosSemanal()) return registro;
     const festivos = obtenerFestivos(fechaISO.slice(0, 4));
@@ -591,7 +595,7 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     if (!entrada || !salidaReal || trabajadosMin <= 0) return registro;
     const txTMin = calcularTxTFinDeSemanaYFestivos(fechaISO, entrada, salidaReal, trabajadosMin, esFestivo);
     if (txTMin == null) return registro;
-    return { ...registro, extraGeneradaMin: txTMin, excesoJornadaMin: 0 };
+    return { ...registro, extraGeneradaMin: txTMin, excesoJornadaMin: 0, negativaMin: 0 };
   }
 
   /** Para GP1/GP2: lunes (1) a domingo (7). Devuelve [lunesISO, domingoISO] de la semana que contiene fechaISO. */
@@ -2416,6 +2420,9 @@ function controlarNotificaciones() {
     });
   });
 
+  function toggleDevMenu() {
+    if (configDevMenu) configDevMenu.hidden = !configDevMenu.hidden;
+  }
   if (configAuthorTapTarget && configDevMenu) {
     let authorTapCount = 0;
     let authorTapResetTimer = null;
@@ -2423,10 +2430,24 @@ function controlarNotificaciones() {
       if (authorTapResetTimer) clearTimeout(authorTapResetTimer);
       authorTapCount++;
       if (authorTapCount >= 5) {
-        configDevMenu.hidden = !configDevMenu.hidden;
+        toggleDevMenu();
         authorTapCount = 0;
       } else {
         authorTapResetTimer = setTimeout(() => { authorTapCount = 0; }, 1500);
+      }
+    });
+  }
+  if (configAppVersionDev && configDevMenu) {
+    let versionTapCount = 0;
+    let versionTapResetTimer = null;
+    configAppVersionDev.addEventListener("click", () => {
+      if (versionTapResetTimer) clearTimeout(versionTapResetTimer);
+      versionTapCount++;
+      if (versionTapCount >= 7) {
+        toggleDevMenu();
+        versionTapCount = 0;
+      } else {
+        versionTapResetTimer = setTimeout(() => { versionTapCount = 0; }, 1500);
       }
     });
   }
@@ -2958,6 +2979,23 @@ if(festivos && festivos[fechaISO]){
 
   function actualizarResumenPortada() {
     if (!resumenPortada) return;
+    const now = new Date();
+    if (resumenPortadaFecha) {
+      const fechaStr = now.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      resumenPortadaFecha.textContent = fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1);
+    }
+    function actualizarReloj() {
+      if (!resumenPortadaReloj) return;
+      const t = new Date();
+      const h = String(t.getHours()).padStart(2, "0");
+      const m = String(t.getMinutes()).padStart(2, "0");
+      const s = String(t.getSeconds()).padStart(2, "0");
+      resumenPortadaReloj.textContent = h + ":" + m + ":" + s;
+    }
+    actualizarReloj();
+    if (!window._resumenPortadaRelojInterval) {
+      window._resumenPortadaRelojInterval = setInterval(actualizarReloj, 1000);
+    }
     const prefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-`;
     let totalMin = 0;
     for (const [key, reg] of Object.entries(state.registros || {})) {

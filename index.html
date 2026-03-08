@@ -397,8 +397,9 @@
       <summary class="config-summary">Acerca de</summary>
       <div class="config-details-body">
         <div class="config-app-info">
-          <span class="config-app-name">Jornada Pro</span> <span id="configAppVersion" class="config-app-version">v1.0</span>
-          <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap">Autor</span>: Pablo Mouriz Fontao</div>
+          <span class="config-app-name">Jornada Pro</span> <span id="configAppVersion" class="config-app-version config-version-tap" title="7 toques para modo desarrollador">v1.0</span>
+          <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap" title="5 toques para modo desarrollador">Autor</span>: Pablo Mouriz Fontao</div>
+          <p class="config-dev-hint">Modo desarrollador: 5 toques en «Autor» o 7 en la versión.</p>
         </div>
         <div class="config-changelog">
           <p class="config-changelog-title">Novedades</p>
@@ -432,6 +433,16 @@
 
 <!-- Resumen rápido del mes (portada) -->
 <div id="resumenPortada" class="resumen-portada card" hidden>
+  <div class="resumen-portada-bank" aria-label="Fecha y hora actuales">
+    <div class="resumen-portada-card resumen-portada-card-fecha">
+      <span class="resumen-portada-card-label">Hoy</span>
+      <span id="resumenPortadaFecha" class="resumen-portada-card-value">--</span>
+    </div>
+    <div class="resumen-portada-card resumen-portada-card-reloj">
+      <span class="resumen-portada-card-label">Hora</span>
+      <span id="resumenPortadaReloj" class="resumen-portada-card-value resumen-portada-reloj-value">--:--</span>
+    </div>
+  </div>
   <div class="resumen-portada-line">
     <span id="resumenPortadaMesLabel">Este mes</span>
     <strong id="resumenPortadaHoras">--</strong>
