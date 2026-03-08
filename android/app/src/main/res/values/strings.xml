@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Jornada Pro NAVANTIA</string>
+    <string name="title_activity_main">Jornada Pro NAVANTIA</string>
+    <string name="package_name">com.jornadapro.navantia</string>
+    <string name="custom_url_scheme">com.jornadapro.navantia</string>
+    <string name="widget_description">Iniciar/terminar jornada y ver avance</string>
+</resources>

@@ -1,0 +1,26 @@
+{
+  "name": "jornada-pro",
+  "version": "1.0.0",
+  "description": "Jornada Pro - Control de jornada laboral",
+  "private": true,
+  "scripts": {
+    "prepare-android": "node scripts/copy-web-for-android.js",
+    "cap:sync": "npm run prepare-android && npx cap sync android",
+    "cap:open": "npx cap open android",
+    "cap:build": "npm run cap:sync && npx cap build android --release"
+  },
+  "dependencies": {
+    "@capacitor/ios": "^6.2.1"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  },
+  "capacitor": {
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  }
+}

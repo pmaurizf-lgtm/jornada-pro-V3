@@ -17,5 +17,21 @@
 *.log
 npm-debug.log*
 
-# Optional (si añades dependencias después)
+# Dependencias y build web
 node_modules/
+dist/
+
+# Android: builds y copia de la web (se genera con cap sync)
+android/app/build/
+android/build/
+android/.gradle/
+android/app/src/main/assets/public/
+android/local.properties
+android/.idea/
+
+# iOS: dependencias y builds (se generan con pod install / Xcode)
+ios/App/Pods/
+ios/App/App/public/
+ios/App/build/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
