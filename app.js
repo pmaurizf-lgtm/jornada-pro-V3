@@ -3515,7 +3515,14 @@ if(festivos && festivos[fechaISO]){
           }
         }
       } else {
-        if (btnIniciarJornada) btnIniciarJornada.click();
+        if (entrada) entrada.value = horaInicioJornada();
+        if (salida) salida.value = "";
+        if (minAntes) minAntes.value = "0";
+        if (disfrutadas) disfrutadas.value = "0";
+        try { localStorage.removeItem(EXTEND_PROMPT_KEY + "_" + hoy); } catch (e) {}
+        guardarBorradorSesion();
+        recalcularEnVivo();
+        actualizarProgreso();
       }
       if (accion === "terminar") cargarFormularioDesdeRegistro(hoy);
       renderCalendario();

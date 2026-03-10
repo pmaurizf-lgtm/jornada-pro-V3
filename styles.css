@@ -3297,9 +3297,9 @@ body.dark .empty-state--calendar {
 }
 
 .resumen-btn-terminar {
-  background: var(--accent, #2563eb);
+  background: var(--negative, #ff453a);
   color: #fff;
-  border-color: var(--accent, #2563eb);
+  border-color: var(--negative, #ff453a);
 }
 
 .resumen-portada-festivo {
