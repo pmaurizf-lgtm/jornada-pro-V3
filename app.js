@@ -3517,7 +3517,7 @@ if(festivos && festivos[fechaISO]){
       } else {
         if (btnIniciarJornada) btnIniciarJornada.click();
       }
-      cargarFormularioDesdeRegistro(hoy);
+      if (accion === "terminar") cargarFormularioDesdeRegistro(hoy);
       renderCalendario();
       actualizarBanco();
       actualizarGrafico();
