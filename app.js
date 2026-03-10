@@ -92,8 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const resumenPortadaAccesosRapidos = document.getElementById("resumenPortadaAccesosRapidos");
   const resumenPortadaJornadaEnCurso = document.getElementById("resumenPortadaJornadaEnCurso");
   const resumenPortadaJornadaTexto = document.getElementById("resumenPortadaJornadaTexto");
-  const resumenBtnFicharEntrada = document.getElementById("resumenBtnFicharEntrada");
-  const resumenBtnFicharSalida = document.getElementById("resumenBtnFicharSalida");
+  const resumenBtnJornada = document.getElementById("resumenBtnJornada");
 
   function showToast(message, type) {
     if (!toastContainer) return;
@@ -1328,6 +1327,7 @@ function controlarNotificaciones() {
     if (!pendingDescuento) return;
     const salidaVal = pendingDescuento.salidaValue || ahoraHoraISO();
     const fechaClave = pendingDescuento.fechaClave || (fecha && fecha.value) || hoyISO();
+    const shortfallMin = pendingDescuento.shortfallMin || 0;
     if (fecha && fecha.value !== fechaClave) fecha.value = fechaClave;
     if (salida) salida.value = salidaVal;
     ejecutarFinalizarJornada(undefined, descuentoDe);
@@ -1352,6 +1352,20 @@ function controlarNotificaciones() {
       renderCalendario();
       actualizarBanco();
       actualizarGrafico();
+      actualizarEstadoIniciarJornada();
+      actualizarResumenDia();
+    } else if (pendingDescuento.accion === "finJornadaTrasPase") {
+      if (shortfallMin > 0 && state.registros[fechaClave] && state.registros[fechaClave].paseSinJustificado === true) {
+        state.deduccionesPorAusencia = state.deduccionesPorAusencia || {};
+        state.deduccionesPorAusencia[fechaClave] = (state.deduccionesPorAusencia[fechaClave] || 0) + shortfallMin;
+      }
+      if (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === fechaClave) state.paseJustificadoHasta = null;
+      if (state.earlyExitState && state.earlyExitState.fecha === fechaClave) state.earlyExitState = null;
+      saveState(state);
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+      actualizarEstadoEliminar();
       actualizarEstadoIniciarJornada();
       actualizarResumenDia();
     }
@@ -1606,8 +1620,48 @@ function controlarNotificaciones() {
     return !!(festivos && festivos[fechaISO]);
   }
 
+  /** True si ese día ya se eligió una opción en el modal de pase de salida (justificado o sin justificar). Solo se puede salir con pase una vez. */
+  function yaUsóPaseHoy(hoy) {
+    if (!hoy) return false;
+    if (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy) return true;
+    if (state.earlyExitState && state.earlyExitState.fecha === hoy) return true;
+    if (state.registros[hoy] && state.registros[hoy].paseSinJustificado === true) return true;
+    return false;
+  }
+
+  /** Terminar jornada cuando ya se usó pase: no volver a mostrar modal de pase; aplicar salida actual y, si falta tiempo, modal TxT/Exceso y sumar a deducciones si pase sin justificar. */
+  function ejecutarTerminarJornadaTrasPase() {
+    const hoy = hoyISO();
+    if (fecha && fecha.value !== hoy) fecha.value = hoy;
+    cargarFormularioDesdeRegistro(hoy);
+    if (!entrada || !entrada.value) return;
+    const salidaAhora = ahoraHoraISO();
+    if (salida) salida.value = salidaAhora;
+    const entMin = timeToMinutes(entrada.value);
+    let salMin = timeToMinutes(salidaAhora);
+    if (salMin < entMin) salMin += 24 * 60;
+    const trabajados = salMin - entMin;
+    const jornadaRef = jornadaRefMin();
+    const shortfallMin = Math.max(0, jornadaRef - trabajados);
+    if (shortfallMin > 0) {
+      pendingDescuento = { accion: "finJornadaTrasPase", salidaValue: salidaAhora, fechaClave: hoy, shortfallMin };
+      if (modalDescuentoDe) modalDescuentoDe.hidden = false;
+    } else {
+      ejecutarFinalizarJornada();
+      if (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy) state.paseJustificadoHasta = null;
+      if (state.earlyExitState && state.earlyExitState.fecha === hoy) state.earlyExitState = null;
+      saveState(state);
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+      actualizarEstadoEliminar();
+      actualizarEstadoIniciarJornada();
+      actualizarResumenDia();
+    }
+  }
+
   let pendingPaseSalida = null;
-  /** Cuando se abre el modal "¿De qué saldo se descuenta?": { accion: "sinJustificar"|"finJornada", salidaValue, fechaClave } */
+  /** Cuando se abre el modal "¿De qué saldo se descuenta?": { accion: "sinJustificar"|"finJornada"|"finJornadaTrasPase", salidaValue, fechaClave[, shortfallMin] } */
   let pendingDescuento = null;
   /** Día (YYYY-MM-DD) cuando se abre el modal "Iniciar otro periodo" en sábado/domingo/festivo */
   let pendingIniciarOtroPeriodoDia = null;
@@ -1916,6 +1970,9 @@ function controlarNotificaciones() {
           if (esDiaNoLaborable(fecha.value)) {
             ejecutarFinalizarJornada();
             setThumbPosition(0);
+          } else if (yaUsóPaseHoy(hoy)) {
+            ejecutarTerminarJornadaTrasPase();
+            setThumbPosition(0);
           } else {
             abrirModalPaseSalida(salidaAhora);
             setThumbPosition(0);
@@ -1980,6 +2037,8 @@ function controlarNotificaciones() {
         if (esSalidaAnticipada(salidaAhora)) {
           if (esDiaNoLaborable(fecha.value)) {
             ejecutarFinalizarJornada();
+          } else if (yaUsóPaseHoy(hoy)) {
+            ejecutarTerminarJornadaTrasPase();
           } else {
             abrirModalPaseSalida(salidaAhora);
           }
@@ -2624,6 +2683,7 @@ function controlarNotificaciones() {
       btnIniciarJornada.disabled = !!(esHoy && tieneEntrada && !yaFinalizado);
     }
     actualizarEstadoFinalizarJornada();
+    if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
   }
   
 function mostrarPopupFestivo(texto){
@@ -3330,13 +3390,45 @@ if(festivos && festivos[fechaISO]){
         resumenPortadaJornadaEnCurso.hidden = true;
       }
     }
-    if (resumenPortadaAccesosRapidos && resumenBtnFicharEntrada && resumenBtnFicharSalida) {
+    if (resumenPortadaAccesosRapidos && resumenBtnJornada) {
+      resumenPortadaAccesosRapidos.hidden = false;
       const regHoy = state.registros[hoyISO];
       const tieneEntradaHoy = !!(regHoy && (regHoy.entrada || regHoy.entradaPrimera)) || (fecha && fecha.value === hoyISO && entrada && entrada.value);
-      const tieneSalidaHoy = !!(regHoy && regHoy.salidaReal != null);
-      resumenPortadaAccesosRapidos.hidden = false;
-      resumenBtnFicharEntrada.hidden = tieneEntradaHoy;
-      resumenBtnFicharSalida.hidden = tieneSalidaHoy || !tieneEntradaHoy;
+      const yaFinalizadoHoy = !!(regHoy && regHoy.salidaReal != null);
+      const enPaseJustificado = state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoyISO;
+      const enEarlyExit = state.earlyExitState && state.earlyExitState.fecha === hoyISO && !pasadoFinTeorico(state.earlyExitState);
+      const enExtension = state.extensionJornada && state.extensionJornada.fecha === hoyISO;
+      const esDiaNoTrabajable = !!(regHoy && (regHoy.vacaciones || regHoy.libreDisposicion || regHoy.disfruteHorasExtra || regHoy.disfruteExcesoJornada));
+      const esDiaFinDeSemanaOFestivo = esDiaNoLaborable(hoyISO);
+      const mostrarContinuar = enPaseJustificado || enEarlyExit;
+      if (esDiaNoTrabajable) {
+        resumenBtnJornada.textContent = "Iniciar jornada";
+        resumenBtnJornada.disabled = true;
+        resumenBtnJornada.dataset.accion = "iniciar";
+      } else if (mostrarContinuar) {
+        resumenBtnJornada.textContent = "Continuar jornada";
+        resumenBtnJornada.disabled = false;
+        resumenBtnJornada.dataset.accion = "iniciar";
+      } else if (!esModoMinutosSemanal() && enExtension) {
+        resumenBtnJornada.textContent = "Extender jornada";
+        resumenBtnJornada.disabled = true;
+        resumenBtnJornada.dataset.accion = "iniciar";
+      } else if (!esModoMinutosSemanal() && yaFinalizadoHoy) {
+        resumenBtnJornada.textContent = "Extender jornada";
+        resumenBtnJornada.disabled = false;
+        resumenBtnJornada.dataset.accion = "iniciar";
+      } else if (tieneEntradaHoy && !yaFinalizadoHoy) {
+        resumenBtnJornada.textContent = "Terminar jornada";
+        resumenBtnJornada.disabled = false;
+        resumenBtnJornada.dataset.accion = "terminar";
+      } else {
+        resumenBtnJornada.textContent = !esModoMinutosSemanal() && esDiaFinDeSemanaOFestivo ? "Iniciar TxT" : "Iniciar jornada";
+        resumenBtnJornada.disabled = false;
+        resumenBtnJornada.dataset.accion = "iniciar";
+      }
+      const esTerminar = (resumenBtnJornada.dataset.accion || "") === "terminar";
+      resumenBtnJornada.classList.toggle("resumen-btn-terminar", esTerminar);
+      resumenBtnJornada.classList.toggle("resumen-btn-iniciar", !esTerminar);
     }
     resumenPortada.hidden = false;
     const festivos = obtenerFestivos(currentYear);
@@ -3399,20 +3491,39 @@ if(festivos && festivos[fechaISO]){
     renderCalendario();
   };
 
-  if (resumenBtnFicharEntrada) {
-    resumenBtnFicharEntrada.addEventListener("click", () => {
-      if (fecha) fecha.value = getHoyISO();
-      if (btnIniciarJornada) btnIniciarJornada.click();
-      actualizarResumenPortada();
-    });
-  }
-  if (resumenBtnFicharSalida) {
-    resumenBtnFicharSalida.addEventListener("click", () => {
-      if (fecha) fecha.value = getHoyISO();
-      cargarFormularioDesdeRegistro(getHoyISO());
-      const sec = document.getElementById("seccionRegistro");
-      if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
-      showToast("Desliza el control para terminar la jornada", "info");
+  if (resumenBtnJornada) {
+    resumenBtnJornada.addEventListener("click", () => {
+      if (resumenBtnJornada.disabled) return;
+      const hoy = getHoyISO();
+      if (fecha) fecha.value = hoy;
+      const accion = resumenBtnJornada.dataset.accion || "iniciar";
+      if (accion === "terminar") {
+        if (state.extensionJornada && state.extensionJornada.fecha === hoy) {
+          ejecutarFinalizarExtension();
+        } else {
+          const salidaAhora = ahoraHoraISO();
+          if (esSalidaAnticipada(salidaAhora)) {
+            if (esDiaNoLaborable(hoy)) {
+              ejecutarFinalizarJornada();
+            } else if (yaUsóPaseHoy(hoy)) {
+              ejecutarTerminarJornadaTrasPase();
+            } else {
+              abrirModalPaseSalida(salidaAhora);
+            }
+          } else {
+            ejecutarFinalizarJornada();
+          }
+        }
+      } else {
+        if (btnIniciarJornada) btnIniciarJornada.click();
+      }
+      cargarFormularioDesdeRegistro(hoy);
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+      actualizarEstadoEliminar();
+      actualizarEstadoIniciarJornada();
+      actualizarResumenDia();
       actualizarResumenPortada();
     });
   }
