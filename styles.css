@@ -1465,7 +1465,21 @@ button:disabled {
   opacity: 0.9;
 }
 
-/* Slider "Desliza para finalizar jornada" (misma altura que Iniciar jornada) */
+.btn-finalizar {
+  background: var(--negative, #ff453a);
+  color: #fff;
+  border: 1px solid var(--negative, #ff453a);
+}
+
+.btn-finalizar:hover {
+  opacity: 0.9;
+}
+
+.jornada-acciones-unico {
+  grid-template-columns: 1fr;
+}
+
+/* Slider "Desliza para finalizar jornada" (oculto: reemplazado por botón único) */
 .finalizar-slider-wrap {
   min-width: 0;
   min-height: 52px;

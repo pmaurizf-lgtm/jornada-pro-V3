@@ -56,7 +56,7 @@
     </div>
     <div id="onboardingSlide2" class="onboarding-slide">
       <h2 class="onboarding-titulo">Iniciar y terminar</h2>
-      <p class="onboarding-texto">Pulsa <strong>Iniciar jornada</strong> al llegar. Para terminar, desliza el control o introduce la hora de salida y guarda.</p>
+      <p class="onboarding-texto">Pulsa <strong>Iniciar jornada</strong> al llegar. Para terminar, vuelve a pulsar el mismo botón (verás <strong>Finalizar jornada</strong>) o introduce la hora de salida y guarda.</p>
     </div>
     <div id="onboardingSlide3" class="onboarding-slide">
       <h2 class="onboarding-titulo">Backup y configuración</h2>
@@ -531,17 +531,11 @@
 
     <h3 style="margin-top:0;">Registro Diario</h3>
 
-    <!-- BOTONES INICIAR / FINALIZAR JORNADA -->
-    <div class="jornada-acciones">
-      <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar">
+    <!-- BOTÓN ÚNICO INICIAR / FINALIZAR JORNADA -->
+    <div class="jornada-acciones jornada-acciones-unico">
+      <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar" aria-label="Iniciar o finalizar jornada">
         Iniciar jornada
       </button>
-      <div id="finalizarJornadaWrap" class="finalizar-slider-wrap">
-        <div id="finalizarSliderTrack" class="finalizar-slider-track">
-          <span class="finalizar-slider-text">Desliza para finalizar jornada</span>
-          <div id="finalizarSliderThumb" class="finalizar-slider-thumb" role="button" tabindex="0" aria-label="Deslizar para finalizar jornada"></div>
-        </div>
-      </div>
     </div>
 
     <!-- FECHA + ENTRADA -->

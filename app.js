@@ -1841,6 +1841,31 @@ function controlarNotificaciones() {
   if (btnIniciarJornada) {
     btnIniciarJornada.onclick = () => {
       const hoy = hoyISO();
+      const esHoy = fecha && fecha.value === hoy;
+      const tieneEntrada = entrada && entrada.value;
+      const yaFinalizado = state.registros[hoy] && state.registros[hoy].salidaReal != null;
+      if (esHoy && tieneEntrada && !yaFinalizado) {
+        if (state.extensionJornada && state.extensionJornada.fecha === hoy) {
+          ejecutarFinalizarExtension();
+          return;
+        }
+        const salidaAhora = ahoraHoraISO();
+        if (esSalidaAnticipada(salidaAhora)) {
+          if (esDiaNoLaborable(fecha.value)) {
+            ejecutarFinalizarJornada();
+          } else if (yaUsóPaseHoy(hoy)) {
+            ejecutarTerminarJornadaTrasPase();
+          } else {
+            abrirModalPaseSalida(salidaAhora);
+          }
+        } else {
+          ejecutarFinalizarJornada();
+        }
+        actualizarEstadoIniciarJornada();
+        actualizarResumenDia();
+        if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
+        return;
+      }
       const textoBtn = (btnIniciarJornada.textContent || "").trim();
       const esExtender = textoBtn.includes("Extender jornada") && !btnIniciarJornada.disabled;
 
@@ -2663,24 +2688,35 @@ function controlarNotificaciones() {
     const mostrarContinuar = enPaseJustificado || enEarlyExit;
     const esDiaFinDeSemanaOFestivo = fecha && fecha.value ? esDiaNoLaborable(fecha.value) : false;
 
-    if (mostrarContinuar) {
+    if (esHoy && tieneEntrada && !yaFinalizado) {
+      btnIniciarJornada.textContent = "Finalizar jornada";
+      btnIniciarJornada.disabled = false;
+      btnIniciarJornada.classList.remove("btn-iniciar");
+      btnIniciarJornada.classList.add("btn-finalizar");
+    } else if (mostrarContinuar) {
       btnIniciarJornada.textContent = "Continuar jornada";
       btnIniciarJornada.disabled = false;
+      btnIniciarJornada.classList.add("btn-iniciar");
+      btnIniciarJornada.classList.remove("btn-finalizar");
     } else if (!esModoMinutosSemanal() && enExtension) {
       btnIniciarJornada.textContent = "Extender jornada";
       btnIniciarJornada.disabled = true;
+      btnIniciarJornada.classList.add("btn-iniciar");
+      btnIniciarJornada.classList.remove("btn-finalizar");
     } else if (!esModoMinutosSemanal() && yaFinalizado && esHoy) {
       btnIniciarJornada.textContent = "Extender jornada";
       btnIniciarJornada.disabled = false;
+      btnIniciarJornada.classList.add("btn-iniciar");
+      btnIniciarJornada.classList.remove("btn-finalizar");
     } else {
-      // En sábados, domingos y festivos (GP3/GP4), el botón se muestra como "Iniciar TxT"
-      // porque todo el tiempo trabajado computa como horas TxT.
       if (!esModoMinutosSemanal() && esDiaFinDeSemanaOFestivo) {
         btnIniciarJornada.textContent = "Iniciar TxT";
       } else {
         btnIniciarJornada.textContent = "Iniciar jornada";
       }
-      btnIniciarJornada.disabled = !!(esHoy && tieneEntrada && !yaFinalizado);
+      btnIniciarJornada.disabled = false;
+      btnIniciarJornada.classList.add("btn-iniciar");
+      btnIniciarJornada.classList.remove("btn-finalizar");
     }
     actualizarEstadoFinalizarJornada();
     if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
