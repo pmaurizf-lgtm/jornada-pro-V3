@@ -1784,6 +1784,7 @@ function controlarNotificaciones() {
     }
 
     var yaPaseSinJustificado = state.registros[fecha.value] && state.registros[fecha.value].paseSinJustificado === true;
+    var yaPaseJustificado = state.registros[fecha.value] && state.registros[fecha.value].paseJustificado === true;
     var reg = aplicarTxTSiFinDeSemanaOFestivo({
       ...resultado,
       entrada: entradaParaReg,
@@ -1795,6 +1796,7 @@ function controlarNotificaciones() {
     delete reg.entradaPrimera;
     delete reg.trabajadosMinAcumulado;
     if (yaPaseSinJustificado) reg.paseSinJustificado = true;
+    if (yaPaseJustificado) reg.paseJustificado = true;
     if (descuentoDe === "TxT" || descuentoDe === "excesoJornada") reg.descuentoDe = descuentoDe;
     reg.ultimaModificacionISO = new Date().toISOString();
     state.registros[fecha.value] = reg;
@@ -1844,9 +1846,13 @@ function controlarNotificaciones() {
       const esHoy = fecha && fecha.value === hoy;
       const tieneEntrada = entrada && entrada.value;
       const yaFinalizado = state.registros[hoy] && state.registros[hoy].salidaReal != null;
-      if (esHoy && tieneEntrada && !yaFinalizado) {
-        if (state.extensionJornada && state.extensionJornada.fecha === hoy) {
+      const enExtension = state.extensionJornada && state.extensionJornada.fecha === hoy;
+      if ((esHoy && tieneEntrada && !yaFinalizado) || (esHoy && enExtension)) {
+        if (enExtension) {
           ejecutarFinalizarExtension();
+          actualizarEstadoIniciarJornada();
+          actualizarResumenDia();
+          if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
           return;
         }
         const salidaAhora = ahoraHoraISO();
@@ -1881,9 +1887,15 @@ function controlarNotificaciones() {
       const esContinuar = textoBtn.toLowerCase().includes("continuar");
 
       if (esContinuar && state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy) {
+        if (!state.registros[hoy]) {
+          state.registros[hoy] = { entrada: entrada.value, paseJustificado: true };
+        } else {
+          state.registros[hoy].paseJustificado = true;
+        }
         state.paseJustificadoHasta = null;
         if (salida) salida.value = "";
         saveState(state);
+        renderCalendario();
         actualizarEstadoIniciarJornada();
         actualizarProgreso();
         actualizarResumenDia();
@@ -2110,6 +2122,7 @@ function controlarNotificaciones() {
     }
 
     var yaPaseSinJustificadoGuardar = state.registros[fecha.value] && state.registros[fecha.value].paseSinJustificado === true;
+    var yaPaseJustificadoGuardar = state.registros[fecha.value] && state.registros[fecha.value].paseJustificado === true;
     var regGuardar = aplicarTxTSiFinDeSemanaOFestivo({
       ...resultado,
       entrada: entradaParaGuardar,
@@ -2123,6 +2136,7 @@ function controlarNotificaciones() {
     regGuardar.ultimaModificacionISO = new Date().toISOString();
     state.registros[fecha.value] = regGuardar;
     if (yaPaseSinJustificadoGuardar) state.registros[fecha.value].paseSinJustificado = true;
+    if (yaPaseJustificadoGuardar) state.registros[fecha.value].paseJustificado = true;
 
     saveState(state);
     if (fecha.value === getHoyISO()) limpiarBorradorSesion();
@@ -2399,7 +2413,8 @@ function controlarNotificaciones() {
             disfruteExcesoJornada: reg.disfruteExcesoJornada,
             licenciaRetribuida: reg.licenciaRetribuida,
             licenciaRetribuidaTipo: reg.licenciaRetribuidaTipo,
-            paseSinJustificado: reg.paseSinJustificado
+            paseSinJustificado: reg.paseSinJustificado,
+            paseJustificado: reg.paseJustificado
           };
         }
       } else {
@@ -2688,21 +2703,21 @@ function controlarNotificaciones() {
     const mostrarContinuar = enPaseJustificado || enEarlyExit;
     const esDiaFinDeSemanaOFestivo = fecha && fecha.value ? esDiaNoLaborable(fecha.value) : false;
 
-    if (esHoy && tieneEntrada && !yaFinalizado) {
-      btnIniciarJornada.textContent = "Finalizar jornada";
-      btnIniciarJornada.disabled = false;
-      btnIniciarJornada.classList.remove("btn-iniciar");
-      btnIniciarJornada.classList.add("btn-finalizar");
-    } else if (mostrarContinuar) {
+    if (mostrarContinuar) {
       btnIniciarJornada.textContent = "Continuar jornada";
       btnIniciarJornada.disabled = false;
       btnIniciarJornada.classList.add("btn-iniciar");
       btnIniciarJornada.classList.remove("btn-finalizar");
+    } else if (esHoy && tieneEntrada && !yaFinalizado) {
+      btnIniciarJornada.textContent = "Finalizar jornada";
+      btnIniciarJornada.disabled = false;
+      btnIniciarJornada.classList.remove("btn-iniciar");
+      btnIniciarJornada.classList.add("btn-finalizar");
     } else if (!esModoMinutosSemanal() && enExtension) {
-      btnIniciarJornada.textContent = "Extender jornada";
-      btnIniciarJornada.disabled = true;
-      btnIniciarJornada.classList.add("btn-iniciar");
-      btnIniciarJornada.classList.remove("btn-finalizar");
+      btnIniciarJornada.textContent = "Finalizar extensión";
+      btnIniciarJornada.disabled = false;
+      btnIniciarJornada.classList.remove("btn-iniciar");
+      btnIniciarJornada.classList.add("btn-finalizar");
     } else if (!esModoMinutosSemanal() && yaFinalizado && esHoy) {
       btnIniciarJornada.textContent = "Extender jornada";
       btnIniciarJornada.disabled = false;
@@ -2788,6 +2803,10 @@ if (btnExcel) {
           if (r.paseSinJustificado === true) {
             tipoPase = "Sin justificar";
             if (early && early.fecha === f && early.salidaAt) horaPaseSalida = early.salidaAt;
+            else if (horaSalida) horaPaseSalida = horaSalida;
+          } else if (r.paseJustificado === true) {
+            tipoPase = "Justificado";
+            if (paseHasta && paseHasta.fecha === f && paseHasta.salidaAt) horaPaseSalida = paseHasta.salidaAt;
             else if (horaSalida) horaPaseSalida = horaSalida;
           } else if (paseHasta && paseHasta.fecha === f && paseHasta.salidaAt) {
             tipoPase = "Justificado";
@@ -3265,13 +3284,17 @@ if(festivos && festivos[fechaISO]){
 
         if (registro.entrada && registro.salidaReal != null) {
           var esPaseSinJustificar = registro.paseSinJustificado === true || (state.earlyExitState && state.earlyExitState.fecha === fechaISO);
-          if (esPaseSinJustificar) {
+          var esPaseJustificado = registro.paseJustificado === true;
+          if (esPaseSinJustificar || esPaseJustificado) {
             legendActive.paseSinJustificar = true;
             saldoHtml += "<span class=\"cal-day-especial\" aria-hidden=\"true\"><span class=\"cal-day-especial-symbol\">*</span></span>";
           } else {
             legendActive.jornadaCompletada = true;
             saldoHtml += "<span class=\"cal-day-completed\" aria-hidden=\"true\"><span class=\"cal-day-completed-check\">\u2713</span></span>";
           }
+        } else if (registro.paseJustificado === true) {
+          legendActive.paseSinJustificar = true;
+          saldoHtml += "<span class=\"cal-day-especial\" aria-hidden=\"true\"><span class=\"cal-day-especial-symbol\">*</span></span>";
         }
         div.innerHTML += saldoHtml;
       }
