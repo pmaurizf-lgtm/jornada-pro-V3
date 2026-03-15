@@ -55,7 +55,10 @@ document.addEventListener("DOMContentLoaded", () => {
     { titulo: "Recordatorio", texto: "Haz backup con frecuencia desde el menú: Exportar backup guarda todos tus datos en un archivo." }
   ];
 
+  let devDiaForzado = null;
+
   function getHoyISO() {
+    if (devDiaForzado) return devDiaForzado;
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   }
@@ -302,6 +305,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const configAppVersionDev = document.getElementById("configAppVersion");
   const configDevMenu = document.getElementById("configDevMenu");
   const btnResetDiaCurso = document.getElementById("btnResetDiaCurso");
+  const btnDevForzarDia = document.getElementById("btnDevForzarDia");
+  const btnDevRestaurarDia = document.getElementById("btnDevRestaurarDia");
   const plofTapTarget = document.getElementById("plofTapTarget");
   const headerTitle = document.getElementById("headerTitle");
   const plofWrap = document.getElementById("plofWrap");
@@ -1695,8 +1700,7 @@ function controlarNotificaciones() {
   }
 
   function hoyISO() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    return getHoyISO();
   }
 
   const SESSION_DRAFT_KEY = "jornadaPro_sessionDraft";
@@ -1859,34 +1863,7 @@ function controlarNotificaciones() {
   if (btnIniciarJornada) {
     btnIniciarJornada.onclick = () => {
       const hoy = hoyISO();
-      const esHoy = fecha && fecha.value === hoy;
-      const tieneEntrada = entrada && entrada.value;
-      const yaFinalizado = state.registros[hoy] && state.registros[hoy].salidaReal != null;
-      const enExtension = state.extensionJornada && state.extensionJornada.fecha === hoy;
       const textoBtn = (btnIniciarJornada.textContent || "").trim();
-      const esFinalizar = textoBtn.includes("Finalizar jornada") || textoBtn.includes("Finalizar extensión");
-      if (esFinalizar && (esHoy && tieneEntrada && !yaFinalizado || enExtension)) {
-        if (enExtension) {
-          ejecutarFinalizarExtension();
-        } else {
-          const salidaAhora = ahoraHoraISO();
-          if (esSalidaAnticipada(salidaAhora)) {
-            if (esDiaNoLaborable(fecha.value)) {
-              ejecutarFinalizarJornada();
-            } else if (yaUsóPaseHoy(hoy)) {
-              ejecutarTerminarJornadaTrasPase();
-            } else {
-              abrirModalPaseSalida(salidaAhora);
-            }
-          } else {
-            ejecutarFinalizarJornada();
-          }
-        }
-        actualizarEstadoIniciarJornada();
-        actualizarResumenDia();
-        if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
-        return;
-      }
       const esExtender = textoBtn.includes("Extender jornada") && !btnIniciarJornada.disabled;
 
       if (esExtender && state.registros[hoy] && state.registros[hoy].salidaReal && getHoyISO() === hoy) {
@@ -2661,6 +2638,32 @@ function controlarNotificaciones() {
   if (plofBtnCaca) plofBtnCaca.addEventListener("click", () => aplicarSimboloPlof("💩"));
   if (plofBtnGallo) plofBtnGallo.addEventListener("click", () => aplicarSimboloPlof("🐓"));
 
+  if (btnDevForzarDia && fecha) {
+    btnDevForzarDia.addEventListener("click", () => {
+      const dia = (fecha.value || "").trim();
+      if (!dia) return;
+      devDiaForzado = dia;
+      fecha.value = dia;
+      seleccionarDia(dia);
+      actualizarEstadoIniciarJornada();
+      actualizarEstadoFinalizarJornada();
+      actualizarResumenPortada();
+      if (typeof renderCalendario === "function") renderCalendario();
+    });
+  }
+  if (btnDevRestaurarDia) {
+    btnDevRestaurarDia.addEventListener("click", () => {
+      devDiaForzado = null;
+      const hoy = getHoyISO();
+      if (fecha) fecha.value = hoy;
+      seleccionarDia(hoy);
+      actualizarEstadoIniciarJornada();
+      actualizarEstadoFinalizarJornada();
+      actualizarResumenPortada();
+      if (typeof renderCalendario === "function") renderCalendario();
+    });
+  }
+
   function actualizarEstadoEliminar() {
     if (!btnEliminar) return;
     btnEliminar.disabled = !state.registros[fecha.value];
@@ -2762,7 +2765,15 @@ function controlarNotificaciones() {
       btnIniciarJornada.classList.remove("btn-finalizar", "btn-continuar");
       btnIniciarJornada.classList.add("btn-iniciar");
     }
-    if (btnIniciarJornada) btnIniciarJornada.hidden = false;
+    const mostrarSliderFinalizar = ((esHoy && tieneEntrada && !yaFinalizado) && !mostrarContinuar) || (!esModoMinutosSemanal() && enExtension);
+    if (btnIniciarJornada) btnIniciarJornada.hidden = !!mostrarSliderFinalizar;
+    if (finalizarJornadaWrap) {
+      finalizarJornadaWrap.hidden = !mostrarSliderFinalizar;
+      if (mostrarSliderFinalizar) {
+        if (finalizarSliderText) finalizarSliderText.textContent = (!esModoMinutosSemanal() && enExtension) ? "Desliza para finalizar extensión" : "Desliza para finalizar jornada";
+        if (finalizarSliderThumb) finalizarSliderThumb.style.left = "0%";
+      }
+    }
     actualizarEstadoFinalizarJornada();
     if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
   }

@@ -488,6 +488,12 @@
         <button type="button" id="btnResetDiaCurso" class="config-btn config-btn-reset">Resetear día</button>
         <span id="plofTapTarget" class="plof-tap-target" title="10 toques para modo Plof" aria-hidden="true">🤡</span>
       </div>
+      <div class="config-dev-reset-row">
+        <button type="button" id="btnDevForzarDia" class="config-btn config-btn-reset">Usar día seleccionado como hoy</button>
+      </div>
+      <div class="config-dev-reset-row">
+        <button type="button" id="btnDevRestaurarDia" class="config-btn config-btn-reset">Restaurar día real</button>
+      </div>
     </div>
   </div>
   <div id="configPanelBackdrop" class="config-panel-backdrop" aria-hidden="true"></div>
@@ -511,6 +517,12 @@
   </div>
   <div id="resumenPortadaAccesosRapidos" class="resumen-portada-accesos-rapidos resumen-portada-accion-jornada" hidden>
     <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar" aria-label="Iniciar o finalizar jornada">Iniciar jornada</button>
+    <div id="finalizarJornadaWrap" class="finalizar-slider-wrap" hidden>
+      <div id="finalizarSliderTrack" class="finalizar-slider-track">
+        <span id="finalizarSliderText" class="finalizar-slider-text">Desliza para finalizar jornada</span>
+        <div id="finalizarSliderThumb" class="finalizar-slider-thumb" role="button" tabindex="0" aria-label="Deslizar para finalizar jornada"></div>
+      </div>
+    </div>
   </div>
   <div class="resumen-portada-line" id="resumenPortadaSemanaWrap">
     <span id="resumenPortadaSemanaLabel">Esta semana</span>
