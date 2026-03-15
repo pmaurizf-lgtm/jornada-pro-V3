@@ -1562,30 +1562,39 @@ function controlarNotificaciones() {
   if (modalPaseJustificadoGenerarPDF) {
     modalPaseJustificadoGenerarPDF.addEventListener("click", () => {
       if (modalPaseJustificadoOpciones) modalPaseJustificadoOpciones.hidden = true;
-      if (modalPaseHoraDesplazamiento) {
+      const modalHora = document.getElementById("modalPaseHoraDesplazamiento");
+      const inputHora = document.getElementById("inputPaseHoraDesplazamiento");
+      if (modalHora) {
         const now = new Date();
         const h = String(now.getHours()).padStart(2, "0");
         const m = String(now.getMinutes()).padStart(2, "0");
-        if (inputPaseHoraDesplazamiento) inputPaseHoraDesplazamiento.value = h + ":" + m;
-        modalPaseHoraDesplazamiento.hidden = false;
+        if (inputHora) inputHora.value = h + ":" + m;
+        modalHora.removeAttribute("hidden");
       } else {
         if (modalPaseJustificadoMotivo) modalPaseJustificadoMotivo.hidden = false;
       }
     });
   }
-  if (modalPaseHoraDesplazamientoConfirmar && inputPaseHoraDesplazamiento) {
-    modalPaseHoraDesplazamientoConfirmar.addEventListener("click", () => {
-      const val = (inputPaseHoraDesplazamiento.value || "").trim();
+  const btnHoraConfirmar = document.getElementById("modalPaseHoraDesplazamientoConfirmar");
+  if (btnHoraConfirmar) {
+    btnHoraConfirmar.addEventListener("click", () => {
+      const inputHora = document.getElementById("inputPaseHoraDesplazamiento");
+      const val = (inputHora && inputHora.value) ? inputHora.value.trim() : "";
       paseJustificadoHoraDesplazamiento = val || new Date().toTimeString().slice(0, 5);
-      if (modalPaseHoraDesplazamiento) modalPaseHoraDesplazamiento.hidden = true;
-      if (modalPaseJustificadoMotivo) modalPaseJustificadoMotivo.hidden = false;
+      const modalHora = document.getElementById("modalPaseHoraDesplazamiento");
+      if (modalHora) modalHora.setAttribute("hidden", "");
+      if (modalPaseJustificadoMotivo) modalPaseJustificadoMotivo.removeAttribute("hidden");
     });
   }
-  if (modalPaseHoraDesplazamiento && modalPaseHoraDesplazamiento.querySelector(".modal-extender-backdrop")) {
-    modalPaseHoraDesplazamiento.querySelector(".modal-extender-backdrop").addEventListener("click", () => {
-      modalPaseHoraDesplazamiento.hidden = true;
-      paseJustificadoHoraDesplazamiento = null;
-    });
+  const modalHoraEl = document.getElementById("modalPaseHoraDesplazamiento");
+  if (modalHoraEl) {
+    const backdrop = modalHoraEl.querySelector(".modal-extender-backdrop");
+    if (backdrop) {
+      backdrop.addEventListener("click", () => {
+        modalHoraEl.setAttribute("hidden", "");
+        paseJustificadoHoraDesplazamiento = null;
+      });
+    }
   }
   [modalPaseMotivo1, modalPaseMotivo2, modalPaseMotivo3].forEach((btn) => {
     if (!btn) return;
