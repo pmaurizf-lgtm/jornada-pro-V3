@@ -1386,6 +1386,7 @@ function controlarNotificaciones() {
       .replace(/\{\{DIA\}\}/g, String(diaNum))
       .replace(/\{\{MES\}\}/g, mesNombre.charAt(0).toUpperCase() + mesNombre.slice(1))
       .replace(/\{\{ANHO\}\}/g, String(anho))
+      .replace(/\{\{ANHO_2D\}\}/g, String(anho).slice(-2))
       .replace(/\{\{HORA_ENTRADA\}\}/g, horaEntrada)
       .replace(/\{\{HORA_SALIDA\}\}/g, horaSalida)
       .replace(/\{\{MARCAR_OPCION_1\}\}/g, marcar1)

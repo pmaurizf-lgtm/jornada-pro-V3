@@ -5,75 +5,92 @@
 <title>Xustificante de Ausencias</title>
 
 <style>
+
 body{
-    font-family: Arial, sans-serif;
-    margin:40px;
-    color:#000;
+font-family: Arial, Helvetica, sans-serif;
+background:white;
+margin:0;
 }
 
-.container{
-    max-width:900px;
-    margin:auto;
+.page{
+width:210mm;
+min-height:297mm;
+margin:auto;
+padding:20mm;
+box-sizing:border-box;
 }
 
-h1{
-    text-align:center;
-    font-size:22px;
-    margin-bottom:30px;
+.header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin-bottom:10mm;
 }
 
-.section-title{
-    font-weight:bold;
-    margin-top:25px;
-    margin-bottom:10px;
+.logo-left{
+height:35px;
+}
+
+.logo-right{
+height:40px;
+}
+
+.title{
+text-align:center;
+font-size:20px;
+font-weight:bold;
+margin-bottom:10mm;
+}
+
+.section{
+font-weight:bold;
+margin-top:8mm;
+margin-bottom:4mm;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+}
+
+td{
+padding:3px 4px;
+vertical-align:bottom;
 }
 
 .line{
-    border-bottom:1px solid #000;
-    display:inline-block;
-    min-width:200px;
-    height:18px;
-}
-
-.long-line{
-    border-bottom:1px solid #000;
-    display:inline-block;
-    width:400px;
-    height:18px;
-}
-
-.table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:10px;
-}
-
-.table td{
-    padding:6px 4px;
-    vertical-align:top;
+border-bottom:1px solid black;
+height:18px;
 }
 
 .checkbox{
-    font-size:18px;
-    padding-left:10px;
+width:25px;
+text-align:center;
+font-size:18px;
 }
 
-.signature{
-    margin-top:60px;
+.signature-worker{
+margin-top:35mm;
 }
 
 .firma-imagen{
-    margin-bottom:12px;
+margin-bottom:8px;
 }
 .firma-imagen img{
-    max-width:220px;
-    height:auto;
-    display:block;
+max-width:220px;
+height:auto;
+display:block;
+}
+
+.signature-doctor{
+margin-top:10mm;
+margin-bottom:35mm;
 }
 
 .note{
-    margin-top:40px;
-    font-size:13px;
+font-size:12px;
+line-height:1.4;
 }
 
 </style>
@@ -81,35 +98,80 @@ h1{
 
 <body>
 
-<div class="container">
+<div class="page">
 
-<h1>XUSTIFICANTE DE AUSENCIAS</h1>
+<div class="header">
 
-<div class="section-title">DATOS A CUBRIR POLO/LA TRABALLADOR/A</div>
+<img src="navantia.png" class="logo-left" alt="">
 
-<p>
-D/Dª <span class="long-line">{{NOMBRE_COMPLETO}}</span>
-&nbsp;&nbsp; Mat. <span class="line">{{NUMERO_SAP}}</span>
-&nbsp;&nbsp; Centro <span class="line">{{CENTRO_COSTE}}</span>
+<img src="sepi.png" class="logo-right" alt="">
+
+</div>
+
+<div class="title">
+XUSTIFICANTE DE AUSENCIAS
+</div>
+
+
+<div class="section">
+DATOS A CUBRIR POLO/LA TRABALLADOR/A
+</div>
+
+
+<table>
+
+<tr>
+<td width="60">D/Dª.</td>
+<td class="line" width="320">{{NOMBRE_COMPLETO}}</td>
+
+<td width="40">Mat.</td>
+<td class="line" width="90">{{NUMERO_SAP}}</td>
+
+<td width="60">Centro</td>
+<td class="line">{{CENTRO_COSTE}}</td>
+</tr>
+
+</table>
+
+
+<br>
+
+
+<table>
+
+<tr>
+
+<td width="130">desprazarase ás</td>
+<td class="line" width="110">{{HORA_SALIDA}}</td>
+
+<td width="120">Horas do día</td>
+<td class="line" width="110">{{DIA}}</td>
+
+<td width="100">do mes de</td>
+<td class="line" width="150">{{MES}}</td>
+
+<td width="40">para:</td>
+<td class="line"></td>
+
+</tr>
+
+</table>
+
+
+<p style="font-size:13px">
+(Marcar cunha cruz o recadro correspondente)
 </p>
 
-<p>
-desprazarase ás <span class="line">{{HORA_SALIDA}}</span>
-Horas do día <span class="line">{{DIA}}</span>
-do mes de <span class="line">{{MES}}</span>
-para:
-</p>
 
-<p><em>(Marcar cunha cruz o recadro correspondente)</em></p>
+<table>
 
-<table class="table">
 <tr>
 <td>LS3: Consulta médica co/a especialista do/a traballador/a</td>
 <td class="checkbox">{{MARCAR_OPCION_1}}</td>
 </tr>
 
 <tr>
-<td>Realización de probas complementarias do/a traballador/a</td>
+<td>Realización de probas complementarias do/a traballador/a.</td>
 <td class="checkbox">{{MARCAR_OPCION_2}}</td>
 </tr>
 
@@ -117,52 +179,115 @@ para:
 <td>LS3: Consulta pediatría</td>
 <td class="checkbox">{{MARCAR_OPCION_3}}</td>
 </tr>
+
 </table>
 
-<p>
-Ferrol, a <span class="line">{{DIA}}</span>
-de <span class="line">{{MES}}</span>
-de <span class="line" style="min-width:50px">{{ANHO}}</span>
-</p>
 
-<div class="signature">
+<br>
+
+
+<table>
+
+<tr>
+
+<td width="70">Ferrol, a</td>
+<td class="line" width="80">{{DIA}}</td>
+
+<td width="25">de</td>
+<td class="line" width="160">{{MES}}</td>
+
+<td width="25">de</td>
+<td width="40">202</td>
+<td class="line" width="40">{{ANHO_2D}}</td>
+
+</tr>
+
+</table>
+
+
+
+<div class="signature-worker">
 <div class="firma-imagen">{{FIRMA_IMG}}</div>
-<p>Sinatura do/da traballador/a</p>
+Sinatura do/da traballador/a
 </div>
 
 
-<div class="section-title">DATOS A CUBRIR POLO/LA FACULTATIVO/A</div>
 
-<p>
-D/Dª <span class="long-line"></span>
-estaba citado/a
-</p>
+<div class="section">
+DATOS A CUBRIR POLO/LA FACULTATIVO/A
+</div>
 
-<p>
-neste Servizo as <span class="line"></span>
-horas para <span class="long-line"></span>,
-</p>
 
-<p>
-Permanecendo no mesmo hasta as <span class="line"></span>
-Horas do día <span class="line"></span>.
-</p>
 
-<p>
-Sinatura, Nº Colexiado e Selo do Centro.
-</p>
+<table>
+
+<tr>
+
+<td width="50">D/Dª</td>
+<td class="line" width="420"></td>
+<td width="140">estaba citado/a</td>
+
+</tr>
+
+</table>
+
+
+<br>
+
+
+<table>
+
+<tr>
+
+<td width="150">neste Servizo as</td>
+<td class="line" width="100"></td>
+
+<td width="80">horas para</td>
+<td class="line" width="310"></td>
+
+<td width="20">,</td>
+
+</tr>
+
+</table>
+
+
+<br>
+
+
+<table>
+
+<tr>
+
+<td width="260">Permanecendo no mesmo hasta as</td>
+<td class="line" width="110"></td>
+
+<td width="110">Horas do día</td>
+<td class="line" width="200"></td>
+
+<td>.</td>
+
+</tr>
+
+</table>
+
+
+
+<div class="signature-doctor">
+Sinatura, Nº Colexiado e Selo do Centro
+</div>
+
+
 
 <div class="note">
-<p><strong>Nota:</strong></p>
-<p>
-Prégase achegar citación. De non existir, deberá cumplimentar o facultativo
-a hora da citación e saida da consulta.
-</p>
-<p>
-Este documento entregarase debidamente cumprimentado na Oficina de
-Administración de Personal.
-</p>
+
+<b>Nota:</b><br>
+Prégase achegar citación. De non existir, deberá cumplimentar o facultativo a hora da citación e saida da consulta.<br><br>
+
+Este documento entregarase debidamente cumprimentado na Oficina de Administración de Personal.
+
 </div>
+
 
 </div>
 
