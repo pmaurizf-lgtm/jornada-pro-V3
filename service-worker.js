@@ -2,7 +2,7 @@
 // CACHE CONFIG (offline-first en móvil)
 // ===============================
 
-const CACHE_NAME = "jornada-pro-v3";
+const CACHE_NAME = "jornada-pro-v2";
 
 const urlsToCache = [
   "./",
@@ -55,34 +55,11 @@ self.addEventListener("activate", event => {
 
 // ===============================
 // FETCH (offline support)
-// Red primero para HTML/JS/CSS para que se vean los últimos cambios al tener conexión
 // ===============================
 
 self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
   const sameOrigin = url.origin === self.location.origin;
-
-  if (event.request.mode === "navigate" || event.request.destination === "script" || event.request.destination === "style") {
-    const path = url.pathname || "/";
-    const isMain = path === "/" || path === "/index.html" || path.endsWith("app.js") || path.endsWith("styles.css");
-    if (isMain) {
-      event.respondWith(
-        fetch(event.request)
-          .then(response => {
-            if (response && response.status === 200 && response.type !== "opaque" && (sameOrigin || url.hostname === "cdn.jsdelivr.net")) {
-              const clone = response.clone();
-              caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-            }
-            return response;
-          })
-          .catch(() => {
-            if (event.request.mode === "navigate") return caches.match("./index.html").then(r => r || new Response("Sin conexión", { status: 503 }));
-            return caches.match(event.request).then(r => r || new Response("", { status: 503 }));
-          })
-      );
-      return;
-    }
-  }
 
   event.respondWith(
     caches.match(event.request).then(cached => {

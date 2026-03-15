@@ -22,9 +22,7 @@ import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.j
 // ===============================
 
 import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
-import { renderGrafico, renderGraficoEvolucion } from "./ui/charts.js";
-
-const APP_VERSION = "1.0";
+import { renderGrafico } from "./ui/charts.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -42,23 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const EXTEND_PROMPT_KEY = "jornadaPro_extendPrompt";
   const GP_ELIGIDO_KEY = "jornadaPro_modalGPShown";
-  const ONBOARDING_KEY = "jornadaPro_onboardingDone";
-  const SUGERENCIA_DIA_KEY = "jornadaPro_sugerenciaDia";
-  const SUGERENCIAS = [
-    { titulo: "Bienvenido a Jornada Pro", texto: "Registra tu jornada, horas extra y saldos. Todo se guarda en tu dispositivo." },
-    { titulo: "Iniciar y terminar", texto: "Pulsa Iniciar jornada al llegar. Para terminar, desliza el control rojo o introduce la hora de salida y guarda." },
-    { titulo: "Backup y configuración", texto: "En el menú (☰) puedes exportar copia de seguridad, restaurar datos y ajustar tema, notificaciones y jornada." },
-    { titulo: "Pase de salida", texto: "Si sales antes del fin teórico puedes indicar pase justificado o sin justificar; el tiempo no trabajado se descontará del saldo que elijas (TxT o exceso)." },
-    { titulo: "Calendario", texto: "Toca un día en el calendario para ver el detalle o editar. Los días con asterisco (*) indican jornada no completa (pase)." },
-    { titulo: "Vacaciones y LD", texto: "Usa los botones Vacaciones y LD para marcar días. La primera vez en el año te pedirá el número de días LD disponibles." },
-    { titulo: "Horas extra", texto: "Si superas la jornada nominal, el tiempo se suma a tu banco TxT o exceso de jornada según tu grupo profesional." },
-    { titulo: "Recordatorio", texto: "Haz backup con frecuencia desde el menú: Exportar backup guarda todos tus datos en un archivo." }
-  ];
-
-  let devDiaForzado = null;
 
   function getHoyISO() {
-    if (devDiaForzado) return devDiaForzado;
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   }
@@ -84,49 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const progresoTxt = document.getElementById("progresoTxt");
   const progresoInside = document.getElementById("progresoInside");
 
-  const splashScreen = document.getElementById("splashScreen");
-  const toastContainer = document.getElementById("toastContainer");
-  const emptyStateCalendar = document.getElementById("emptyStateCalendar");
-  const resumenPortada = document.getElementById("resumenPortada");
-  const resumenPortadaFecha = document.getElementById("resumenPortadaFecha");
-  const resumenPortadaReloj = document.getElementById("resumenPortadaReloj");
-  const resumenPortadaHoras = document.getElementById("resumenPortadaHoras");
-  const resumenPortadaMesLabel = document.getElementById("resumenPortadaMesLabel");
-  const resumenPortadaSemanaWrap = document.getElementById("resumenPortadaSemanaWrap");
-  const resumenPortadaSemanaLabel = document.getElementById("resumenPortadaSemanaLabel");
-  const resumenPortadaSemanaHoras = document.getElementById("resumenPortadaSemanaHoras");
-  const resumenPortadaComparativaWrap = document.getElementById("resumenPortadaComparativaWrap");
-  const resumenPortadaComparativaLabel = document.getElementById("resumenPortadaComparativaLabel");
-  const resumenPortadaComparativaHoras = document.getElementById("resumenPortadaComparativaHoras");
-  const resumenPortadaDiasWrap = document.getElementById("resumenPortadaDiasWrap");
-  const resumenPortadaDiasLabel = document.getElementById("resumenPortadaDiasLabel");
-  const resumenPortadaDiasValor = document.getElementById("resumenPortadaDiasValor");
-  const resumenPortadaFestivoWrap = document.getElementById("resumenPortadaFestivoWrap");
-  const resumenPortadaFestivo = document.getElementById("resumenPortadaFestivo");
-  const resumenPortadaAccesosRapidos = document.getElementById("resumenPortadaAccesosRapidos");
-  const resumenPortadaJornadaEnCurso = document.getElementById("resumenPortadaJornadaEnCurso");
-  const resumenPortadaJornadaTexto = document.getElementById("resumenPortadaJornadaTexto");
-  const resumenBtnJornada = document.getElementById("resumenBtnJornada");
-
-  function showToast(message, type) {
-    if (!toastContainer) return;
-    const toast = document.createElement("div");
-    toast.className = "toast toast--" + (type || "info");
-    toast.setAttribute("role", "alert");
-    toast.textContent = message;
-    toastContainer.appendChild(toast);
-    setTimeout(() => {
-      toast.remove();
-    }, 3200);
-  }
-
-  function hideSplash() {
-    if (splashScreen) {
-      splashScreen.classList.add("splash-screen--hidden");
-      splashScreen.setAttribute("aria-hidden", "true");
-    }
-  }
-
   // 🔥 RESUMEN
   const resumenDia = document.getElementById("resumenDia");
   const rTrabajado = document.getElementById("rTrabajado");
@@ -134,8 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const rExceso = document.getElementById("rExceso");
   const resumenExcesoWrap = document.getElementById("resumenExcesoWrap");
   const rNegativa = document.getElementById("rNegativa");
-  const resumenDiaUltimaModWrap = document.getElementById("resumenDiaUltimaModWrap");
-  const resumenDiaUltimaMod = document.getElementById("resumenDiaUltimaMod");
 
   const calendarGrid = document.getElementById("calendarGrid");
   const mesAnioLabel = document.getElementById("mesAnioLabel");
@@ -245,12 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnExcel = document.getElementById("excel");
   const btnBackup = document.getElementById("backup");
   const btnRestore = document.getElementById("restore");
-  const exportDesde = document.getElementById("exportDesde");
-  const exportHasta = document.getElementById("exportHasta");
-  const btnInformePdf = document.getElementById("informePdf");
-  const modalConfirmarRestaurar = document.getElementById("modalConfirmarRestaurar");
-  const modalRestaurarCancelar = document.getElementById("modalRestaurarCancelar");
-  const modalRestaurarSi = document.getElementById("modalRestaurarSi");
 
   const cfgNombreCompleto = document.getElementById("cfgNombreCompleto");
   const cfgNumeroSAP = document.getElementById("cfgNumeroSAP");
@@ -260,12 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const cfgAviso = document.getElementById("cfgAviso");
   const cfgTheme = document.getElementById("cfgTheme");
   const cfgNotificaciones = document.getElementById("cfgNotificaciones");
-  const cfgRecordatorioFichar = document.getElementById("cfgRecordatorioFichar");
-  const cfgPinEnabled = document.getElementById("cfgPinEnabled");
-  const btnEstablecerPin = document.getElementById("btnEstablecerPin");
-  const pinOverlay = document.getElementById("pinOverlay");
-  const pinInput = document.getElementById("pinInput");
-  const pinUnlock = document.getElementById("pinUnlock");
   const cfgTrabajoTurnos = document.getElementById("cfgTrabajoTurnos");
   const cfgTurno = document.getElementById("cfgTurno");
   const cfgHorasExtraPrevias = document.getElementById("cfgHorasExtraPrevias");
@@ -277,7 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const finalizarJornadaWrap = document.getElementById("finalizarJornadaWrap");
   const finalizarSliderTrack = document.getElementById("finalizarSliderTrack");
   const finalizarSliderThumb = document.getElementById("finalizarSliderThumb");
-  const finalizarSliderText = document.getElementById("finalizarSliderText");
   const modalExtenderJornada = document.getElementById("modalExtenderJornada");
   const modalExtenderNo = document.getElementById("modalExtenderNo");
   const modalExtenderSi = document.getElementById("modalExtenderSi");
@@ -294,19 +219,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalElegirGP = document.getElementById("modalElegirGP");
   const modalElegirGP1 = document.getElementById("modalElegirGP1");
   const modalElegirGP2 = document.getElementById("modalElegirGP2");
-  const modalSugerenciaDia = document.getElementById("modalSugerenciaDia");
-  const modalSugerenciaDiaTitulo = document.getElementById("modalSugerenciaDiaTitulo");
-  const modalSugerenciaDiaTexto = document.getElementById("modalSugerenciaDiaTexto");
-  const modalSugerenciaDiaCerrar = document.getElementById("modalSugerenciaDiaCerrar");
   const modalElegirGP3 = document.getElementById("modalElegirGP3");
   const modalElegirGP4 = document.getElementById("modalElegirGP4");
   const btnRestaurarFabrica = document.getElementById("restaurarFabrica");
   const configAuthorTapTarget = document.getElementById("configAuthorTapTarget");
-  const configAppVersionDev = document.getElementById("configAppVersion");
   const configDevMenu = document.getElementById("configDevMenu");
   const btnResetDiaCurso = document.getElementById("btnResetDiaCurso");
-  const btnDevForzarDia = document.getElementById("btnDevForzarDia");
-  const btnDevRestaurarDia = document.getElementById("btnDevRestaurarDia");
   const plofTapTarget = document.getElementById("plofTapTarget");
   const headerTitle = document.getElementById("headerTitle");
   const plofWrap = document.getElementById("plofWrap");
@@ -317,8 +235,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const plofBtnGallo = document.getElementById("plofBtnGallo");
 
   const chartCanvas = document.getElementById("chart");
-  const chartEvolucion = document.getElementById("chartEvolucion");
-  const chartEvolucionCard = document.getElementById("chartEvolucionCard");
 
   let plofSelectedHour = null;
   let plofSelectedDate = null;
@@ -337,8 +253,6 @@ function aplicarEstadoConfigAUI() {
   if (cfgAviso) cfgAviso.value = state.config.avisoMin;
   if (cfgTheme) cfgTheme.value = state.config.theme;
   if (cfgNotificaciones) cfgNotificaciones.checked = state.config.notificationsEnabled !== false;
-  if (cfgRecordatorioFichar) cfgRecordatorioFichar.value = state.config.recordatorioFicharHora || "";
-  if (cfgPinEnabled) cfgPinEnabled.checked = !!state.config.pinEnabled;
   if (cfgTrabajoTurnos) cfgTrabajoTurnos.checked = state.config.trabajoATurnos === true;
   if (cfgTurno) cfgTurno.value = state.config.turno || "06-14";
   if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = ((state.config.horasExtraInicialMin || 0) / 60).toFixed(2).replace(".", ",");
@@ -452,7 +366,7 @@ if (guardarConfig) {
     state.config.nombreCompleto = (cfgNombreCompleto && cfgNombreCompleto.value) ? cfgNombreCompleto.value.trim() : "";
     let sap = (cfgNumeroSAP && cfgNumeroSAP.value) ? String(cfgNumeroSAP.value).replace(/\D/g, "").slice(0, 8) : "";
     if (sap.length > 0 && sap.length !== 8) {
-      showToast("El número SAP debe tener exactamente 8 cifras.", "error");
+      alert("El número SAP debe tener exactamente 8 cifras.");
       return;
     }
     state.config.numeroSAP = sap;
@@ -470,8 +384,6 @@ if (guardarConfig) {
     state.config.horasExtraInicialMin = Math.round(parseDecimal(cfgHorasExtraPrevias?.value) * 60);
     state.config.excesoJornadaInicialMin = Math.round(parseDecimal(cfgExcesoJornadaPrevias?.value) * 60);
     state.config.vacacionesDiasPrevio = Math.max(0, parseInt(cfgVacacionesDiasPrevio?.value, 10) || 0);
-    state.config.recordatorioFicharHora = (cfgRecordatorioFichar && cfgRecordatorioFichar.value) ? cfgRecordatorioFichar.value : "";
-    state.config.pinEnabled = cfgPinEnabled ? cfgPinEnabled.checked : false;
     if (state.vacacionesDiasPorAnio) {
       state.vacacionesDiasPorAnio = { ...state.vacacionesDiasPorAnio, "2025": state.config.vacacionesDiasPrevio };
     } else {
@@ -493,7 +405,6 @@ if (guardarConfig) {
     renderCalendario();
     actualizarResumenDia();
     actualizarEstadoIniciarJornada();
-    showToast("Configuración guardada", "success");
     closeConfigPanel();
   });
 }
@@ -603,20 +514,6 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     rNegativa.innerHTML = formatoResumenTiempo(registro.negativaMin || 0);
     rNegativa.classList.toggle("negative", (registro.negativaMin || 0) > 0);
     rNegativa.classList.remove("positive");
-    if (resumenDiaUltimaModWrap && resumenDiaUltimaMod) {
-      const iso = registro.ultimaModificacionISO;
-      if (iso) {
-        try {
-          const d = new Date(iso);
-          resumenDiaUltimaMod.textContent = d.toLocaleString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
-          resumenDiaUltimaModWrap.hidden = false;
-        } catch (e) {
-          resumenDiaUltimaModWrap.hidden = true;
-        }
-      } else {
-        resumenDiaUltimaModWrap.hidden = true;
-      }
-    }
   }
 
   // ===============================
@@ -648,8 +545,7 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     return gp === "GP1" || gp === "GP2";
   }
 
-  /** Aplica reglas TxT fin de semana/festivo (solo GP3/GP4). Si el día es sábado, domingo o festivo, sustituye extra/exceso por el TxT calculado.
-   * En estos días no existe jornada ordinaria: no se descuenta nada de TxT por "completar" jornada; solo se registra el tiempo trabajado como TxT. */
+  /** Aplica reglas TxT fin de semana/festivo (solo GP3/GP4). Si el día es sábado, domingo o festivo, sustituye extra/exceso por el TxT calculado. */
   function aplicarTxTSiFinDeSemanaOFestivo(registro, fechaISO) {
     if (esModoMinutosSemanal()) return registro;
     const festivos = obtenerFestivos(fechaISO.slice(0, 4));
@@ -663,7 +559,7 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     if (!entrada || !salidaReal || trabajadosMin <= 0) return registro;
     const txTMin = calcularTxTFinDeSemanaYFestivos(fechaISO, entrada, salidaReal, trabajadosMin, esFestivo);
     if (txTMin == null) return registro;
-    return { ...registro, extraGeneradaMin: txTMin, excesoJornadaMin: 0, negativaMin: 0 };
+    return { ...registro, extraGeneradaMin: txTMin, excesoJornadaMin: 0 };
   }
 
   /** Para GP1/GP2: lunes (1) a domingo (7). Devuelve [lunesISO, domingoISO] de la semana que contiene fechaISO. */
@@ -710,7 +606,6 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.style.display = modoMin ? "none" : "";
     if (btnDisfruteExcesoJornada) btnDisfruteExcesoJornada.style.display = modoMin ? "none" : "";
     if (chartCard) chartCard.style.display = modoMin ? "none" : "";
-    if (chartEvolucionCard) chartEvolucionCard.style.display = modoMin ? "none" : "";
     if (mainGrid) mainGrid.classList.toggle("main-grid--full", modoMin);
     if (bankTabHoras) bankTabHoras.textContent = modoMin ? "Tiempo Exceso Jornada" : "Horas TxT";
     if (modoMin && minAntes) minAntes.value = "0";
@@ -903,27 +798,9 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
   }
 
   function actualizarGrafico() {
-    if (esModoMinutosSemanal()) {
-      if (chartEvolucionCard) chartEvolucionCard.style.display = "none";
-      return;
-    }
-    if (chartCanvas) {
-      const anual = calcularResumenAnual(state.registros, bankYear);
-      renderGrafico(chartCanvas, anual);
-    }
-    if (chartEvolucion && chartEvolucionCard) {
-      chartEvolucionCard.style.display = "";
-      const anio = bankYear || new Date().getFullYear();
-      let acum = 0;
-      const monthlySaldoHours = [];
-      for (let m = 0; m < 12; m++) {
-        const res = calcularResumenMensual(state.registros, m, anio);
-        const deltaMin = (res.generadas || 0) + (res.exceso || 0) - (res.negativas || 0) - (res.disfrutadas || 0);
-        acum += deltaMin;
-        monthlySaldoHours.push(Math.round((acum / 60) * 100) / 100);
-      }
-      renderGraficoEvolucion(chartEvolucion, monthlySaldoHours, anio);
-    }
+    if (!chartCanvas || esModoMinutosSemanal()) return;
+    const anual = calcularResumenAnual(state.registros, bankYear);
+    renderGrafico(chartCanvas, anual);
   }
 
 // ===============================
@@ -1348,7 +1225,6 @@ function controlarNotificaciones() {
     if (!pendingDescuento) return;
     const salidaVal = pendingDescuento.salidaValue || ahoraHoraISO();
     const fechaClave = pendingDescuento.fechaClave || (fecha && fecha.value) || hoyISO();
-    const shortfallMin = pendingDescuento.shortfallMin || 0;
     if (fecha && fecha.value !== fechaClave) fecha.value = fechaClave;
     if (salida) salida.value = salidaVal;
     ejecutarFinalizarJornada(undefined, descuentoDe);
@@ -1373,20 +1249,6 @@ function controlarNotificaciones() {
       renderCalendario();
       actualizarBanco();
       actualizarGrafico();
-      actualizarEstadoIniciarJornada();
-      actualizarResumenDia();
-    } else if (pendingDescuento.accion === "finJornadaTrasPase") {
-      if (shortfallMin > 0 && state.registros[fechaClave] && state.registros[fechaClave].paseSinJustificado === true) {
-        state.deduccionesPorAusencia = state.deduccionesPorAusencia || {};
-        state.deduccionesPorAusencia[fechaClave] = (state.deduccionesPorAusencia[fechaClave] || 0) + shortfallMin;
-      }
-      if (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === fechaClave) state.paseJustificadoHasta = null;
-      if (state.earlyExitState && state.earlyExitState.fecha === fechaClave) state.earlyExitState = null;
-      saveState(state);
-      renderCalendario();
-      actualizarBanco();
-      actualizarGrafico();
-      actualizarEstadoEliminar();
       actualizarEstadoIniciarJornada();
       actualizarResumenDia();
     }
@@ -1641,48 +1503,8 @@ function controlarNotificaciones() {
     return !!(festivos && festivos[fechaISO]);
   }
 
-  /** True si ese día ya se eligió una opción en el modal de pase de salida (justificado o sin justificar). Solo se puede salir con pase una vez. */
-  function yaUsóPaseHoy(hoy) {
-    if (!hoy) return false;
-    if (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy) return true;
-    if (state.earlyExitState && state.earlyExitState.fecha === hoy) return true;
-    if (state.registros[hoy] && state.registros[hoy].paseSinJustificado === true) return true;
-    return false;
-  }
-
-  /** Terminar jornada cuando ya se usó pase: no volver a mostrar modal de pase; aplicar salida actual y, si falta tiempo, modal TxT/Exceso y sumar a deducciones si pase sin justificar. */
-  function ejecutarTerminarJornadaTrasPase() {
-    const hoy = hoyISO();
-    if (fecha && fecha.value !== hoy) fecha.value = hoy;
-    cargarFormularioDesdeRegistro(hoy);
-    if (!entrada || !entrada.value) return;
-    const salidaAhora = ahoraHoraISO();
-    if (salida) salida.value = salidaAhora;
-    const entMin = timeToMinutes(entrada.value);
-    let salMin = timeToMinutes(salidaAhora);
-    if (salMin < entMin) salMin += 24 * 60;
-    const trabajados = salMin - entMin;
-    const jornadaRef = jornadaRefMin();
-    const shortfallMin = Math.max(0, jornadaRef - trabajados);
-    if (shortfallMin > 0) {
-      pendingDescuento = { accion: "finJornadaTrasPase", salidaValue: salidaAhora, fechaClave: hoy, shortfallMin };
-      if (modalDescuentoDe) modalDescuentoDe.hidden = false;
-    } else {
-      ejecutarFinalizarJornada();
-      if (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy) state.paseJustificadoHasta = null;
-      if (state.earlyExitState && state.earlyExitState.fecha === hoy) state.earlyExitState = null;
-      saveState(state);
-      renderCalendario();
-      actualizarBanco();
-      actualizarGrafico();
-      actualizarEstadoEliminar();
-      actualizarEstadoIniciarJornada();
-      actualizarResumenDia();
-    }
-  }
-
   let pendingPaseSalida = null;
-  /** Cuando se abre el modal "¿De qué saldo se descuenta?": { accion: "sinJustificar"|"finJornada"|"finJornadaTrasPase", salidaValue, fechaClave[, shortfallMin] } */
+  /** Cuando se abre el modal "¿De qué saldo se descuenta?": { accion: "sinJustificar"|"finJornada", salidaValue, fechaClave } */
   let pendingDescuento = null;
   /** Día (YYYY-MM-DD) cuando se abre el modal "Iniciar otro periodo" en sábado/domingo/festivo */
   let pendingIniciarOtroPeriodoDia = null;
@@ -1700,7 +1522,8 @@ function controlarNotificaciones() {
   }
 
   function hoyISO() {
-    return getHoyISO();
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   }
 
   const SESSION_DRAFT_KEY = "jornadaPro_sessionDraft";
@@ -1804,7 +1627,6 @@ function controlarNotificaciones() {
     }
 
     var yaPaseSinJustificado = state.registros[fecha.value] && state.registros[fecha.value].paseSinJustificado === true;
-    var yaPaseJustificado = state.registros[fecha.value] && state.registros[fecha.value].paseJustificado === true;
     var reg = aplicarTxTSiFinDeSemanaOFestivo({
       ...resultado,
       entrada: entradaParaReg,
@@ -1816,9 +1638,7 @@ function controlarNotificaciones() {
     delete reg.entradaPrimera;
     delete reg.trabajadosMinAcumulado;
     if (yaPaseSinJustificado) reg.paseSinJustificado = true;
-    if (yaPaseJustificado) reg.paseJustificado = true;
     if (descuentoDe === "TxT" || descuentoDe === "excesoJornada") reg.descuentoDe = descuentoDe;
-    reg.ultimaModificacionISO = new Date().toISOString();
     state.registros[fecha.value] = reg;
 
     saveState(state);
@@ -1878,25 +1698,12 @@ function controlarNotificaciones() {
       const esContinuar = textoBtn.toLowerCase().includes("continuar");
 
       if (esContinuar && state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy) {
-        if (fecha) fecha.value = hoy;
-        if (!state.registros[hoy]) {
-          state.registros[hoy] = { entrada: entrada.value, paseJustificado: true };
-        } else {
-          state.registros[hoy].paseJustificado = true;
-        }
         state.paseJustificadoHasta = null;
         if (salida) salida.value = "";
         saveState(state);
-        guardarBorradorSesion();
-        recalcularEnVivo();
-        actualizarProgreso();
-        renderCalendario();
-        actualizarBanco();
-        actualizarGrafico();
-        actualizarEstadoEliminar();
         actualizarEstadoIniciarJornada();
+        actualizarProgreso();
         actualizarResumenDia();
-        if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
         return;
       }
 
@@ -2005,9 +1812,6 @@ function controlarNotificaciones() {
           if (esDiaNoLaborable(fecha.value)) {
             ejecutarFinalizarJornada();
             setThumbPosition(0);
-          } else if (yaUsóPaseHoy(hoy)) {
-            ejecutarTerminarJornadaTrasPase();
-            setThumbPosition(0);
           } else {
             abrirModalPaseSalida(salidaAhora);
             setThumbPosition(0);
@@ -2072,8 +1876,6 @@ function controlarNotificaciones() {
         if (esSalidaAnticipada(salidaAhora)) {
           if (esDiaNoLaborable(fecha.value)) {
             ejecutarFinalizarJornada();
-          } else if (yaUsóPaseHoy(hoy)) {
-            ejecutarTerminarJornadaTrasPase();
           } else {
             abrirModalPaseSalida(salidaAhora);
           }
@@ -2120,7 +1922,6 @@ function controlarNotificaciones() {
     }
 
     var yaPaseSinJustificadoGuardar = state.registros[fecha.value] && state.registros[fecha.value].paseSinJustificado === true;
-    var yaPaseJustificadoGuardar = state.registros[fecha.value] && state.registros[fecha.value].paseJustificado === true;
     var regGuardar = aplicarTxTSiFinDeSemanaOFestivo({
       ...resultado,
       entrada: entradaParaGuardar,
@@ -2131,10 +1932,8 @@ function controlarNotificaciones() {
     }, fecha.value);
     delete regGuardar.entradaPrimera;
     delete regGuardar.trabajadosMinAcumulado;
-    regGuardar.ultimaModificacionISO = new Date().toISOString();
     state.registros[fecha.value] = regGuardar;
     if (yaPaseSinJustificadoGuardar) state.registros[fecha.value].paseSinJustificado = true;
-    if (yaPaseJustificadoGuardar) state.registros[fecha.value].paseJustificado = true;
 
     saveState(state);
     if (fecha.value === getHoyISO()) limpiarBorradorSesion();
@@ -2144,7 +1943,6 @@ function controlarNotificaciones() {
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
-    showToast("Día guardado", "success");
   };
 
   if (btnVacaciones) btnVacaciones.onclick = () => {
@@ -2154,7 +1952,7 @@ function controlarNotificaciones() {
 
     const anioDescontado = descontarDiaVacacion(state, fecha.value);
     if (anioDescontado == null) {
-      showToast("No hay días de vacaciones disponibles. Revisa la pestaña Vacaciones/LD.", "error");
+      alert("No hay días de vacaciones disponibles en el banco. Revisa la pestaña Vacaciones/LD.");
       return;
     }
 
@@ -2411,8 +2209,7 @@ function controlarNotificaciones() {
             disfruteExcesoJornada: reg.disfruteExcesoJornada,
             licenciaRetribuida: reg.licenciaRetribuida,
             licenciaRetribuidaTipo: reg.licenciaRetribuidaTipo,
-            paseSinJustificado: reg.paseSinJustificado,
-            paseJustificado: reg.paseJustificado
+            paseSinJustificado: reg.paseSinJustificado
           };
         }
       } else {
@@ -2503,7 +2300,6 @@ function controlarNotificaciones() {
     modalEliminarSi.addEventListener("click", () => {
       ejecutarEliminarRegistroDia();
       cerrarModalConfirmarEliminar();
-      showToast("Registro eliminado", "success");
     });
   }
   if (modalEliminarCancelar) {
@@ -2546,7 +2342,6 @@ function controlarNotificaciones() {
       actualizarResumenDia();
       actualizarProgreso();
       if (modalElegirGP) modalElegirGP.hidden = false;
-      showToast("Configuración restaurada", "success");
     });
   }
   if (modalFabricaCancelar) {
@@ -2573,9 +2368,6 @@ function controlarNotificaciones() {
     // Tras elegir grupo la primera vez, ofrecer indicar días LD del año en curso
     const anioCurso = new Date().getFullYear();
     setTimeout(() => { abrirModalLDAnio(anioCurso); }, 100);
-    if (!localStorage.getItem(ONBOARDING_KEY)) {
-      setTimeout(mostrarOnboarding, 400);
-    }
   }
 
   [modalElegirGP1, modalElegirGP2, modalElegirGP3, modalElegirGP4].forEach(function (btn) {
@@ -2586,9 +2378,6 @@ function controlarNotificaciones() {
     });
   });
 
-  function toggleDevMenu() {
-    if (configDevMenu) configDevMenu.hidden = !configDevMenu.hidden;
-  }
   if (configAuthorTapTarget && configDevMenu) {
     let authorTapCount = 0;
     let authorTapResetTimer = null;
@@ -2596,24 +2385,10 @@ function controlarNotificaciones() {
       if (authorTapResetTimer) clearTimeout(authorTapResetTimer);
       authorTapCount++;
       if (authorTapCount >= 5) {
-        toggleDevMenu();
+        configDevMenu.hidden = !configDevMenu.hidden;
         authorTapCount = 0;
       } else {
         authorTapResetTimer = setTimeout(() => { authorTapCount = 0; }, 1500);
-      }
-    });
-  }
-  if (configAppVersionDev && configDevMenu) {
-    let versionTapCount = 0;
-    let versionTapResetTimer = null;
-    configAppVersionDev.addEventListener("click", () => {
-      if (versionTapResetTimer) clearTimeout(versionTapResetTimer);
-      versionTapCount++;
-      if (versionTapCount >= 7) {
-        toggleDevMenu();
-        versionTapCount = 0;
-      } else {
-        versionTapResetTimer = setTimeout(() => { versionTapCount = 0; }, 1500);
       }
     });
   }
@@ -2638,32 +2413,6 @@ function controlarNotificaciones() {
   if (plofBtnCaca) plofBtnCaca.addEventListener("click", () => aplicarSimboloPlof("💩"));
   if (plofBtnGallo) plofBtnGallo.addEventListener("click", () => aplicarSimboloPlof("🐓"));
 
-  if (btnDevForzarDia && fecha) {
-    btnDevForzarDia.addEventListener("click", () => {
-      const dia = (fecha.value || "").trim();
-      if (!dia) return;
-      devDiaForzado = dia;
-      fecha.value = dia;
-      seleccionarDia(dia);
-      actualizarEstadoIniciarJornada();
-      actualizarEstadoFinalizarJornada();
-      actualizarResumenPortada();
-      if (typeof renderCalendario === "function") renderCalendario();
-    });
-  }
-  if (btnDevRestaurarDia) {
-    btnDevRestaurarDia.addEventListener("click", () => {
-      devDiaForzado = null;
-      const hoy = getHoyISO();
-      if (fecha) fecha.value = hoy;
-      seleccionarDia(hoy);
-      actualizarEstadoIniciarJornada();
-      actualizarEstadoFinalizarJornada();
-      actualizarResumenPortada();
-      if (typeof renderCalendario === "function") renderCalendario();
-    });
-  }
-
   function actualizarEstadoEliminar() {
     if (!btnEliminar) return;
     btnEliminar.disabled = !state.registros[fecha.value];
@@ -2680,15 +2429,6 @@ function controlarNotificaciones() {
 
   function actualizarEstadoFinalizarJornada() {
     if (!finalizarJornadaWrap) return;
-    const hoy = getHoyISO();
-    const enPaseJustificado = state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy;
-    const enEarlyExit = state.earlyExitState && state.earlyExitState.fecha === hoy && !pasadoFinTeorico(state.earlyExitState);
-    const activa = jornadaActivaHoy();
-    if (!activa || enPaseJustificado || enEarlyExit) {
-      finalizarJornadaWrap.hidden = true;
-      return;
-    }
-    // No forzar .hidden = false aquí: la visibilidad del slider la decide solo actualizarEstadoIniciarJornada (mostrarSliderFinalizar)
     const esVacaciones = !!(fecha && state.registros[fecha.value]?.vacaciones);
     const esLD = !!(fecha && state.registros[fecha.value]?.libreDisposicion);
     const esDisfruteHorasExtra = !!(fecha && state.registros[fecha.value]?.disfruteHorasExtra);
@@ -2698,8 +2438,9 @@ function controlarNotificaciones() {
       finalizarJornadaWrap.setAttribute("aria-disabled", "true");
       return;
     }
-    finalizarJornadaWrap.classList.remove("finalizar-slider-wrap--disabled");
-    finalizarJornadaWrap.setAttribute("aria-disabled", "false");
+    const activa = jornadaActivaHoy();
+    finalizarJornadaWrap.classList.toggle("finalizar-slider-wrap--disabled", !activa);
+    finalizarJornadaWrap.setAttribute("aria-disabled", activa ? "false" : "true");
   }
 
   function actualizarEstadoIniciarJornada() {
@@ -2719,11 +2460,7 @@ function controlarNotificaciones() {
     if (btnDisfruteExcesoJornada) btnDisfruteExcesoJornada.disabled = esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra || esDiaDisfruteExcesoJornada;
 
     if (esDiaNoTrabajable) {
-      if (btnIniciarJornada) {
-        btnIniciarJornada.disabled = true;
-        btnIniciarJornada.hidden = false;
-      }
-      if (finalizarJornadaWrap) finalizarJornadaWrap.hidden = true;
+      if (btnIniciarJornada) btnIniciarJornada.disabled = true;
       actualizarEstadoFinalizarJornada();
       return;
     }
@@ -2742,47 +2479,25 @@ function controlarNotificaciones() {
     if (mostrarContinuar) {
       btnIniciarJornada.textContent = "Continuar jornada";
       btnIniciarJornada.disabled = false;
-      btnIniciarJornada.classList.remove("btn-iniciar", "btn-finalizar");
-      btnIniciarJornada.classList.add("btn-continuar");
-    } else if (esHoy && tieneEntrada && !yaFinalizado) {
-      btnIniciarJornada.textContent = "Finalizar jornada";
-      btnIniciarJornada.disabled = false;
-      btnIniciarJornada.classList.remove("btn-iniciar", "btn-continuar");
-      btnIniciarJornada.classList.add("btn-finalizar");
     } else if (!esModoMinutosSemanal() && enExtension) {
-      btnIniciarJornada.textContent = "Finalizar extensión";
-      btnIniciarJornada.disabled = false;
-      btnIniciarJornada.classList.remove("btn-iniciar", "btn-continuar");
-      btnIniciarJornada.classList.add("btn-finalizar");
+      btnIniciarJornada.textContent = "Extender jornada";
+      btnIniciarJornada.disabled = true;
     } else if (!esModoMinutosSemanal() && yaFinalizado && esHoy) {
       btnIniciarJornada.textContent = "Extender jornada";
       btnIniciarJornada.disabled = false;
-      btnIniciarJornada.classList.remove("btn-finalizar", "btn-continuar");
-      btnIniciarJornada.classList.add("btn-iniciar");
     } else {
+      // En sábados, domingos y festivos (GP3/GP4), el botón se muestra como "Iniciar TxT"
+      // porque todo el tiempo trabajado computa como horas TxT.
       if (!esModoMinutosSemanal() && esDiaFinDeSemanaOFestivo) {
         btnIniciarJornada.textContent = "Iniciar TxT";
       } else {
         btnIniciarJornada.textContent = "Iniciar jornada";
       }
-      btnIniciarJornada.disabled = false;
-      btnIniciarJornada.classList.remove("btn-finalizar", "btn-continuar");
-      btnIniciarJornada.classList.add("btn-iniciar");
-    }
-    const mostrarSliderFinalizar = ((esHoy && tieneEntrada && !yaFinalizado) && !mostrarContinuar) || (!esModoMinutosSemanal() && enExtension);
-    // Un solo control visible: o botón (verde/naranja) o slider rojo para finalizar
-    if (btnIniciarJornada) btnIniciarJornada.hidden = mostrarSliderFinalizar;
-    if (finalizarJornadaWrap) {
-      finalizarJornadaWrap.hidden = !mostrarSliderFinalizar;
-      if (mostrarSliderFinalizar) {
-        if (finalizarSliderText) finalizarSliderText.textContent = (!esModoMinutosSemanal() && enExtension) ? "Desliza para finalizar extensión" : "Desliza para finalizar jornada";
-        if (finalizarSliderThumb) finalizarSliderThumb.style.left = "0%";
-      }
+      btnIniciarJornada.disabled = !!(esHoy && tieneEntrada && !yaFinalizado);
     }
     actualizarEstadoFinalizarJornada();
-    if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
   }
-
+  
 function mostrarPopupFestivo(texto){
 
   const popup = document.createElement("div");
@@ -2817,13 +2532,7 @@ if (btnExcel) {
     var paseHasta = state.paseJustificadoHasta || null;
     var extJornada = state.extensionJornada || null;
 
-    const desde = exportDesde && exportDesde.value ? exportDesde.value : null;
-    const hasta = exportHasta && exportHasta.value ? exportHasta.value : null;
-    let entries = Object.entries(state.registros);
-    if (desde || hasta) {
-      entries = entries.filter(([f]) => (!desde || f >= desde) && (!hasta || f <= hasta));
-    }
-    const rows = entries
+    const rows = Object.entries(state.registros)
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(([f, r]) => {
         var horaEntrada = "";
@@ -2849,10 +2558,6 @@ if (btnExcel) {
           if (r.paseSinJustificado === true) {
             tipoPase = "Sin justificar";
             if (early && early.fecha === f && early.salidaAt) horaPaseSalida = early.salidaAt;
-            else if (horaSalida) horaPaseSalida = horaSalida;
-          } else if (r.paseJustificado === true) {
-            tipoPase = "Justificado";
-            if (paseHasta && paseHasta.fecha === f && paseHasta.salidaAt) horaPaseSalida = paseHasta.salidaAt;
             else if (horaSalida) horaPaseSalida = horaSalida;
           } else if (paseHasta && paseHasta.fecha === f && paseHasta.salidaAt) {
             tipoPase = "Justificado";
@@ -2934,10 +2639,7 @@ if (btnBackup) {
       state.config.vacacionesDiasPrevio = Math.max(0, !isNaN(vp) ? vp : (state.config.vacacionesDiasPrevio || 0));
     }
 
-    const desde = exportDesde && exportDesde.value ? exportDesde.value : null;
-    const hasta = exportHasta && exportHasta.value ? exportHasta.value : null;
-    const options = (desde || hasta) ? { fromISO: desde || undefined, toISO: hasta || undefined } : undefined;
-    const json = exportBackup(state, options);
+    const json = exportBackup(state);
 
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -2950,32 +2652,12 @@ if (btnBackup) {
     a.click();
 
     URL.revokeObjectURL(url);
-    try { localStorage.setItem("jornadaPro_lastBackup", new Date().toISOString()); } catch (e) {}
-    showToast("Backup descargado correctamente", "success");
   });
 }
 
 // ===============================
 // RESTORE BACKUP
 // ===============================
-
-let pendingRestoreState = null;
-function aplicarRestoreState(newState) {
-  state = newState;
-  saveState(state);
-  aplicarTheme(state.config.theme);
-  aplicarEstadoConfigAUI();
-  if (fecha && fecha.value) cargarFormularioDesdeRegistro(fecha.value);
-  renderCalendario();
-  actualizarBanco();
-  actualizarGrafico();
-  actualizarEstadoEliminar();
-  actualizarEstadoIniciarJornada();
-  actualizarResumenDia();
-  if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
-  showToast("Datos restaurados correctamente", "success");
-  pendingRestoreState = null;
-}
 
 if (btnRestore) {
   btnRestore.addEventListener("change", (e) => {
@@ -2989,187 +2671,29 @@ if (btnRestore) {
 
       try {
         const newState = importBackup(event.target.result);
-        let hayConflictos = false;
-        const regs = state.registros || {};
-        const newRegs = newState.registros || {};
-        for (const [f, r] of Object.entries(regs)) {
-          const localMod = r && r.ultimaModificacionISO;
-          const backupMod = newRegs[f] && newRegs[f].ultimaModificacionISO;
-          if (localMod && (!backupMod || localMod > backupMod)) { hayConflictos = true; break; }
+
+        state = newState;
+        saveState(state);
+
+        aplicarTheme(state.config.theme);
+        aplicarEstadoConfigAUI();
+
+        if (fecha && fecha.value) {
+          cargarFormularioDesdeRegistro(fecha.value);
         }
-        if (hayConflictos && modalConfirmarRestaurar && modalRestaurarSi && modalRestaurarCancelar) {
-          pendingRestoreState = newState;
-          modalConfirmarRestaurar.hidden = false;
-          e.target.value = "";
-          return;
-        }
-        aplicarRestoreState(newState);
+        renderCalendario();
+        actualizarBanco();
+        actualizarGrafico();
+        actualizarEstadoEliminar();
+        actualizarEstadoIniciarJornada();
+        actualizarResumenDia();
+
       } catch {
-        showToast("Archivo de backup no válido", "error");
+        alert("Archivo de backup no válido");
       }
-      if (e.target) e.target.value = "";
     };
 
     reader.readAsText(file);
-  });
-}
-
-if (modalConfirmarRestaurar && modalRestaurarCancelar && modalRestaurarSi) {
-  modalRestaurarCancelar.addEventListener("click", () => {
-    modalConfirmarRestaurar.hidden = true;
-    pendingRestoreState = null;
-  });
-  modalRestaurarSi.addEventListener("click", () => {
-    if (pendingRestoreState) {
-      aplicarRestoreState(pendingRestoreState);
-      modalConfirmarRestaurar.hidden = true;
-    }
-  });
-  modalConfirmarRestaurar.querySelector(".modal-extender-backdrop")?.addEventListener("click", () => {
-    modalConfirmarRestaurar.hidden = true;
-    pendingRestoreState = null;
-  });
-}
-
-if (btnInformePdf) {
-  btnInformePdf.addEventListener("click", () => {
-    const nombreMes = new Date(currentYear, currentMonth).toLocaleString("es-ES", { month: "long" });
-    const mesStr = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1) + " " + currentYear;
-    const prefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-`;
-    const totalDias = new Date(currentYear, currentMonth + 1, 0).getDate();
-    let totalMin = 0;
-    let html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Informe " + mesStr + "</title><style>body{font-family:sans-serif;padding:1rem;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ccc;padding:6px;text-align:left;} th{background:#eee;}</style></head><body>";
-    html += "<h1>Jornada Pro – Informe mensual</h1>";
-    html += "<p><strong>" + (state.config.nombreCompleto || "") + "</strong> · " + mesStr + "</p>";
-    html += "<table><thead><tr><th>Fecha</th><th>Tipo</th><th>Entrada</th><th>Salida</th><th>Trabajado</th><th>Extra/Exceso</th></tr></thead><tbody>";
-    for (let d = 1; d <= totalDias; d++) {
-      const fechaISO = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-      const r = state.registros[fechaISO];
-      if (!r) continue;
-      let tipo = "Jornada";
-      if (r.vacaciones) tipo = "Vacaciones";
-      else if (r.libreDisposicion) tipo = "LD";
-      else if (r.disfruteHorasExtra) tipo = "Disfr. h. extra";
-      else if (r.disfruteExcesoJornada) tipo = "Disfr. exceso";
-      else if (r.licenciaRetribuida) tipo = "Licencia";
-      const ent = r.entrada || "—";
-      const sal = r.salidaReal != null ? r.salidaReal : "—";
-      const trab = r.trabajadosMin != null ? (r.trabajadosMin / 60).toFixed(2) + " h" : "—";
-      const ext = (r.extraGeneradaMin || 0) + (r.excesoJornadaMin || 0);
-      const extStr = ext > 0 ? (ext / 60).toFixed(2) + " h" : "—";
-      totalMin += (r.trabajadosMin || 0);
-      html += "<tr><td>" + fechaISO + "</td><td>" + tipo + "</td><td>" + ent + "</td><td>" + sal + "</td><td>" + trab + "</td><td>" + extStr + "</td></tr>";
-    }
-    html += "</tbody></table>";
-    const hTotal = Math.floor(totalMin / 60);
-    const mTotal = totalMin % 60;
-    html += "<p><strong>Total trabajado este mes:</strong> " + hTotal + " h " + mTotal + " min</p>";
-    html += "</body></html>";
-    const w = window.open("", "_blank");
-    if (w) {
-      w.document.write(html);
-      w.document.close();
-      w.setTimeout(() => w.print(), 250);
-    } else {
-      showToast("Permite ventanas emergentes para imprimir el informe", "error");
-    }
-  });
-}
-
-const LAST_BACKUP_KEY = "jornadaPro_lastBackup";
-function checkRecordatorioBackup() {
-  try {
-    const last = localStorage.getItem(LAST_BACKUP_KEY);
-    if (!last) {
-      showToast("Recomendación: haz una copia de seguridad en Ajustes → Backup", "info");
-      return;
-    }
-    const d = new Date(last);
-    const haceDias = (Date.now() - d.getTime()) / (24 * 60 * 60 * 1000);
-    if (haceDias > 7) showToast("¿Hace más de 7 días de tu último backup? Revisa Ajustes → Backup", "info");
-  } catch (e) {}
-}
-setTimeout(checkRecordatorioBackup, 5000);
-
-function simplePinHash(pin) {
-  const s = String(pin || "");
-  return s.split("").reduce((h, c) => ((h * 31) + c.charCodeAt(0)) | 0, 0).toString(36);
-}
-if (pinOverlay && pinInput && pinUnlock) {
-  function mostrarPinOverlay() {
-    pinOverlay.hidden = false;
-    pinInput.value = "";
-    pinInput.focus();
-  }
-  function ocultarPinOverlay() {
-    pinOverlay.hidden = true;
-  }
-  if (state.config.pinEnabled && state.config.pinHash) {
-    mostrarPinOverlay();
-  }
-  pinUnlock.addEventListener("click", () => {
-    const hash = simplePinHash(pinInput.value);
-    if (hash === state.config.pinHash) {
-      ocultarPinOverlay();
-    } else {
-      showToast("PIN incorrecto", "error");
-      pinInput.value = "";
-    }
-  });
-  pinInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") pinUnlock.click();
-  });
-}
-if (btnEstablecerPin) {
-  btnEstablecerPin.addEventListener("click", () => {
-    const pin1 = prompt("Nuevo PIN (4-8 caracteres):");
-    if (pin1 == null) return;
-    if (pin1.length < 4 || pin1.length > 8) {
-      showToast("El PIN debe tener entre 4 y 8 caracteres", "error");
-      return;
-    }
-    const pin2 = prompt("Repite el PIN:");
-    if (pin2 == null) return;
-    if (pin1 !== pin2) {
-      showToast("Los PIN no coinciden", "error");
-      return;
-    }
-    state.config.pinHash = simplePinHash(pin1);
-    state.config.pinEnabled = true;
-    if (cfgPinEnabled) cfgPinEnabled.checked = true;
-    saveState(state);
-    showToast("PIN establecido. Se pedirá al abrir la app.", "success");
-  });
-}
-
-const RECORDATORIO_FICHAR_KEY = "jornadaPro_recordatorioFicharShown";
-setInterval(() => {
-  const hora = (state.config && state.config.recordatorioFicharHora) || "";
-  if (!hora) return;
-  const now = new Date();
-  const nowStr = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
-  if (nowStr !== hora) return;
-  const hoy = getHoyISO();
-  try {
-    if (localStorage.getItem(RECORDATORIO_FICHAR_KEY + "_" + hoy)) return;
-  } catch (e) { return; }
-  const reg = state.registros[hoy];
-  const tieneEntrada = reg && (reg.entrada || reg.entradaPrimera);
-  if (tieneEntrada) return;
-  try { localStorage.setItem(RECORDATORIO_FICHAR_KEY + "_" + hoy, "1"); } catch (e) {}
-  showToast("¿Has fichado la entrada hoy?", "info");
-}, 60 * 1000);
-
-const configChangelogList = document.getElementById("configChangelogList");
-if (configChangelogList) {
-  fetch("changelog.json").then(r => r.ok ? r.json() : []).catch(() => []).then(arr => {
-    if (!Array.isArray(arr) || arr.length === 0) return;
-    configChangelogList.innerHTML = "";
-    arr.forEach(entry => {
-      const li = document.createElement("li");
-      li.innerHTML = "<strong>" + (entry.version || "") + "</strong> (" + (entry.date || "") + "):<ul>" + (entry.items || []).map(i => "<li>" + i + "</li>").join("") + "</ul>";
-      configChangelogList.appendChild(li);
-    });
   });
 }  
   
@@ -3268,19 +2792,16 @@ if(festivos && festivos[fechaISO]){
       if (registro.libreDisposicion) {
 
         legendActive.ld = true;
-        div.classList.add("cal-day--ld");
         div.innerHTML += `<span class="cal-day-vacaciones" aria-label="Libre disposición">🕶️</span>`;
 
       } else if (registro.vacaciones) {
 
         legendActive.vacaciones = true;
-        div.classList.add("cal-day--vacaciones");
         div.innerHTML += `<span class="cal-day-vacaciones" aria-label="Vacaciones">🏖️</span>`;
 
       } else if (registro.disfruteHorasExtra) {
 
         legendActive.disfruteHorasExtra = true;
-        div.classList.add("cal-day--disfrute-horas");
         div.innerHTML += `<span class="cal-day-disfrute-horas" aria-label="Disfrute horas extra">⏳</span>`;
 
       } else if (registro.disfruteExcesoJornada) {
@@ -3296,9 +2817,6 @@ if(festivos && festivos[fechaISO]){
         div.innerHTML += `<span class="cal-day-licencia" aria-label="Licencia retribuida">🎫</span>`;
 
       } else {
-        const esFinDeSemanaOFestivo = (dow === 0 || dow === 6) || (festivos && festivos[fechaISO]);
-        if (esFinDeSemanaOFestivo && (registro.extraGeneradaMin || 0) > 0) div.classList.add("cal-day--txt");
-        else div.classList.add("cal-day--jornada");
 
         var saldoHtml = "";
         if (esModoMinutosSemanal()) {
@@ -3330,17 +2848,13 @@ if(festivos && festivos[fechaISO]){
 
         if (registro.entrada && registro.salidaReal != null) {
           var esPaseSinJustificar = registro.paseSinJustificado === true || (state.earlyExitState && state.earlyExitState.fecha === fechaISO);
-          var esPaseJustificado = registro.paseJustificado === true;
-          if (esPaseSinJustificar || esPaseJustificado) {
+          if (esPaseSinJustificar) {
             legendActive.paseSinJustificar = true;
             saldoHtml += "<span class=\"cal-day-especial\" aria-hidden=\"true\"><span class=\"cal-day-especial-symbol\">*</span></span>";
           } else {
             legendActive.jornadaCompletada = true;
             saldoHtml += "<span class=\"cal-day-completed\" aria-hidden=\"true\"><span class=\"cal-day-completed-check\">\u2713</span></span>";
           }
-        } else if (registro.paseJustificado === true) {
-          legendActive.paseSinJustificar = true;
-          saldoHtml += "<span class=\"cal-day-especial\" aria-hidden=\"true\"><span class=\"cal-day-especial-symbol\">*</span></span>";
         }
         div.innerHTML += saldoHtml;
       }
@@ -3388,133 +2902,9 @@ if(festivos && festivos[fechaISO]){
     }
   }
 
-  let tieneRegistrosMes = false;
-  const prefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-`;
-  for (const key of Object.keys(state.registros || {})) {
-    if (key.startsWith(prefix)) { tieneRegistrosMes = true; break; }
-  }
-  if (emptyStateCalendar) {
-    emptyStateCalendar.hidden = tieneRegistrosMes;
-  }
-
-  actualizarResumenPortada();
   actualizarBanco();
   actualizarGrafico();
 }
-
-  function actualizarResumenPortada() {
-    if (!resumenPortada) return;
-    const now = new Date();
-    const hoyISO = getHoyISO();
-    if (resumenPortadaFecha) {
-      const fechaStr = now.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-      resumenPortadaFecha.textContent = fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1);
-    }
-    function actualizarReloj() {
-      if (!resumenPortadaReloj) return;
-      const t = new Date();
-      const h = String(t.getHours()).padStart(2, "0");
-      const m = String(t.getMinutes()).padStart(2, "0");
-      const s = String(t.getSeconds()).padStart(2, "0");
-      resumenPortadaReloj.textContent = h + ":" + m + ":" + s;
-    }
-    actualizarReloj();
-    if (!window._resumenPortadaRelojInterval) {
-      window._resumenPortadaRelojInterval = setInterval(actualizarReloj, 1000);
-    }
-    const prefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-`;
-    let totalMin = 0;
-    let diasTrabajados = 0;
-    let diasVacaciones = 0;
-    let diasLD = 0;
-    let diasLicencia = 0;
-    for (const [key, reg] of Object.entries(state.registros || {})) {
-      if (!key.startsWith(prefix)) continue;
-      if (reg.vacaciones) { diasVacaciones++; continue; }
-      if (reg.libreDisposicion) { diasLD++; continue; }
-      if (reg.licenciaRetribuida || reg.disfruteHorasExtra || reg.disfruteExcesoJornada) { diasLicencia++; continue; }
-      if (reg && reg.trabajadosMin != null) { totalMin += reg.trabajadosMin; diasTrabajados++; }
-    }
-    if (resumenPortadaSemanaWrap && resumenPortadaSemanaLabel && resumenPortadaSemanaHoras) {
-      const [lunesStr, domingoStr] = getLunesDomingoSemana(hoyISO);
-      let semanaMin = 0;
-      const [ly, lm, ld] = lunesStr.split("-").map(Number);
-      const [dy, dm, dd] = domingoStr.split("-").map(Number);
-      const start = new Date(ly, lm - 1, ld);
-      const end = new Date(dy, dm - 1, dd);
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-        const r = state.registros[iso];
-        if (r && r.trabajadosMin != null && !r.vacaciones && !r.libreDisposicion) semanaMin += r.trabajadosMin;
-      }
-      resumenPortadaSemanaLabel.textContent = "Esta semana";
-      const sh = Math.floor(semanaMin / 60);
-      const sm = semanaMin % 60;
-      resumenPortadaSemanaHoras.textContent = sm > 0 ? `${sh}h ${sm}m` : `${sh}h`;
-    }
-    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-    const prefixPrev = `${prevYear}-${String(prevMonth + 1).padStart(2, "0")}-`;
-    let totalPrevMin = 0;
-    for (const [key, reg] of Object.entries(state.registros || {})) {
-      if (!key.startsWith(prefixPrev)) continue;
-      if (reg && reg.trabajadosMin != null && !reg.vacaciones && !reg.libreDisposicion) totalPrevMin += reg.trabajadosMin;
-    }
-    if (resumenPortadaComparativaWrap && resumenPortadaComparativaLabel && resumenPortadaComparativaHoras) {
-      const nombrePrev = new Date(prevYear, prevMonth).toLocaleString("es-ES", { month: "long" });
-      resumenPortadaComparativaLabel.textContent = nombrePrev.charAt(0).toUpperCase() + nombrePrev.slice(1);
-      const ph = Math.floor(totalPrevMin / 60);
-      const pm = totalPrevMin % 60;
-      resumenPortadaComparativaHoras.textContent = pm > 0 ? `${ph}h ${pm}m` : `${ph}h`;
-    }
-    if (resumenPortadaDiasWrap && resumenPortadaDiasValor) {
-      const partes = [];
-      if (diasTrabajados > 0) partes.push(diasTrabajados + " trabajados");
-      if (diasVacaciones > 0) partes.push(diasVacaciones + " vac.");
-      if (diasLD > 0) partes.push(diasLD + " LD");
-      if (diasLicencia > 0) partes.push(diasLicencia + " lic.");
-      resumenPortadaDiasValor.textContent = partes.length ? partes.join(", ") : "—";
-    }
-    const nombreMes = new Date(currentYear, currentMonth).toLocaleString("es-ES", { month: "long" });
-    const mesStr = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1) + " " + currentYear;
-    if (resumenPortadaMesLabel) resumenPortadaMesLabel.textContent = mesStr;
-    if (resumenPortadaHoras) {
-      const h = Math.floor(totalMin / 60);
-      const m = totalMin % 60;
-      resumenPortadaHoras.textContent = m > 0 ? `${h}h ${m}m` : `${h}h`;
-    }
-    if (resumenPortadaJornadaEnCurso && resumenPortadaJornadaTexto) {
-      const regHoy = state.registros[hoyISO];
-      const tieneEntrada = entrada && entrada.value;
-      const tieneSalida = regHoy && regHoy.salidaReal != null;
-      const jornadaActiva = fecha && fecha.value === hoyISO && tieneEntrada && !tieneSalida;
-      if (jornadaActiva) {
-        resumenPortadaJornadaEnCurso.hidden = false;
-        resumenPortadaJornadaTexto.textContent = "Fichado desde " + (entrada.value || "");
-      } else {
-        resumenPortadaJornadaEnCurso.hidden = true;
-      }
-    }
-    if (resumenPortadaAccesosRapidos) resumenPortadaAccesosRapidos.hidden = false;
-    resumenPortada.hidden = false;
-    const festivos = obtenerFestivos(currentYear);
-    let nextFestivo = null;
-    if (festivos) {
-      const keys = Object.keys(festivos).sort();
-      for (const k of keys) {
-        if (k > hoyISO) { nextFestivo = { fecha: k, ...festivos[k] }; break; }
-      }
-    }
-    if (resumenPortadaFestivoWrap && resumenPortadaFestivo) {
-      if (nextFestivo) {
-        resumenPortadaFestivoWrap.hidden = false;
-        const d = new Date(nextFestivo.fecha + "T12:00:00");
-        resumenPortadaFestivo.textContent = d.toLocaleDateString("es-ES", { weekday: "short", day: "numeric", month: "short" }) + (nextFestivo.nombre ? " (" + nextFestivo.nombre + ")" : "");
-      } else {
-        resumenPortadaFestivoWrap.hidden = true;
-      }
-    }
-  }
 
   function cargarFormularioDesdeRegistro(fechaISO) {
     const registro = state.registros[fechaISO];
@@ -3580,7 +2970,6 @@ if(festivos && festivos[fechaISO]){
     limpiarBorradorSesion();
   }
 
-  if (fecha && !fecha.value) fecha.value = getHoyISO();
   renderCalendario();
   actualizarBanco();
   actualizarGrafico();
@@ -3619,126 +3008,11 @@ if(festivos && festivos[fechaISO]){
 
   checkExtendPromptFromUrl();
 
-  document.addEventListener("keydown", (e) => {
-    const tag = (e.target && e.target.tagName) || "";
-    if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) && e.target.getAttribute("type") !== "button") return;
-    const key = (e.key || "").toUpperCase();
-    if (key === "E") {
-      if (fecha) fecha.value = getHoyISO();
-      seleccionarDia(getHoyISO());
-      e.preventDefault();
-    } else if (key === "G" && !e.ctrlKey && !e.metaKey) {
-      if (btnGuardar) btnGuardar.click();
-      e.preventDefault();
-    } else if (key === "I") {
-      if (fecha) fecha.value = getHoyISO();
-      if (btnIniciarJornada) btnIniciarJornada.click();
-      actualizarResumenPortada();
-      e.preventDefault();
-    }
-  });
-
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") checkExtendPromptFromUrl();
   });
 
   window.addEventListener("focus", checkExtendPromptFromUrl);
-
-  // Versión en configuración
-  const configAppVersion = document.getElementById("configAppVersion");
-  const configAppVersionFooter = document.getElementById("configAppVersionFooter");
-  if (configAppVersion) configAppVersion.textContent = "v" + APP_VERSION;
-  if (configAppVersionFooter) configAppVersionFooter.textContent = "v" + APP_VERSION;
-
-  // Ocultar splash tras carga inicial; mostrar consejo del día una vez al día
-  setTimeout(() => {
-    hideSplash();
-    try {
-      setTimeout(mostrarSugerenciaDiaSiAplica, 300);
-    } catch (e) {}
-  }, 450);
-
-  // Onboarding: slides y cerrar
-  const onboardingModal = document.getElementById("onboardingModal");
-  const onboardingCerrar = document.getElementById("onboardingCerrar");
-  const onboardingSlides = ["onboardingSlide1", "onboardingSlide2", "onboardingSlide3"];
-  const onboardingDots = document.querySelectorAll(".onboarding-dot");
-  let onboardingSlideIndex = 0;
-  function setOnboardingSlide(i) {
-    onboardingSlideIndex = Math.max(0, Math.min(i, 2));
-    onboardingSlides.forEach((id, idx) => {
-      const el = document.getElementById(id);
-      if (el) el.classList.toggle("onboarding-slide--active", idx === onboardingSlideIndex);
-    });
-    onboardingDots.forEach((dot, idx) => dot.classList.toggle("onboarding-dot--active", idx === onboardingSlideIndex));
-    if (onboardingCerrar) onboardingCerrar.textContent = onboardingSlideIndex === 2 ? "Empezar" : "Siguiente";
-  }
-  function cerrarOnboarding() {
-    try { localStorage.setItem(ONBOARDING_KEY, "1"); } catch (e) {}
-    if (onboardingModal) {
-      onboardingModal.hidden = true;
-      onboardingModal.setAttribute("aria-hidden", "true");
-      onboardingModal.style.display = "none";
-    }
-  }
-  function mostrarOnboarding() {
-    const om = document.getElementById("onboardingModal");
-    if (om) {
-      om.hidden = false;
-      om.removeAttribute("aria-hidden");
-      om.style.display = "";
-    }
-  }
-
-  function mostrarSugerenciaDiaSiAplica() {
-    try {
-      const hoy = getHoyISO();
-      const raw = localStorage.getItem(SUGERENCIA_DIA_KEY);
-      const guardado = raw ? JSON.parse(raw) : null;
-      if (guardado && guardado.date === hoy) return;
-      if (!modalSugerenciaDia || !modalSugerenciaDiaTitulo || !modalSugerenciaDiaTexto || !SUGERENCIAS.length) return;
-      const idx = Math.floor(Math.random() * SUGERENCIAS.length);
-      const s = SUGERENCIAS[idx];
-      modalSugerenciaDiaTitulo.textContent = s.titulo;
-      modalSugerenciaDiaTexto.textContent = s.texto;
-      modalSugerenciaDia.hidden = false;
-      modalSugerenciaDia.setAttribute("aria-hidden", "false");
-      modalSugerenciaDia.dataset.sugerenciaIndex = String(idx);
-    } catch (e) {}
-  }
-  function cerrarSugerenciaDia() {
-    try {
-      const hoy = getHoyISO();
-      const idx = modalSugerenciaDia ? modalSugerenciaDia.dataset.sugerenciaIndex : "";
-      localStorage.setItem(SUGERENCIA_DIA_KEY, JSON.stringify({ date: hoy, index: idx }));
-      if (modalSugerenciaDia) {
-        modalSugerenciaDia.hidden = true;
-        modalSugerenciaDia.setAttribute("aria-hidden", "true");
-      }
-    } catch (e) {}
-  }
-  if (modalSugerenciaDiaCerrar) {
-    modalSugerenciaDiaCerrar.addEventListener("click", cerrarSugerenciaDia);
-  }
-  if (modalSugerenciaDia && modalSugerenciaDia.querySelector(".modal-extender-backdrop")) {
-    modalSugerenciaDia.querySelector(".modal-extender-backdrop").addEventListener("click", cerrarSugerenciaDia);
-  }
-
-  if (onboardingCerrar) {
-    onboardingCerrar.addEventListener("click", (e) => {
-      e.preventDefault();
-      const esBotonEmpezar = (onboardingCerrar.textContent || "").trim().toLowerCase().includes("empezar");
-      if (esBotonEmpezar || onboardingSlideIndex >= 2) {
-        cerrarOnboarding();
-        return;
-      }
-      setOnboardingSlide(onboardingSlideIndex + 1);
-    });
-  }
-  onboardingDots.forEach((dot, idx) => {
-    dot.addEventListener("click", () => setOnboardingSlide(idx));
-  });
-  setOnboardingSlide(0);
 
   // Primera vez: mostrar modal para elegir grupo profesional
   try {

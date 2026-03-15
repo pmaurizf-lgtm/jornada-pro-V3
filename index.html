@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
 <title>Jornada PRO NAVANTIA Ferrol</title>
 
-<link rel="icon" href="icons/app-icon.png" type="image/png">
-<link rel="apple-touch-icon" href="icons/app-icon.png">
-
 <link rel="manifest" href="manifest.json">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -22,68 +19,6 @@
 </head>
 
 <body>
-
-<!-- Overlay PIN (bloqueo al abrir) -->
-<div id="pinOverlay" class="pin-overlay" hidden>
-  <div class="pin-box">
-    <h3 class="pin-titulo">Introduce el PIN</h3>
-    <input type="password" id="pinInput" class="pin-input" inputmode="numeric" maxlength="8" placeholder="PIN" autocomplete="off">
-    <button type="button" id="pinUnlock" class="config-btn config-btn-primary">Desbloquear</button>
-  </div>
-</div>
-
-<!-- Splash de carga -->
-<div id="splashScreen" class="splash-screen" aria-hidden="false">
-  <div class="splash-content">
-    <img src="icons/app-icon.png" alt="" class="splash-logo" width="80" height="80">
-    <p class="splash-title">Jornada Pro</p>
-    <p class="splash-subtitle">NAVANTIA Ferrol</p>
-    <div class="splash-spinner" aria-hidden="true"></div>
-  </div>
-</div>
-
-<!-- Contenedor de toasts -->
-<div id="toastContainer" class="toast-container" role="region" aria-label="Notificaciones"></div>
-
-<!-- Onboarding (primera vez) -->
-<div id="onboardingModal" class="onboarding-modal" role="dialog" aria-labelledby="onboardingTitulo" aria-modal="true" hidden>
-  <div class="onboarding-backdrop"></div>
-  <div class="onboarding-box">
-    <div id="onboardingSlide1" class="onboarding-slide onboarding-slide--active">
-      <h2 id="onboardingTitulo" class="onboarding-titulo">Bienvenido a Jornada Pro</h2>
-      <p class="onboarding-texto">Registra tu jornada, horas extra y saldos. Todo se guarda en tu dispositivo.</p>
-      <img src="icons/app-icon.png" alt="" class="onboarding-img" width="64" height="64">
-    </div>
-    <div id="onboardingSlide2" class="onboarding-slide">
-      <h2 class="onboarding-titulo">Iniciar y terminar</h2>
-      <p class="onboarding-texto">Pulsa <strong>Iniciar jornada</strong> al llegar. Para terminar, vuelve a pulsar el mismo botón (verás <strong>Finalizar jornada</strong>) o introduce la hora de salida y guarda.</p>
-    </div>
-    <div id="onboardingSlide3" class="onboarding-slide">
-      <h2 class="onboarding-titulo">Backup y configuración</h2>
-      <p class="onboarding-texto">En el menú (☰) puedes exportar copia de seguridad, restaurar datos y ajustar tema, notificaciones y jornada.</p>
-    </div>
-    <div class="onboarding-footer">
-      <button type="button" id="onboardingCerrar" class="onboarding-btn onboarding-btn-primary">Empezar</button>
-      <div class="onboarding-dots" aria-hidden="true">
-        <span class="onboarding-dot onboarding-dot--active" data-slide="0"></span>
-        <span class="onboarding-dot" data-slide="1"></span>
-        <span class="onboarding-dot" data-slide="2"></span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Sugerencia del día (una al día, al azar) -->
-<div id="modalSugerenciaDia" class="modal-extender" role="dialog" aria-labelledby="modalSugerenciaDiaTitulo" aria-modal="true" hidden>
-  <div class="modal-extender-backdrop"></div>
-  <div class="modal-extender-box">
-    <h3 id="modalSugerenciaDiaTitulo" class="modal-extender-titulo">Sugerencia</h3>
-    <p id="modalSugerenciaDiaTexto" class="modal-extender-texto"></p>
-    <div class="modal-extender-botones">
-      <button type="button" id="modalSugerenciaDiaCerrar" class="modal-extender-btn modal-extender-si">Entendido</button>
-    </div>
-  </div>
-</div>
 
 <header class="header">
   <h1 id="headerTitle" class="header-title">Jornada Pro NAVANTIA (Ferrol)</h1>
@@ -258,19 +193,6 @@
   </div>
 </div>
 
-<!-- Modal: Confirmar restaurar backup (datos más recientes locales) -->
-<div id="modalConfirmarRestaurar" class="modal-extender" role="dialog" aria-labelledby="modalConfirmarRestaurarTitulo" aria-modal="true" hidden>
-  <div class="modal-extender-backdrop"></div>
-  <div class="modal-extender-box">
-    <h3 id="modalConfirmarRestaurarTitulo" class="modal-extender-titulo">Datos más recientes en este dispositivo</h3>
-    <p class="modal-extender-texto" id="modalConfirmarRestaurarTexto">Hay registros modificados después del backup. ¿Sobrescribir todo con el archivo de backup?</p>
-    <div class="modal-extender-botones">
-      <button type="button" id="modalRestaurarCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
-      <button type="button" id="modalRestaurarSi" class="modal-extender-btn modal-extender-si">Sobrescribir</button>
-    </div>
-  </div>
-</div>
-
 <!-- Modal: Primera vez – elegir grupo profesional -->
 <div id="modalElegirGP" class="modal-extender" role="dialog" aria-labelledby="modalElegirGPTitulo" aria-modal="true" hidden>
   <div class="modal-extender-box modal-elegir-gp">
@@ -345,23 +267,6 @@
             <input type="number" id="cfgAviso" class="config-input" min="0">
           </label>
           <p class="config-hint">Aviso previo y fin de jornada solo cuando la app está abierta.</p>
-          <label class="config-row">
-            <span class="config-label">Recordatorio fichar (hora)</span>
-            <input type="time" id="cfgRecordatorioFichar" class="config-input">
-          </label>
-          <p class="config-hint">Si no has fichado entrada ese día, se mostrará un aviso a esa hora (una vez al día).</p>
-        </div>
-      </div>
-    </details>
-    <details class="config-details">
-      <summary class="config-summary">Seguridad</summary>
-      <div class="config-details-body">
-        <label class="config-row config-toggle-row">
-          <input type="checkbox" id="cfgPinEnabled" class="config-checkbox">
-          <span class="config-label">Requerir PIN al abrir</span>
-        </label>
-        <div class="config-actions">
-          <button type="button" id="btnEstablecerPin" class="config-btn">Establecer / cambiar PIN</button>
         </div>
       </div>
     </details>
@@ -430,18 +335,9 @@
     <details class="config-details">
       <summary class="config-summary">Copia de datos y seguridad</summary>
       <div class="config-details-body">
-        <div class="config-row config-export-range">
-          <span class="config-label">Rango (opcional)</span>
-          <div class="config-range-inputs">
-            <input type="date" id="exportDesde" class="config-input config-input-date" aria-label="Exportar desde">
-            <span class="config-range-sep">–</span>
-            <input type="date" id="exportHasta" class="config-input config-input-date" aria-label="Exportar hasta">
-          </div>
-        </div>
         <div class="config-actions">
           <button type="button" id="excel" class="config-btn">Exportar Excel</button>
           <button type="button" id="backup" class="config-btn">Backup</button>
-          <button type="button" id="informePdf" class="config-btn">Informe PDF (mes)</button>
           <label class="config-btn config-btn-file">
             Restaurar
             <input type="file" id="restore" class="config-file-input">
@@ -455,32 +351,9 @@
       <button type="button" id="btnAbrirGuia" class="config-btn config-btn-guia">Ver guía de la app</button>
     </div>
 
-    <!-- Acerca de: versión, novedades, contacto -->
-    <details class="config-details config-details-about">
-      <summary class="config-summary">Acerca de</summary>
-      <div class="config-details-body">
-        <div class="config-app-info">
-          <span class="config-app-name">Jornada Pro</span> <span id="configAppVersion" class="config-app-version config-version-tap">v1.0</span>
-          <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap">Autor</span>: Pablo Mouriz Fontao</div>
-        </div>
-        <div class="config-changelog">
-          <p class="config-changelog-title">Novedades</p>
-          <ul id="configChangelogList" class="config-changelog-list">
-            <li>Toasts y mensajes de confirmación.</li>
-            <li>Onboarding en el primer uso.</li>
-            <li>Resumen del mes en portada y estado vacío en calendario.</li>
-            <li>Backup y restaurar desde JSON.</li>
-          </ul>
-        </div>
-        <div class="config-contacto">
-          <p class="config-contacto-title">Contacto / soporte</p>
-          <p id="configContactoText" class="config-contacto-text">Para sugerencias o incidencias, contacta al autor desde tu cliente de correo.</p>
-        </div>
-      </div>
-    </details>
-
-    <div class="config-app-info config-app-info-footer" aria-hidden="true">
-      <span class="config-app-name">Jornada Pro</span> <span id="configAppVersionFooter" class="config-app-version">v1.0</span>
+    <div class="config-app-info">
+      <span class="config-app-name">Jornada Pro</span> <span class="config-app-version">© 1.0</span>
+      <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap">Autor</span>: Pablo Mouriz Fontao</div>
     </div>
     <div id="configDevMenu" class="config-dev-menu" hidden>
       <p class="config-dev-title">Desarrollador</p>
@@ -488,62 +361,9 @@
         <button type="button" id="btnResetDiaCurso" class="config-btn config-btn-reset">Resetear día</button>
         <span id="plofTapTarget" class="plof-tap-target" title="10 toques para modo Plof" aria-hidden="true">🤡</span>
       </div>
-      <div class="config-dev-reset-row">
-        <button type="button" id="btnDevForzarDia" class="config-btn config-btn-reset">Usar día seleccionado como hoy</button>
-      </div>
-      <div class="config-dev-reset-row">
-        <button type="button" id="btnDevRestaurarDia" class="config-btn config-btn-reset">Restaurar día real</button>
-      </div>
     </div>
   </div>
   <div id="configPanelBackdrop" class="config-panel-backdrop" aria-hidden="true"></div>
-</div>
-
-<!-- Resumen rápido del mes (portada) -->
-<div id="resumenPortada" class="resumen-portada card" hidden>
-  <div class="resumen-portada-bank" aria-label="Fecha y hora actuales">
-    <div class="resumen-portada-card resumen-portada-card-fecha">
-      <span class="resumen-portada-card-label">Hoy</span>
-      <span id="resumenPortadaFecha" class="resumen-portada-card-value">--</span>
-    </div>
-    <div class="resumen-portada-card resumen-portada-card-reloj">
-      <span class="resumen-portada-card-label">Hora</span>
-      <span id="resumenPortadaReloj" class="resumen-portada-card-value resumen-portada-reloj-value">--:--</span>
-    </div>
-  </div>
-  <div id="resumenPortadaJornadaEnCurso" class="resumen-portada-jornada-en-curso" hidden aria-live="polite">
-    <span class="resumen-jornada-icon" aria-hidden="true">●</span>
-    <span id="resumenPortadaJornadaTexto">Fichado desde 08:00</span>
-  </div>
-  <div id="resumenPortadaAccesosRapidos" class="resumen-portada-accesos-rapidos resumen-portada-accion-jornada" hidden>
-    <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar" aria-label="Iniciar o finalizar jornada">Iniciar jornada</button>
-    <div id="finalizarJornadaWrap" class="finalizar-slider-wrap" hidden>
-      <div id="finalizarSliderTrack" class="finalizar-slider-track">
-        <span id="finalizarSliderText" class="finalizar-slider-text">Desliza para finalizar jornada</span>
-        <div id="finalizarSliderThumb" class="finalizar-slider-thumb" role="button" tabindex="0" aria-label="Deslizar para finalizar jornada"></div>
-      </div>
-    </div>
-  </div>
-  <div class="resumen-portada-line" id="resumenPortadaSemanaWrap">
-    <span id="resumenPortadaSemanaLabel">Esta semana</span>
-    <strong id="resumenPortadaSemanaHoras">--</strong>
-  </div>
-  <div class="resumen-portada-line">
-    <span id="resumenPortadaMesLabel">Este mes</span>
-    <strong id="resumenPortadaHoras">--</strong>
-  </div>
-  <div class="resumen-portada-line resumen-portada-comparativa" id="resumenPortadaComparativaWrap">
-    <span id="resumenPortadaComparativaLabel">Mes pasado</span>
-    <strong id="resumenPortadaComparativaHoras">--</strong>
-  </div>
-  <div class="resumen-portada-line resumen-portada-dias" id="resumenPortadaDiasWrap">
-    <span id="resumenPortadaDiasLabel">Días</span>
-    <span id="resumenPortadaDiasValor">--</span>
-  </div>
-  <div class="resumen-portada-line resumen-portada-festivo" id="resumenPortadaFestivoWrap" hidden>
-    <span>Próximo festivo</span>
-    <span id="resumenPortadaFestivo">--</span>
-  </div>
 </div>
 
 <!-- REGISTRO DIARIO -->
@@ -553,6 +373,19 @@
   <div class="form-card registro-card">
 
     <h3 style="margin-top:0;">Registro Diario</h3>
+
+    <!-- BOTONES INICIAR / FINALIZAR JORNADA -->
+    <div class="jornada-acciones">
+      <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar">
+        Iniciar jornada
+      </button>
+      <div id="finalizarJornadaWrap" class="finalizar-slider-wrap">
+        <div id="finalizarSliderTrack" class="finalizar-slider-track">
+          <span class="finalizar-slider-text">Desliza para finalizar jornada</span>
+          <div id="finalizarSliderThumb" class="finalizar-slider-thumb" role="button" tabindex="0" aria-label="Deslizar para finalizar jornada"></div>
+        </div>
+      </div>
+    </div>
 
     <!-- FECHA + ENTRADA -->
     <div class="grid-2">
@@ -661,10 +494,6 @@
       <span>Negativa</span>
       <strong id="rNegativa">--</strong>
     </div>
-    <div class="resumen-line resumen-ultima-mod" id="resumenDiaUltimaModWrap">
-      <span>Últ. mod.</span>
-      <span id="resumenDiaUltimaMod" class="resumen-ultima-mod-value">--</span>
-    </div>
   </div>
   <div id="resumenDiaMinutosWrap" class="resumen-dia-minutos" hidden>
     <div class="resumen-line">
@@ -697,10 +526,6 @@
     </div>
 
     <div id="calendarGrid" class="calendar-grid"></div>
-    <div id="emptyStateCalendar" class="empty-state empty-state--calendar" hidden>
-      <p class="empty-state-text">Aún no hay registros este mes</p>
-      <p class="empty-state-hint">Usa «Iniciar jornada» o selecciona un día y guarda para empezar.</p>
-    </div>
 
     <div id="calendarLegend" class="cal-leyenda" aria-label="Leyenda del mes visible"></div>
 
@@ -721,10 +546,6 @@
   <!-- GRÁFICO LATERAL -->
   <div id="chartCard" class="card chart-card">
     <canvas id="chart"></canvas>
-  </div>
-  <div id="chartEvolucionCard" class="card chart-card chart-evolucion-card">
-    <h4 class="chart-evolucion-title">Evolución saldo TxT (año en curso)</h4>
-    <canvas id="chartEvolucion"></canvas>
   </div>
 
 </section>
