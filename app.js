@@ -43,6 +43,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const EXTEND_PROMPT_KEY = "jornadaPro_extendPrompt";
   const GP_ELIGIDO_KEY = "jornadaPro_modalGPShown";
   const ONBOARDING_KEY = "jornadaPro_onboardingDone";
+  const SUGERENCIA_DIA_KEY = "jornadaPro_sugerenciaDia";
+  const SUGERENCIAS = [
+    { titulo: "Bienvenido a Jornada Pro", texto: "Registra tu jornada, horas extra y saldos. Todo se guarda en tu dispositivo." },
+    { titulo: "Iniciar y terminar", texto: "Pulsa Iniciar jornada al llegar. Para terminar, desliza el control rojo o introduce la hora de salida y guarda." },
+    { titulo: "Backup y configuración", texto: "En el menú (☰) puedes exportar copia de seguridad, restaurar datos y ajustar tema, notificaciones y jornada." },
+    { titulo: "Pase de salida", texto: "Si sales antes del fin teórico puedes indicar pase justificado o sin justificar; el tiempo no trabajado se descontará del saldo que elijas (TxT o exceso)." },
+    { titulo: "Calendario", texto: "Toca un día en el calendario para ver el detalle o editar. Los días con asterisco (*) indican jornada no completa (pase)." },
+    { titulo: "Vacaciones y LD", texto: "Usa los botones Vacaciones y LD para marcar días. La primera vez en el año te pedirá el número de días LD disponibles." },
+    { titulo: "Horas extra", texto: "Si superas la jornada nominal, el tiempo se suma a tu banco TxT o exceso de jornada según tu grupo profesional." },
+    { titulo: "Recordatorio", texto: "Haz backup con frecuencia desde el menú: Exportar backup guarda todos tus datos en un archivo." }
+  ];
 
   function getHoyISO() {
     const d = new Date();
@@ -280,6 +291,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalElegirGP = document.getElementById("modalElegirGP");
   const modalElegirGP1 = document.getElementById("modalElegirGP1");
   const modalElegirGP2 = document.getElementById("modalElegirGP2");
+  const modalSugerenciaDia = document.getElementById("modalSugerenciaDia");
+  const modalSugerenciaDiaTitulo = document.getElementById("modalSugerenciaDiaTitulo");
+  const modalSugerenciaDiaTexto = document.getElementById("modalSugerenciaDiaTexto");
+  const modalSugerenciaDiaCerrar = document.getElementById("modalSugerenciaDiaCerrar");
   const modalElegirGP3 = document.getElementById("modalElegirGP3");
   const modalElegirGP4 = document.getElementById("modalElegirGP4");
   const btnRestaurarFabrica = document.getElementById("restaurarFabrica");
@@ -2635,6 +2650,15 @@ function controlarNotificaciones() {
 
   function actualizarEstadoFinalizarJornada() {
     if (!finalizarJornadaWrap) return;
+    const hoy = getHoyISO();
+    const enPaseJustificado = state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy;
+    const enEarlyExit = state.earlyExitState && state.earlyExitState.fecha === hoy && !pasadoFinTeorico(state.earlyExitState);
+    const activa = jornadaActivaHoy();
+    if (!activa || enPaseJustificado || enEarlyExit) {
+      finalizarJornadaWrap.hidden = true;
+      return;
+    }
+    finalizarJornadaWrap.hidden = false;
     const esVacaciones = !!(fecha && state.registros[fecha.value]?.vacaciones);
     const esLD = !!(fecha && state.registros[fecha.value]?.libreDisposicion);
     const esDisfruteHorasExtra = !!(fecha && state.registros[fecha.value]?.disfruteHorasExtra);
@@ -2644,9 +2668,8 @@ function controlarNotificaciones() {
       finalizarJornadaWrap.setAttribute("aria-disabled", "true");
       return;
     }
-    const activa = jornadaActivaHoy();
-    finalizarJornadaWrap.classList.toggle("finalizar-slider-wrap--disabled", !activa);
-    finalizarJornadaWrap.setAttribute("aria-disabled", activa ? "false" : "true");
+    finalizarJornadaWrap.classList.remove("finalizar-slider-wrap--disabled");
+    finalizarJornadaWrap.setAttribute("aria-disabled", "false");
   }
 
   function actualizarEstadoIniciarJornada() {
@@ -2712,7 +2735,7 @@ function controlarNotificaciones() {
       btnIniciarJornada.classList.remove("btn-finalizar", "btn-continuar");
       btnIniciarJornada.classList.add("btn-iniciar");
     }
-    const mostrarSliderFinalizar = (esHoy && tieneEntrada && !yaFinalizado) || (!esModoMinutosSemanal() && enExtension);
+    const mostrarSliderFinalizar = ((esHoy && tieneEntrada && !yaFinalizado) && !mostrarContinuar) || (!esModoMinutosSemanal() && enExtension);
     if (btnIniciarJornada) btnIniciarJornada.hidden = !!mostrarSliderFinalizar;
     if (finalizarJornadaWrap) {
       finalizarJornadaWrap.hidden = !mostrarSliderFinalizar;
@@ -3597,6 +3620,8 @@ if(festivos && festivos[fechaISO]){
     try {
       if (!localStorage.getItem(ONBOARDING_KEY) && localStorage.getItem(GP_ELIGIDO_KEY)) {
         mostrarOnboarding();
+      } else if (localStorage.getItem(ONBOARDING_KEY)) {
+        setTimeout(mostrarSugerenciaDiaSiAplica, 300);
       }
     } catch (e) {}
   }, 450);
@@ -3632,6 +3657,41 @@ if(festivos && festivos[fechaISO]){
       om.style.display = "";
     }
   }
+
+  function mostrarSugerenciaDiaSiAplica() {
+    try {
+      const hoy = getHoyISO();
+      const raw = localStorage.getItem(SUGERENCIA_DIA_KEY);
+      const guardado = raw ? JSON.parse(raw) : null;
+      if (guardado && guardado.date === hoy) return;
+      if (!modalSugerenciaDia || !modalSugerenciaDiaTitulo || !modalSugerenciaDiaTexto || !SUGERENCIAS.length) return;
+      const idx = Math.floor(Math.random() * SUGERENCIAS.length);
+      const s = SUGERENCIAS[idx];
+      modalSugerenciaDiaTitulo.textContent = s.titulo;
+      modalSugerenciaDiaTexto.textContent = s.texto;
+      modalSugerenciaDia.hidden = false;
+      modalSugerenciaDia.setAttribute("aria-hidden", "false");
+      modalSugerenciaDia.dataset.sugerenciaIndex = String(idx);
+    } catch (e) {}
+  }
+  function cerrarSugerenciaDia() {
+    try {
+      const hoy = getHoyISO();
+      const idx = modalSugerenciaDia ? modalSugerenciaDia.dataset.sugerenciaIndex : "";
+      localStorage.setItem(SUGERENCIA_DIA_KEY, JSON.stringify({ date: hoy, index: idx }));
+      if (modalSugerenciaDia) {
+        modalSugerenciaDia.hidden = true;
+        modalSugerenciaDia.setAttribute("aria-hidden", "true");
+      }
+    } catch (e) {}
+  }
+  if (modalSugerenciaDiaCerrar) {
+    modalSugerenciaDiaCerrar.addEventListener("click", cerrarSugerenciaDia);
+  }
+  if (modalSugerenciaDia && modalSugerenciaDia.querySelector(".modal-extender-backdrop")) {
+    modalSugerenciaDia.querySelector(".modal-extender-backdrop").addEventListener("click", cerrarSugerenciaDia);
+  }
+
   if (onboardingCerrar) {
     onboardingCerrar.addEventListener("click", (e) => {
       e.preventDefault();

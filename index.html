@@ -73,6 +73,18 @@
   </div>
 </div>
 
+<!-- Modal: Sugerencia del día (una al día, al azar) -->
+<div id="modalSugerenciaDia" class="modal-extender" role="dialog" aria-labelledby="modalSugerenciaDiaTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalSugerenciaDiaTitulo" class="modal-extender-titulo">Sugerencia</h3>
+    <p id="modalSugerenciaDiaTexto" class="modal-extender-texto"></p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalSugerenciaDiaCerrar" class="modal-extender-btn modal-extender-si">Entendido</button>
+    </div>
+  </div>
+</div>
+
 <header class="header">
   <h1 id="headerTitle" class="header-title">Jornada Pro NAVANTIA (Ferrol)</h1>
   <img src="icons/logo-navantia.png" alt="NAVANTIA" class="header-logo">
@@ -448,9 +460,8 @@
       <summary class="config-summary">Acerca de</summary>
       <div class="config-details-body">
         <div class="config-app-info">
-          <span class="config-app-name">Jornada Pro</span> <span id="configAppVersion" class="config-app-version config-version-tap" title="7 toques para modo desarrollador">v1.0</span>
-          <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap" title="5 toques para modo desarrollador">Autor</span>: Pablo Mouriz Fontao</div>
-          <p class="config-dev-hint">Modo desarrollador: 5 toques en «Autor» o 7 en la versión.</p>
+          <span class="config-app-name">Jornada Pro</span> <span id="configAppVersion" class="config-app-version config-version-tap">v1.0</span>
+          <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap">Autor</span>: Pablo Mouriz Fontao</div>
         </div>
         <div class="config-changelog">
           <p class="config-changelog-title">Novedades</p>
