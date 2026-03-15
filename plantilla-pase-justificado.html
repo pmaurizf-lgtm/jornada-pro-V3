@@ -67,13 +67,10 @@ border-bottom:1px solid black;
 height:18px;
 text-align:center;
 }
-.fila-fecha{
+.linea-fecha{
 text-align:center;
-}
-.campo-fecha{
-text-align:center;
-height:18px;
-min-width:2em;
+font-size:14px;
+margin:0.5em 0;
 }
 
 .checkbox{
@@ -99,7 +96,8 @@ display:inline-block;
 
 .signature-doctor{
 margin-top:6mm;
-margin-bottom:8mm;
+margin-bottom:28mm;
+min-height:22mm;
 }
 
 .note{
@@ -201,23 +199,7 @@ DATOS A CUBRIR POLO/LA TRABALLADOR/A
 <br>
 
 
-<table class="fila-fecha">
-
-<tr>
-
-<td width="70">Ferrol, a</td>
-<td class="campo-fecha" width="80">{{DIA}}</td>
-
-<td width="25">de</td>
-<td class="campo-fecha" width="160">{{MES}}</td>
-
-<td width="25">de</td>
-<td width="40">202</td>
-<td class="campo-fecha" width="40">{{ANHO_2D}}</td>
-
-</tr>
-
-</table>
+<p class="linea-fecha">Ferrol, a {{DIA}} de {{MES}} de {{ANHO}}.</p>
 
 
 
