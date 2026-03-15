@@ -18,7 +18,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js"></script>
+<script type="module" src="app.js?v=2"></script>
 </head>
 
 <body>
@@ -44,34 +44,6 @@
 
 <!-- Contenedor de toasts -->
 <div id="toastContainer" class="toast-container" role="region" aria-label="Notificaciones"></div>
-
-<!-- Onboarding (primera vez) -->
-<div id="onboardingModal" class="onboarding-modal" role="dialog" aria-labelledby="onboardingTitulo" aria-modal="true" hidden>
-  <div class="onboarding-backdrop"></div>
-  <div class="onboarding-box">
-    <div id="onboardingSlide1" class="onboarding-slide onboarding-slide--active">
-      <h2 id="onboardingTitulo" class="onboarding-titulo">Bienvenido a Jornada Pro</h2>
-      <p class="onboarding-texto">Registra tu jornada, horas extra y saldos. Todo se guarda en tu dispositivo.</p>
-      <img src="icons/app-icon.png" alt="" class="onboarding-img" width="64" height="64">
-    </div>
-    <div id="onboardingSlide2" class="onboarding-slide">
-      <h2 class="onboarding-titulo">Iniciar y terminar</h2>
-      <p class="onboarding-texto">Pulsa <strong>Iniciar jornada</strong> al llegar. Para terminar, vuelve a pulsar el mismo botón (verás <strong>Finalizar jornada</strong>) o introduce la hora de salida y guarda.</p>
-    </div>
-    <div id="onboardingSlide3" class="onboarding-slide">
-      <h2 class="onboarding-titulo">Backup y configuración</h2>
-      <p class="onboarding-texto">En el menú (☰) puedes exportar copia de seguridad, restaurar datos y ajustar tema, notificaciones y jornada.</p>
-    </div>
-    <div class="onboarding-footer">
-      <button type="button" id="onboardingCerrar" class="onboarding-btn onboarding-btn-primary">Empezar</button>
-      <div class="onboarding-dots" aria-hidden="true">
-        <span class="onboarding-dot onboarding-dot--active" data-slide="0"></span>
-        <span class="onboarding-dot" data-slide="1"></span>
-        <span class="onboarding-dot" data-slide="2"></span>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Modal: Sugerencia del día (una al día, al azar) -->
 <div id="modalSugerenciaDia" class="modal-extender" role="dialog" aria-labelledby="modalSugerenciaDiaTitulo" aria-modal="true" hidden>

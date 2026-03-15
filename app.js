@@ -3656,36 +3656,39 @@ if(festivos && festivos[fechaISO]){
     } catch (e) {}
   }, 450);
 
-  // Onboarding: slides y cerrar
   const onboardingModal = document.getElementById("onboardingModal");
-  const onboardingCerrar = document.getElementById("onboardingCerrar");
-  const onboardingSlides = ["onboardingSlide1", "onboardingSlide2", "onboardingSlide3"];
-  const onboardingDots = document.querySelectorAll(".onboarding-dot");
-  let onboardingSlideIndex = 0;
-  function setOnboardingSlide(i) {
-    onboardingSlideIndex = Math.max(0, Math.min(i, 2));
-    onboardingSlides.forEach((id, idx) => {
-      const el = document.getElementById(id);
-      if (el) el.classList.toggle("onboarding-slide--active", idx === onboardingSlideIndex);
+  if (onboardingModal) {
+    const onboardingCerrar = document.getElementById("onboardingCerrar");
+    const onboardingSlides = ["onboardingSlide1", "onboardingSlide2", "onboardingSlide3"];
+    const onboardingDots = document.querySelectorAll(".onboarding-dot");
+    let onboardingSlideIndex = 0;
+    function setOnboardingSlide(i) {
+      onboardingSlideIndex = Math.max(0, Math.min(i, 2));
+      onboardingSlides.forEach((id, idx) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle("onboarding-slide--active", idx === onboardingSlideIndex);
+      });
+      onboardingDots.forEach((dot, idx) => dot.classList.toggle("onboarding-dot--active", idx === onboardingSlideIndex));
+      if (onboardingCerrar) onboardingCerrar.textContent = onboardingSlideIndex === 2 ? "Empezar" : "Siguiente";
+    }
+    if (onboardingCerrar) {
+      onboardingCerrar.addEventListener("click", (e) => {
+        e.preventDefault();
+        const esBotonEmpezar = (onboardingCerrar.textContent || "").trim().toLowerCase().includes("empezar");
+        if (esBotonEmpezar || onboardingSlideIndex >= 2) {
+          try { localStorage.setItem(ONBOARDING_KEY, "1"); } catch (e) {}
+          onboardingModal.hidden = true;
+          onboardingModal.setAttribute("aria-hidden", "true");
+          onboardingModal.style.display = "none";
+          return;
+        }
+        setOnboardingSlide(onboardingSlideIndex + 1);
+      });
+    }
+    onboardingDots.forEach((dot, idx) => {
+      dot.addEventListener("click", () => setOnboardingSlide(idx));
     });
-    onboardingDots.forEach((dot, idx) => dot.classList.toggle("onboarding-dot--active", idx === onboardingSlideIndex));
-    if (onboardingCerrar) onboardingCerrar.textContent = onboardingSlideIndex === 2 ? "Empezar" : "Siguiente";
-  }
-  function cerrarOnboarding() {
-    try { localStorage.setItem(ONBOARDING_KEY, "1"); } catch (e) {}
-    if (onboardingModal) {
-      onboardingModal.hidden = true;
-      onboardingModal.setAttribute("aria-hidden", "true");
-      onboardingModal.style.display = "none";
-    }
-  }
-  function mostrarOnboarding() {
-    const om = document.getElementById("onboardingModal");
-    if (om) {
-      om.hidden = false;
-      om.removeAttribute("aria-hidden");
-      om.style.display = "";
-    }
+    setOnboardingSlide(0);
   }
 
   function mostrarSugerenciaDiaSiAplica() {
@@ -3721,22 +3724,6 @@ if(festivos && festivos[fechaISO]){
   if (modalSugerenciaDia && modalSugerenciaDia.querySelector(".modal-extender-backdrop")) {
     modalSugerenciaDia.querySelector(".modal-extender-backdrop").addEventListener("click", cerrarSugerenciaDia);
   }
-
-  if (onboardingCerrar) {
-    onboardingCerrar.addEventListener("click", (e) => {
-      e.preventDefault();
-      const esBotonEmpezar = (onboardingCerrar.textContent || "").trim().toLowerCase().includes("empezar");
-      if (esBotonEmpezar || onboardingSlideIndex >= 2) {
-        cerrarOnboarding();
-        return;
-      }
-      setOnboardingSlide(onboardingSlideIndex + 1);
-    });
-  }
-  onboardingDots.forEach((dot, idx) => {
-    dot.addEventListener("click", () => setOnboardingSlide(idx));
-  });
-  setOnboardingSlide(0);
 
   // Primera vez: mostrar modal para elegir grupo profesional
   try {
