@@ -2772,6 +2772,31 @@ body:not(.dark) .cal-day.festivo-ferrol small {
   min-width: 100px;
 }
 
+.modal-input-time {
+  display: block;
+  width: 100%;
+  max-width: 160px;
+  margin: 0 auto;
+  padding: 10px 12px;
+  font-size: 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .modal-extender-si {
   background: var(--accent, #5df56b);
   color: #fff;

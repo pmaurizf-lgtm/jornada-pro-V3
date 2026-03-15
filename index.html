@@ -107,6 +107,22 @@
   </div>
 </div>
 
+<!-- Modal: Hora de desprazamento para o formulario -->
+<div id="modalPaseHoraDesplazamiento" class="modal-extender" role="dialog" aria-labelledby="modalPaseHoraDesplazamientoTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalPaseHoraDesplazamientoTitulo" class="modal-extender-titulo">Hora de desprazamento</h3>
+    <p class="modal-extender-texto">Indica a hora de saída que figurará no xustificante:</p>
+    <div style="margin:1rem 0;">
+      <label for="inputPaseHoraDesplazamiento" class="sr-only">Hora</label>
+      <input type="time" id="inputPaseHoraDesplazamiento" class="modal-input-time" step="60" required>
+    </div>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalPaseHoraDesplazamientoConfirmar" class="modal-extender-btn modal-pase-justificado">Continuar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Elixir motivo do xustificante (1 de 3 opcións) -->
 <div id="modalPaseJustificadoMotivo" class="modal-extender" role="dialog" aria-labelledby="modalPaseJustificadoMotivoTitulo" aria-modal="true" hidden>
   <div class="modal-extender-backdrop"></div>

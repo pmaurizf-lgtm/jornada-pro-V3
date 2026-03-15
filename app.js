@@ -286,6 +286,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalPaseJustificadoOpciones = document.getElementById("modalPaseJustificadoOpciones");
   const modalPaseJustificadoSoloRegistrar = document.getElementById("modalPaseJustificadoSoloRegistrar");
   const modalPaseJustificadoGenerarPDF = document.getElementById("modalPaseJustificadoGenerarPDF");
+  const modalPaseHoraDesplazamiento = document.getElementById("modalPaseHoraDesplazamiento");
+  const inputPaseHoraDesplazamiento = document.getElementById("inputPaseHoraDesplazamiento");
+  const modalPaseHoraDesplazamientoConfirmar = document.getElementById("modalPaseHoraDesplazamientoConfirmar");
   const modalPaseJustificadoMotivo = document.getElementById("modalPaseJustificadoMotivo");
   const modalPaseMotivo1 = document.getElementById("modalPaseMotivo1");
   const modalPaseMotivo2 = document.getElementById("modalPaseMotivo2");
@@ -1368,7 +1371,9 @@ function controlarNotificaciones() {
     const mesNombre = d.toLocaleDateString("gl", { month: "long" });
     const anho = d.getFullYear();
     const horaEntrada = (entrada && entrada.value) ? entrada.value : "--";
-    const horaSalida = ahora.toTimeString().slice(0, 5);
+    const horaSalida = (paseJustificadoHoraDesplazamiento != null && paseJustificadoHoraDesplazamiento !== "")
+      ? paseJustificadoHoraDesplazamiento
+      : ahora.toTimeString().slice(0, 5);
     const cfg = state.config || {};
     const n = parseInt(opcion, 10);
     const marcar1 = n === 1 ? "☒" : "□";
@@ -1397,7 +1402,9 @@ function controlarNotificaciones() {
   }
 
   function abrirFormularioPasePDF(opcion, firmaDataURL) {
-    const horaSalidaActual = new Date().toTimeString().slice(0, 5);
+    const horaSalidaActual = (paseJustificadoHoraDesplazamiento != null && paseJustificadoHoraDesplazamiento !== "")
+      ? paseJustificadoHoraDesplazamiento
+      : new Date().toTimeString().slice(0, 5);
     if (salida) salida.value = horaSalidaActual;
     const op = parseInt(opcion, 10) || 1;
     fetch("plantilla-pase-justificado.html")
@@ -1426,6 +1433,7 @@ function controlarNotificaciones() {
   }
 
   let paseJustificadoOpcionSeleccionada = null;
+  let paseJustificadoHoraDesplazamiento = null;
 
   function initCanvasFirma() {
     if (!canvasFirma) return;
@@ -1499,7 +1507,29 @@ function controlarNotificaciones() {
   if (modalPaseJustificadoGenerarPDF) {
     modalPaseJustificadoGenerarPDF.addEventListener("click", () => {
       if (modalPaseJustificadoOpciones) modalPaseJustificadoOpciones.hidden = true;
+      if (modalPaseHoraDesplazamiento) {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, "0");
+        const m = String(now.getMinutes()).padStart(2, "0");
+        if (inputPaseHoraDesplazamiento) inputPaseHoraDesplazamiento.value = h + ":" + m;
+        modalPaseHoraDesplazamiento.hidden = false;
+      } else {
+        if (modalPaseJustificadoMotivo) modalPaseJustificadoMotivo.hidden = false;
+      }
+    });
+  }
+  if (modalPaseHoraDesplazamientoConfirmar && inputPaseHoraDesplazamiento) {
+    modalPaseHoraDesplazamientoConfirmar.addEventListener("click", () => {
+      const val = (inputPaseHoraDesplazamiento.value || "").trim();
+      paseJustificadoHoraDesplazamiento = val || new Date().toTimeString().slice(0, 5);
+      if (modalPaseHoraDesplazamiento) modalPaseHoraDesplazamiento.hidden = true;
       if (modalPaseJustificadoMotivo) modalPaseJustificadoMotivo.hidden = false;
+    });
+  }
+  if (modalPaseHoraDesplazamiento && modalPaseHoraDesplazamiento.querySelector(".modal-extender-backdrop")) {
+    modalPaseHoraDesplazamiento.querySelector(".modal-extender-backdrop").addEventListener("click", () => {
+      modalPaseHoraDesplazamiento.hidden = true;
+      paseJustificadoHoraDesplazamiento = null;
     });
   }
   [modalPaseMotivo1, modalPaseMotivo2, modalPaseMotivo3].forEach((btn) => {
@@ -1531,6 +1561,7 @@ function controlarNotificaciones() {
         registrarPaseJustificadoYCerrar();
       }
       paseJustificadoOpcionSeleccionada = null;
+      paseJustificadoHoraDesplazamiento = null;
     });
   }
   if (modalPaseFirmaSinFirmar) {
@@ -1541,12 +1572,14 @@ function controlarNotificaciones() {
         registrarPaseJustificadoYCerrar();
       }
       paseJustificadoOpcionSeleccionada = null;
+      paseJustificadoHoraDesplazamiento = null;
     });
   }
   if (modalPaseFirma && modalPaseFirma.querySelector(".modal-extender-backdrop")) {
     modalPaseFirma.querySelector(".modal-extender-backdrop").addEventListener("click", () => {
       modalPaseFirma.hidden = true;
       paseJustificadoOpcionSeleccionada = null;
+      paseJustificadoHoraDesplazamiento = null;
     });
   }
   if (modalPaseJustificadoMotivo && modalPaseJustificadoMotivo.querySelector(".modal-extender-backdrop")) {

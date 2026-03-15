@@ -14,17 +14,20 @@ margin:0;
 
 .page{
 width:210mm;
-min-height:297mm;
+height:297mm;
+max-height:297mm;
 margin:auto;
-padding:20mm;
+padding:12mm 20mm;
 box-sizing:border-box;
+overflow:hidden;
+page-break-after:avoid;
 }
 
 .header{
 display:flex;
 align-items:center;
 justify-content:space-between;
-margin-bottom:10mm;
+margin-bottom:6mm;
 }
 
 .logo-left{
@@ -39,13 +42,13 @@ height:40px;
 text-align:center;
 font-size:20px;
 font-weight:bold;
-margin-bottom:10mm;
+margin-bottom:6mm;
 }
 
 .section{
 font-weight:bold;
-margin-top:8mm;
-margin-bottom:4mm;
+margin-top:5mm;
+margin-bottom:3mm;
 }
 
 table{
@@ -62,6 +65,15 @@ vertical-align:bottom;
 .line{
 border-bottom:1px solid black;
 height:18px;
+text-align:center;
+}
+.fila-fecha{
+text-align:center;
+}
+.campo-fecha{
+text-align:center;
+height:18px;
+min-width:2em;
 }
 
 .checkbox{
@@ -71,26 +83,29 @@ font-size:18px;
 }
 
 .signature-worker{
-margin-top:35mm;
+margin-top:12mm;
+text-align:center;
 }
 
 .firma-imagen{
-margin-bottom:8px;
+margin-bottom:4px;
+text-align:center;
 }
 .firma-imagen img{
-max-width:220px;
+max-width:140px;
 height:auto;
-display:block;
+display:inline-block;
 }
 
 .signature-doctor{
-margin-top:10mm;
-margin-bottom:35mm;
+margin-top:6mm;
+margin-bottom:8mm;
 }
 
 .note{
-font-size:12px;
-line-height:1.4;
+font-size:11px;
+line-height:1.35;
+margin-top:4mm;
 }
 
 </style>
@@ -186,19 +201,19 @@ DATOS A CUBRIR POLO/LA TRABALLADOR/A
 <br>
 
 
-<table>
+<table class="fila-fecha">
 
 <tr>
 
 <td width="70">Ferrol, a</td>
-<td class="line" width="80">{{DIA}}</td>
+<td class="campo-fecha" width="80">{{DIA}}</td>
 
 <td width="25">de</td>
-<td class="line" width="160">{{MES}}</td>
+<td class="campo-fecha" width="160">{{MES}}</td>
 
 <td width="25">de</td>
 <td width="40">202</td>
-<td class="line" width="40">{{ANHO_2D}}</td>
+<td class="campo-fecha" width="40">{{ANHO_2D}}</td>
 
 </tr>
 
