@@ -1,6 +1,6 @@
 # Guía de uso – Jornada Pro
 
-**Jornada Pro © 1.0** – Control de jornada laboral  
+**Jornada Pro** – Control de jornada laboral  
 **Autor:** Pablo Mouriz Fontao
 
 ---
@@ -37,6 +37,7 @@ Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración
 - **Registro diario:** formulario con fecha, entrada, salida y acciones: **Iniciar jornada**, **Finalizar**, **Guardar**, **Vacaciones**, **LD** (Libre Disposición), **Disfr. TxT**, **Disfr. exceso** (solo GP3/GP4), **Licencias Retribuidas**, **Eliminar**.
 - **Salidas teórica y ajustada:** se calculan en función de la jornada configurada.
 - **Barra de progreso:** indica el avance del día respecto a la jornada nominal (o horas extra en modo extensión para GP3/GP4). Muestra las horas trabajadas, el porcentaje y el **tiempo que queda** hasta el fin de la jornada («Quedan Xh XXm»). El texto está adaptado para leerse bien tanto cuando la barra está poco llena como cuando está casi completa.
+- **Feedback al guardar:** al guardar un día con el botón «Guardar» se muestra «Día guardado»; al finalizar la jornada con el deslizador se muestra «Datos actualizados».
 - **Resumen del día:**
   - **GP3/GP4:** horas trabajadas, extra, exceso jornada, negativa (en horas y minutos y en decimal).
   - **GP1/GP2:** trabajado, Bolsa de autorregulación (esta semana), hoy (delta). La bolsa se indica en fase de «implantación experimental».
@@ -63,7 +64,7 @@ Solo puede haber una jornada «iniciada» al día. En **GP3/GP4**, si ya has fin
 - Cuando tengas entrada puesta y quieras dar por terminado el día:
   1. Usa el **control deslizante** «Desliza para finalizar jornada»: arrastra hasta el final y suelta.
   2. La app pondrá la **hora de salida real** (o la salida teórica si no quieres horas extra).
-  3. Se guarda el registro del día y se actualizan calendario, banco y gráfico.
+  3. Se guarda el registro del día, se actualizan calendario, banco y gráfico, y se muestra el mensaje **«Datos actualizados»**.
 
 El botón de finalizar solo está activo si hay una jornada en curso (día con entrada y sin salida guardada, o en «Continuar jornada» / «Extender jornada»).
 
@@ -74,7 +75,12 @@ El botón de finalizar solo está activo si hay una jornada en curso (día con e
 Si intentas finalizar o guardar con una hora de salida **anterior al fin teórico** de la jornada, se abre un **modal de pase de salida** con las siguientes opciones:
 
 - **Pase de salida justificado**  
-  La jornada se considera completada hasta el fin teórico y se cierra automáticamente. El botón principal pasará a «Continuar jornada» si quisieras volver a abrir el día.
+  La jornada se considera completada hasta el fin teórico. Puedes elegir **«Solo registrar pase»** (solo guarda el registro) o **«Registrar y generar formulario PDF»**. Si generas el formulario:
+  1. Se abre primero el **modal «Hora de desprazamento»**: indica la hora de salida que figurará en el formulario PDF y en el registro del día (por defecto la hora actual; puedes cambiarla antes de continuar).
+  2. A continuación eliges el **motivo** del justificante (una de las tres opciones: consulta médica especialista, pruebas complementarias, consulta pediatría).
+  3. Luego puedes **dibujar tu firma** (táctil o con el ratón) en un canvas; la firma se inserta en el formulario encima de «Sinatura do/da traballador/a». Puedes confirmar la firma o continuar sin firmar.
+  4. La app genera el **PDF del xustificante de ausencias** (formulario rellenado con tus datos y, si lo elegiste, la firma) y lo descarga directamente con un nombre que incluye la fecha (p. ej. `xustificante-ausencias-2025-02-22.pdf`), sin abrir el diálogo de impresión. En iPhone esto evita tener que usar «Guardar como PDF» desde la impresora.
+  El botón principal pasará a «Continuar jornada» si quisieras volver a abrir el día.
 
 - **Pase de salida sin justificar**  
   Se registra la salida y se descuenta del banco el tiempo no trabajado. En **GP3/GP4** se abre un segundo modal: **«¿De qué saldo se descuenta?»**, con dos botones (**TxT** o **Exceso de jornada**); el tiempo no trabajado se descuenta del saldo que elijas. Puedes pulsar **«Continuar jornada»** más tarde para reanudar.
@@ -207,7 +213,7 @@ Estas dos últimas (lactancia y guarda legal) no implican días completos en el 
 ### 4.12 Eliminar registro del día
 
 - Con el día seleccionado, pulsa **«Eliminar»**.  
-- Aparece un mensaje de confirmación. Si confirmas, se borra todo el registro de ese día (entrada, salida, extra, negativa, vacaciones, LD, disfrute TxT, disfrute exceso, etc.).  
+- Aparece un **modal de confirmación** que indica que se borrarán todos los datos de ese día (entrada, salida, tipo de día) y que la acción no se puede deshacer. Se muestra **el día concreto** (p. ej. «Día: lunes, 24 de febrero de 2025») para que confirmes que es el correcto. Pulsa **«Eliminar»** para confirmar o **«Cancelar»** para mantener el registro.  
 - El día vuelve a estar «vacío» para poder registrarlo de nuevo si quieres. Si eliminabas un día de vacaciones o LD, el día correspondiente se devuelve al banco de vacaciones o LD.
 
 ### 4.13 Otros campos
@@ -301,8 +307,10 @@ Se abre desde el **menú (☰)** de la cabecera. Está organizada en bloques des
 ### 8.2 Configuración de la aplicación
 
 - **Tema:** Claro / Oscuro.
+- **Texto más grande:** activar para aumentar el tamaño de fuente en toda la app y mejorar la legibilidad.
 - **Notificaciones:** activar o desactivar. Las notificaciones (aviso previo al fin de jornada y aviso de fin de jornada) **solo funcionan con la app abierta** en primer plano.
 - **Aviso antes de terminar (min):** minutos antes del fin teórico en que quieres recibir el aviso.
+- **Recordatorio fichar (hora):** si no has fichado la entrada ese día, la app puede mostrarte un aviso a esa hora (una vez al día).
 
 ### 8.3 Configuración de jornada
 
@@ -317,23 +325,36 @@ Se abre desde el **menú (☰)** de la cabecera. Está organizada en bloques des
 
 ### 8.4 Copia de datos y seguridad
 
-- **Exportar Excel:** descarga una hoja con los registros (fechas, generadas, exceso, negativas, disfrutadas, vacaciones).
-- **Backup:** descarga un archivo JSON con todos los datos (registros, configuración, banco, etc.).
-- **Restaurar:** sube un archivo de backup (JSON) para recuperar un estado guardado.
+- **Indicador de backup:** encima de los botones de exportación se muestra el **último backup** («Último backup: hoy» / «hace X días» o «Aún no has hecho ningún backup…»). La app también te recuerda periódicamente (p. ej. cada 7 días) que hagas una copia de seguridad.
+- **Rango (opcional):** puedes indicar fechas «Desde» y «Hasta» para limitar los datos exportados. Los botones **«Mes actual»** y **«Año actual»** rellenan ese rango y lanzan la exportación a Excel con un solo clic.
+- **Exportar Excel:** descarga una hoja con los registros (fechas, tipo de día, entradas, salidas, generadas, exceso, negativas, disfrutadas, vacaciones, LD, etc.). Si has puesto rango, solo se exportan esos días.
+- **Backup:** descarga un archivo JSON con todos los datos (registros, configuración, banco, etc.). Si has puesto rango, el backup puede limitarse a ese intervalo. Tras descargar, se actualiza la fecha del «último backup».
+- **Informe PDF (mes):** genera un informe en PDF del mes para imprimir o guardar.
+- **Restaurar:** sube un archivo de backup (JSON) para recuperar un estado guardado. Si hay datos locales más recientes, la app te pregunta si quieres sobrescribir.
 - **Restaurar valores de fábrica:** borra todos los datos y deja la app como recién instalada. Se pide confirmación antes de ejecutar.
-
-Al final del panel aparecen el nombre de la app, la versión y el autor.
+- **Borrar todos los datos:** borra registros, configuración, banco y datos personales de forma permanente. Se pide **doble confirmación**: debes marcar la casilla «Entiendo que se borrará todo de forma permanente» y pulsar «Borrar todo». Tras confirmar, la app se reinicia con estado inicial.
 
 **Guardar configuración:** después de cambiar cualquier opción, pulsa **«Guardar configuración»** para que los cambios se apliquen.
 
+### 8.5 Guía e instalación
+
+- **Ver guía de la app:** abre esta guía en una nueva pestaña.
+- **Qué hay de nuevo:** abre un modal con el **changelog** (versiones y novedades de la aplicación).
+- **Añadir a pantalla de inicio (iOS):** abre un modal con las instrucciones para instalar la app en iPhone o iPad (Safari → Compartir → «Añadir a la pantalla de inicio»). Así tendrás el icono de Jornada Pro en la pantalla de inicio como una app.
+
+Al final del panel aparecen el nombre de la app, la versión y el autor (Acerca de).
+
 ---
 
-## 9. Notificaciones
+## 9. Notificaciones y recordatorios
 
 - Si las notificaciones están activadas en configuración, la app puede mostrarte:
   - Un **aviso unos minutos antes** del fin teórico de la jornada.
   - Un **aviso al llegar** al fin teórico.
 - Estas notificaciones **solo se muestran cuando la aplicación está abierta** (en primer plano). No se envían con la app en segundo plano o cerrada.
+- **Recordatorio de entrada:** si has configurado una **hora de recordatorio para fichar** (Configuración aplicación), y ese día no has fichado la entrada, la app te mostrará un aviso tipo «¿Has fichado la entrada hoy?» a esa hora (una vez al día).
+- **Recordatorio de salida:** si has fichado la entrada pero no la salida, y han pasado **9 o más horas** desde la entrada, la app te mostrará una vez el aviso «¿Has fichado la salida?» (una vez por día).
+- **Recordatorio de backup:** la app te recuerda cada cierto tiempo (p. ej. si hace más de 7 días del último backup) que hagas una copia de seguridad en Configuración → Backup.
 
 ---
 
@@ -366,7 +387,14 @@ Estas reglas se aplican **automáticamente** al guardar o finalizar la jornada e
 
 ---
 
-## 11. Vista móvil
+## 11. Accesibilidad
+
+- Los botones principales (Iniciar jornada, Guardar, Eliminar, Vacaciones, LD, etc.) tienen **etiquetas para lectores de pantalla** (aria-label) para facilitar el uso con tecnología de asistencia.
+- La opción **«Texto más grande»** en Configuración permite aumentar el tamaño de fuente en toda la aplicación.
+
+---
+
+## 12. Vista móvil
 
 En pantallas pequeñas (móvil) la aplicación adapta el diseño para un uso cómodo:
 
@@ -378,7 +406,7 @@ En pantallas pequeñas (móvil) la aplicación adapta el diseño para un uso có
 
 ---
 
-## 12. Resumen rápido
+## 13. Resumen rápido
 
 | Acción | Dónde |
 |--------|--------|
@@ -394,7 +422,10 @@ En pantallas pequeñas (móvil) la aplicación adapta el diseño para un uso có
 | Marcar días de licencia retribuida | Licencias Retribuidas (modal con opciones) |
 | Borrar el día | Eliminar (con confirmación) |
 | Cambiar grupo, tema, notificaciones, jornada | Menú ☰ → Configuración |
-| Exportar datos | Configuración → Exportar Excel / Backup |
+| Exportar datos | Configuración → Exportar Excel / Backup (puedes usar «Mes actual» o «Año actual» para el rango) |
+| Ver novedades | Configuración → Qué hay de nuevo |
+| Instalar en iPhone/iPad | Configuración → Añadir a pantalla de inicio (iOS) |
+| Borrar todo (doble confirmación) | Configuración → Borrar todos los datos |
 | Dejar la app como nueva | Configuración → Restaurar valores de fábrica |
 
 ---

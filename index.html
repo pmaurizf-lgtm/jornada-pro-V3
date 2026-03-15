@@ -112,7 +112,7 @@
   <div class="modal-extender-backdrop"></div>
   <div class="modal-extender-box">
     <h3 id="modalPaseHoraDesplazamientoTitulo" class="modal-extender-titulo">Hora de desprazamento</h3>
-    <p class="modal-extender-texto">Indica a hora de saída que figurará no xustificante:</p>
+    <p class="modal-extender-texto">Indica a hora de saída que figurará no formulario PDF e no rexistro do día (pase justificado). Podes cambiala antes de continuar.</p>
     <div style="margin:1rem 0;">
       <label for="inputPaseHoraDesplazamiento" class="sr-only">Hora</label>
       <input type="time" id="inputPaseHoraDesplazamiento" class="modal-input-time" step="60" required>
@@ -282,10 +282,11 @@
   <div class="modal-extender-backdrop"></div>
   <div class="modal-extender-box">
     <h3 id="modalConfirmarEliminarTitulo" class="modal-extender-titulo">¿Eliminar registro del día?</h3>
-    <p class="modal-extender-texto">Se borrarán todos los datos de este día. ¿Confirmas que deseas eliminarlos?</p>
+    <p id="modalConfirmarEliminarTexto" class="modal-extender-texto">Se borrarán todos los datos de este día (entrada, salida, tipo de día). Esta acción no se puede deshacer. ¿Confirmas?</p>
+    <p id="modalConfirmarEliminarFecha" class="modal-extender-texto modal-eliminar-fecha" style="font-weight:bold;margin-top:0.5rem;"></p>
     <div class="modal-extender-botones">
-      <button type="button" id="modalEliminarCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
-      <button type="button" id="modalEliminarSi" class="modal-extender-btn modal-extender-si">Sí</button>
+      <button type="button" id="modalEliminarCancelar" class="modal-extender-btn modal-extender-no" aria-label="Cancelar y mantener el registro">Cancelar</button>
+      <button type="button" id="modalEliminarSi" class="modal-extender-btn modal-extender-si" aria-label="Sí, eliminar el registro del día">Eliminar</button>
     </div>
   </div>
 </div>
@@ -299,6 +300,54 @@
     <div class="modal-extender-botones">
       <button type="button" id="modalRestaurarCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
       <button type="button" id="modalRestaurarSi" class="modal-extender-btn modal-extender-si">Sobrescribir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmar borrar todos los datos (doble confirmación) -->
+<div id="modalConfirmarBorrarTodo" class="modal-extender" role="dialog" aria-labelledby="modalConfirmarBorrarTodoTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalConfirmarBorrarTodoTitulo" class="modal-extender-titulo">Borrar todos los datos</h3>
+    <p class="modal-extender-texto">Se eliminarán todos los registros, la configuración, el banco de horas y los datos personales. Esta acción no se puede deshacer.</p>
+    <label class="config-row config-toggle-row modal-borrar-todo-check">
+      <input type="checkbox" id="modalBorrarTodoConfirmo" class="config-checkbox">
+      <span class="config-label">Entiendo que se borrará todo de forma permanente</span>
+    </label>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalBorrarTodoCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
+      <button type="button" id="modalBorrarTodoSi" class="modal-extender-btn config-btn-reset" disabled aria-label="Borrar todo">Borrar todo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Qué hay de nuevo (changelog) -->
+<div id="modalChangelog" class="modal-extender" role="dialog" aria-labelledby="modalChangelogTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box modal-changelog-box">
+    <h3 id="modalChangelogTitulo" class="modal-extender-titulo">Qué hay de nuevo</h3>
+    <div id="modalChangelogContenido" class="modal-changelog-contenido"></div>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalChangelogCerrar" class="modal-extender-btn modal-extender-si">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Añadir a pantalla de inicio (iOS) -->
+<div id="modalInstalarIOS" class="modal-extender" role="dialog" aria-labelledby="modalInstalarIOSTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalInstalarIOSTitulo" class="modal-extender-titulo">Añadir a la pantalla de inicio</h3>
+    <p class="modal-extender-texto">Para instalar la app en tu <strong>iPhone o iPad</strong> (Safari):</p>
+    <ol class="modal-instalar-ios-pasos">
+      <li>Abre esta página en <strong>Safari</strong> (no en Chrome ni otros navegadores).</li>
+      <li>Pulsa el botón <strong>Compartir</strong> (cuadrado con flecha hacia arriba), abajo o arriba de la pantalla.</li>
+      <li>Desplázate y elige <strong>«Añadir a la pantalla de inicio»</strong>.</li>
+      <li>Pulsa <strong>«Añadir»</strong>.</li>
+    </ol>
+    <p class="modal-extender-texto">Así tendrás el icono de Jornada Pro en tu pantalla de inicio como una app.</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalInstalarIOSCerrar" class="modal-extender-btn modal-extender-si">Entendido</button>
     </div>
   </div>
 </div>
@@ -372,6 +421,11 @@
             <input type="checkbox" id="cfgNotificaciones" class="config-checkbox" checked>
             <span class="config-label">Notificaciones</span>
           </label>
+          <label class="config-row config-toggle-row">
+            <input type="checkbox" id="cfgTextoGrande" class="config-checkbox">
+            <span class="config-label">Texto más grande</span>
+          </label>
+          <p class="config-hint">Aumenta el tamaño de fuente para mejorar la legibilidad.</p>
           <label class="config-row">
             <span class="config-label">Aviso antes terminar (min)</span>
             <input type="number" id="cfgAviso" class="config-input" min="0">
@@ -462,12 +516,17 @@
     <details class="config-details">
       <summary class="config-summary">Copia de datos y seguridad</summary>
       <div class="config-details-body">
+        <p id="configBackupIndicador" class="config-backup-indicador" role="status" aria-live="polite"></p>
         <div class="config-row config-export-range">
           <span class="config-label">Rango (opcional)</span>
           <div class="config-range-inputs">
             <input type="date" id="exportDesde" class="config-input config-input-date" aria-label="Exportar desde">
             <span class="config-range-sep">–</span>
             <input type="date" id="exportHasta" class="config-input config-input-date" aria-label="Exportar hasta">
+          </div>
+          <div class="config-export-atajos">
+            <button type="button" id="exportMesActual" class="config-btn config-btn-small">Mes actual</button>
+            <button type="button" id="exportAnoActual" class="config-btn config-btn-small">Año actual</button>
           </div>
         </div>
         <div class="config-actions">
@@ -479,12 +538,15 @@
             <input type="file" id="restore" class="config-file-input">
           </label>
           <button type="button" id="restaurarFabrica" class="config-btn config-btn-reset">Restaurar valores de fábrica</button>
+          <button type="button" id="btnBorrarTodosDatos" class="config-btn config-btn-reset config-btn-danger">Borrar todos los datos</button>
         </div>
       </div>
     </details>
 
     <div class="config-guia-wrap">
       <button type="button" id="btnAbrirGuia" class="config-btn config-btn-guia">Ver guía de la app</button>
+      <button type="button" id="btnQueHayNuevo" class="config-btn config-btn-guia">Qué hay de nuevo</button>
+      <button type="button" id="btnInstalarIOS" class="config-btn config-btn-guia">Añadir a pantalla de inicio (iOS)</button>
     </div>
 
     <!-- Acerca de: versión, novedades, contacto -->
@@ -548,7 +610,7 @@
     <span id="resumenPortadaJornadaTexto">Fichado desde 08:00</span>
   </div>
   <div id="resumenPortadaAccesosRapidos" class="resumen-portada-accesos-rapidos resumen-portada-accion-jornada" hidden data-jornada-control="boton">
-    <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar" aria-label="Iniciar o finalizar jornada">Iniciar jornada</button>
+    <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar" aria-label="Iniciar jornada (fichar entrada)">Iniciar jornada</button>
     <div id="finalizarJornadaWrap" class="finalizar-slider-wrap" hidden aria-hidden="true">
       <div id="finalizarSliderTrack" class="finalizar-slider-track">
         <span id="finalizarSliderText" class="finalizar-slider-text">Desliza para finalizar jornada</span>
@@ -620,7 +682,7 @@
     <!-- BOTONES -->
     <div class="acciones-row">
 
-      <button type="button" id="guardar">
+      <button type="button" id="guardar" aria-label="Guardar registro del día">
         Guardar
       </button>
 
@@ -628,11 +690,11 @@
         Edición jornada
       </button>
 
-      <button type="button" id="vacaciones">
+      <button type="button" id="vacaciones" aria-label="Marcar día como vacaciones">
         Vacaciones
       </button>
 
-      <button type="button" id="ld" class="btn-ld">
+      <button type="button" id="ld" class="btn-ld" aria-label="Marcar día como Libre Disposición">
         LD
       </button>
 
@@ -648,7 +710,7 @@
         Licencias Retribuidas
       </button>
 
-      <button type="button" id="eliminar" class="btn-danger">
+      <button type="button" id="eliminar" class="btn-danger" aria-label="Eliminar registro del día seleccionado">
         Eliminar
       </button>
 

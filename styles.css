@@ -621,6 +621,59 @@ body.dark .config-summary {
   background: rgba(220, 38, 38, 0.1);
 }
 
+.config-backup-indicador {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-muted, var(--text));
+  opacity: 0.95;
+}
+.config-export-atajos {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.config-btn-small {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.6rem;
+}
+.config-btn-danger {
+  margin-top: 0.5rem;
+  border-color: var(--negative);
+  color: var(--negative);
+}
+.modal-eliminar-fecha {
+  color: var(--accent, #333);
+}
+.modal-changelog-box {
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+.modal-changelog-contenido {
+  overflow-y: auto;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.modal-changelog-contenido ul {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+}
+.modal-instalar-ios-pasos {
+  margin: 0.75rem 0;
+  padding-left: 1.25rem;
+  line-height: 1.6;
+}
+body.text-size-large {
+  font-size: 107%;
+}
+body.text-size-large .config-input,
+body.text-size-large .config-label,
+body.text-size-large .btn-jornada,
+body.text-size-large .acciones-row button {
+  font-size: 1.05rem;
+}
+
 /* ============================= */
 /* CARDS – CRISTAL iOS           */
 /* ============================= */

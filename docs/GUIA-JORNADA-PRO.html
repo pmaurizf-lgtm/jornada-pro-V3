@@ -68,7 +68,7 @@
 <body>
 
   <h1>Guía de uso – Jornada Pro</h1>
-  <p class="meta"><strong>Jornada Pro © 1.0</strong> – Control de jornada laboral<br>Autor: Pablo Mouriz Fontao</p>
+  <p class="meta"><strong>Jornada Pro</strong> – Control de jornada laboral<br>Autor: Pablo Mouriz Fontao</p>
 
   <hr>
 
@@ -93,15 +93,17 @@
     <li><strong>Calendario:</strong> vista mensual; indicadores según modo (saldos día o semana).</li>
     <li><strong>Banco:</strong> pestaña «Horas TxT» (o «Bolsa de autorregulación» en GP1/GP2) y pestaña «Vacaciones/LD».</li>
     <li><strong>Gráfico:</strong> solo GP3/GP4.</li>
+    <li>Al guardar o finalizar jornada se muestra un mensaje breve: «Día guardado» o «Datos actualizados».</li>
   </ul>
 
   <h2>4. Registro diario</h2>
   <h3>4.1 Iniciar la jornada</h3>
   <p>Selecciona fecha, pulsa <strong>«Iniciar jornada»</strong> (se rellena la entrada). En GP3/GP4, si ya finalizaste y pasas del fin teórico, el botón pasa a <strong>«Extender jornada»</strong>; en GP1/GP2 no se ofrece extensión.</p>
   <h3>4.2 Finalizar la jornada</h3>
-  <p>Usa el control deslizante «Desliza para finalizar jornada». La app guarda la salida real y el registro. En <strong>GP1/GP2</strong> no aparece el modal «¿Vas a extender la jornada?». Si finalizas después del tiempo de jornada (p. ej. 459 min), los minutos de más se añaden a la Bolsa de autorregulación; si finalizas antes, se abre el modal de pase de salida.</p>
+  <p>Usa el control deslizante «Desliza para finalizar jornada». La app guarda la salida real, actualiza calendario y banco y muestra «Datos actualizados». En <strong>GP1/GP2</strong> no aparece el modal «¿Vas a extender la jornada?». Si finalizas después del tiempo de jornada (p. ej. 459 min), los minutos de más se añaden a la Bolsa de autorregulación; si finalizas antes, se abre el modal de pase de salida.</p>
   <h3>4.3 Pase de salida</h3>
   <p>Si la salida es anterior al fin teórico se abre un modal con: <strong>Pase justificado</strong> (jornada completada hasta fin teórico), <strong>Pase sin justificar</strong> (se descuenta el tiempo no trabajado; en GP3/GP4 aparece un segundo modal «¿De qué saldo se descuenta?» con opciones TxT o Exceso de jornada) y <strong>Fin de jornada</strong> (en GP3/GP4 también se elige TxT o Exceso de jornada para descontar; en GP1/GP2 se descuenta de la Bolsa de autorregulación).</p>
+  <p>En <strong>Pase justificado</strong> puedes elegir «Solo registrar pase» o «Registrar y generar formulario PDF». Si generas el PDF: (1) <strong>Hora de desprazamento</strong>: indica la hora que figurará en el formulario y en el registro (por defecto la actual); (2) elige el <strong>motivo</strong> (consulta especialista, pruebas complementarias o pediatría); (3) opcionalmente <strong>dibuja tu firma</strong> (táctil o ratón) para incluirla en el formulario; (4) la app descarga el PDF del xustificante de ausencias directamente (nombre con fecha), sin abrir el diálogo de impresión — útil en iPhone.</p>
   <h3>4.4 Continuar jornada / 4.5 Extender jornada (solo GP3/GP4)</h3>
   <p>Tras un pase, <strong>«Continuar jornada»</strong> reabre el día. Cuando la jornada nominal ha terminado, la app puede preguntar si vas a extender; <strong>Sí</strong> = el tiempo extra cuenta en bloques de 15 min. Botón «Extender jornada» si ya cerraste el mismo día. Hasta 23:59.</p>
   <h3>4.6 Guardar</h3>
@@ -132,7 +134,7 @@
       Lactancia: 2 h ausencia diaria (o reducción 1 h o acumulación 21 días laborables). Guarda legal menor 12 años o persona con discapacidad: reducción de jornada (1/8 a 1/2) con reducción proporcional del salario. No son días completos en calendario; la app muestra aviso informativo.</li>
   </ul>
   <h3>4.12 Eliminar / 4.13 Otros campos</h3>
-  <p><strong>Eliminar</strong> borra el registro (si era vacaciones/LD, se devuelve el día al banco). <strong>Salir antes (min)</strong> solo GP3/GP4.</p>
+  <p><strong>Eliminar</strong> abre un modal de confirmación que muestra el día concreto y advierte de que la acción no se puede deshacer; al confirmar se borra todo el registro (si era vacaciones/LD, se devuelve el día al banco). <strong>Salir antes (min)</strong> solo GP3/GP4. Al <strong>Guardar</strong> manualmente se muestra «Día guardado».</p>
 
   <h2>5. Calendario</h2>
   <p>Mes con celdas por día. Indicadores: ✓ = completada; +X.Xh / −X.Xh (TxT) o banco semana/delta (minutos); Disfr. X.Xh; 🪫 = disfrute exceso de jornada (centrado y destacado); 🎫 = licencia retribuida (centrado y destacado); 🏖️ = vacaciones; 🕶️ = Libre Disposición. Festivos resaltados; pulsar muestra el nombre.</p>
@@ -165,12 +167,15 @@
   <p>Evolución del banco de horas en el año. Solo visible en GP3/GP4.</p>
 
   <h2>8. Configuración</h2>
-  <p>Menú (☰). <strong>Datos personales:</strong> nombre, número SAP, centro de coste, <strong>Grupo Profesional</strong> (GP1–GP4). <strong>Configuración aplicación:</strong> tema, notificaciones, aviso antes de terminar. <strong>Configuración jornada:</strong> jornada (min), turnos, turno. <strong>Saldo previo:</strong> horas extra previas y exceso previo (GP3/GP4), días de vacaciones previos (año anterior), <strong>días de Libre disposición previos (año en curso)</strong>; botón «Resetear saldo previo» (pone a cero horas, exceso y LD previos del año). <strong>Copia y seguridad:</strong> Exportar Excel, Backup, Restaurar, Restaurar valores de fábrica. Pulsa <strong>«Guardar configuración»</strong>.</p>
+  <p>Menú (☰). <strong>Datos personales:</strong> nombre, número SAP, centro de coste, <strong>Grupo Profesional</strong> (GP1–GP4). <strong>Configuración aplicación:</strong> tema, <strong>Texto más grande</strong>, notificaciones, aviso antes de terminar, <strong>Recordatorio fichar (hora)</strong> (aviso si no has fichado entrada ese día). <strong>Configuración jornada:</strong> jornada (min), turnos, turno. <strong>Saldo previo:</strong> horas extra previas y exceso previo (GP3/GP4), días de vacaciones previos (año anterior), <strong>días de Libre disposición previos (año en curso)</strong>; botón «Resetear saldo previo». <strong>Copia y seguridad:</strong> indicador de <strong>último backup</strong> (hoy / hace X días); rango opcional con atajos <strong>«Mes actual»</strong> y <strong>«Año actual»</strong>; Exportar Excel, Backup, Informe PDF (mes), Restaurar (aviso si hay datos locales más recientes que el backup), Restaurar valores de fábrica, <strong>Borrar todos los datos</strong> (doble confirmación: casilla + botón). <strong>Guía e instalación:</strong> Ver guía de la app, <strong>Qué hay de nuevo</strong> (changelog), <strong>Añadir a pantalla de inicio (iOS)</strong> (instrucciones en modal). Pulsa <strong>«Guardar configuración»</strong>.</p>
 
-  <h2>9. Notificaciones</h2>
-  <p>Aviso antes del fin teórico y al llegar al fin teórico. Solo con la app abierta en primer plano.</p>
+  <h2>9. Notificaciones y recordatorios</h2>
+  <p>Aviso antes del fin teórico y al llegar al fin teórico (solo con la app abierta). <strong>Recordatorio entrada:</strong> si configuraste una hora de recordatorio para fichar y no has fichado entrada ese día, la app muestra «¿Has fichado la entrada hoy?» (una vez al día). <strong>Recordatorio salida:</strong> si has fichado entrada pero no salida y han pasado 9 o más horas, muestra «¿Has fichado la salida?» (una vez al día). <strong>Recordatorio backup:</strong> si hace más de 7 días del último backup, la app te lo recuerda.</p>
 
-  <h2>10. Horas TxT en fines de semana y festivos (GP3/GP4)</h2>
+  <h2>10. Accesibilidad</h2>
+  <p>Los botones principales tienen etiquetas para lectores de pantalla (aria-label). La opción «Texto más grande» en Configuración aumenta el tamaño de fuente en toda la app.</p>
+
+  <h2>11. Horas TxT en fines de semana y festivos (GP3/GP4)</h2>
   <p>Al guardar/finalizar en <strong>sábado, domingo o festivo</strong> se aplican automáticamente:</p>
   <ul>
     <li><strong>Sábado:</strong> Mañana (&lt;14:00): &lt;6 h → 1:1; ≥6 h → horas+2. Tarde (≥14:00): &lt;6 h → 1:1; ≥6 h → horas+6. Día completo: horas+6 (ej. 06:00–18:00 → 18 h TxT).</li>
@@ -178,10 +183,10 @@
     <li><strong>Festivos:</strong> 1 h TxT por hora trabajada (1:1).</li>
   </ul>
 
-  <h2>11. Vista móvil</h2>
+  <h2>12. Vista móvil</h2>
   <p>En móvil: todos los bloques (registro, calendario, gráfico, banco) tienen el mismo ancho y esquinas redondeadas visibles; botones de acciones en filas de dos; salidas y resumen del día con etiqueta y valor en filas separadas; celdas del calendario de tamaño fijo con contenido legible; contadores del banco (decimal, h+m, días) en filas distintas.</p>
 
-  <h2>12. Resumen rápido</h2>
+  <h2>13. Resumen rápido</h2>
   <table>
     <thead>
       <tr><th>Acción</th><th>Dónde</th></tr>
@@ -189,7 +194,7 @@
     <tbody>
       <tr><td>Empezar el día</td><td>Iniciar jornada</td></tr>
       <tr><td>Terminar el día</td><td>Deslizar para finalizar jornada</td></tr>
-      <tr><td>Salir antes de hora</td><td>Modal → Pase justificado / sin justificar</td></tr>
+      <tr><td>Salir antes de hora</td><td>Modal → Pase justificado / sin justificar (justificado: hora, motivo, firma, PDF)</td></tr>
       <tr><td>Seguir después del fin teórico (GP3/GP4)</td><td>Extender jornada</td></tr>
       <tr><td>Guardar a mano un día</td><td>Rellenar fecha, entrada, salida → Guardar</td></tr>
       <tr><td>Marcar vacaciones</td><td>Vacaciones</td></tr>
@@ -197,14 +202,17 @@
       <tr><td>Disfrutar horas TxT (GP3/GP4)</td><td>Disfr. TxT</td></tr>
       <tr><td>Disfrutar exceso de jornada (GP3/GP4)</td><td>Disfr. exceso</td></tr>
       <tr><td>Marcar días de licencia retribuida</td><td>Licencias Retribuidas (modal con opciones)</td></tr>
-      <tr><td>Borrar el día</td><td>Eliminar (con confirmación)</td></tr>
-      <tr><td>Cambiar grupo, tema, notificaciones, jornada</td><td>Menú ☰ → Configuración</td></tr>
-      <tr><td>Exportar datos</td><td>Configuración → Exportar Excel / Backup</td></tr>
+      <tr><td>Borrar el día</td><td>Eliminar (modal con día concreto y confirmación)</td></tr>
+      <tr><td>Cambiar grupo, tema, texto grande, notificaciones, jornada</td><td>Menú ☰ → Configuración</td></tr>
+      <tr><td>Exportar datos</td><td>Configuración → Exportar Excel / Backup (Mes actual, Año actual)</td></tr>
+      <tr><td>Ver novedades</td><td>Configuración → Qué hay de nuevo</td></tr>
+      <tr><td>Instalar en iPhone/iPad</td><td>Configuración → Añadir a pantalla de inicio (iOS)</td></tr>
+      <tr><td>Borrar todo (doble confirmación)</td><td>Configuración → Borrar todos los datos</td></tr>
       <tr><td>Dejar la app como nueva</td><td>Configuración → Restaurar valores de fábrica</td></tr>
     </tbody>
   </table>
 
-  <p class="footer">Jornada Pro © 1.0 – Autor: Pablo Mouriz Fontao. Para obtener un PDF: Archivo → Imprimir → Guardar como PDF (o destino «Guardar como PDF»).</p>
+  <p class="footer">Jornada Pro – Autor: Pablo Mouriz Fontao. Para obtener un PDF de esta guía: Archivo → Imprimir → Guardar como PDF.</p>
 
   <p class="no-print" style="margin-top: 2rem; padding: 1rem; background: #f0f7ff; border-radius: 8px;">
     <strong>Obtener PDF:</strong> En el menú del navegador elige <strong>Archivo → Imprimir</strong> (o <kbd>Ctrl+P</kbd> / <kbd>Cmd+P</kbd>). Como destino selecciona <strong>«Guardar como PDF»</strong> o <strong>«Microsoft Print to PDF»</strong> y guarda el archivo.

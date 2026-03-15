@@ -259,6 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cfgJornada = document.getElementById("cfgJornada");
   const cfgAviso = document.getElementById("cfgAviso");
   const cfgTheme = document.getElementById("cfgTheme");
+  const cfgTextoGrande = document.getElementById("cfgTextoGrande");
   const cfgNotificaciones = document.getElementById("cfgNotificaciones");
   const cfgRecordatorioFichar = document.getElementById("cfgRecordatorioFichar");
   const cfgPinEnabled = document.getElementById("cfgPinEnabled");
@@ -351,6 +352,8 @@ function aplicarEstadoConfigAUI() {
   if (cfgJornada) cfgJornada.value = state.config.jornadaMin;
   if (cfgAviso) cfgAviso.value = state.config.avisoMin;
   if (cfgTheme) cfgTheme.value = state.config.theme;
+  if (cfgTextoGrande) cfgTextoGrande.checked = !!state.config.textoGrande;
+  document.body.classList.toggle("text-size-large", !!state.config.textoGrande);
   if (cfgNotificaciones) cfgNotificaciones.checked = state.config.notificationsEnabled !== false;
   if (cfgRecordatorioFichar) cfgRecordatorioFichar.value = state.config.recordatorioFicharHora || "";
   if (cfgPinEnabled) cfgPinEnabled.checked = !!state.config.pinEnabled;
@@ -478,6 +481,8 @@ if (guardarConfig) {
     state.config.jornadaMin = Number(cfgJornada.value);
     state.config.avisoMin = Number(cfgAviso.value);
     state.config.theme = cfgTheme.value;
+    state.config.textoGrande = cfgTextoGrande ? cfgTextoGrande.checked : false;
+    document.body.classList.toggle("text-size-large", !!state.config.textoGrande);
     state.config.notificationsEnabled = cfgNotificaciones ? cfgNotificaciones.checked : true;
     state.config.trabajoATurnos = cfgTrabajoTurnos ? cfgTrabajoTurnos.checked : false;
     state.config.turno = cfgTurno ? cfgTurno.value : "06-14";
@@ -535,6 +540,7 @@ const configPanelBackdrop = document.getElementById("configPanelBackdrop");
 function toggleConfigPanel() {
   if (configPanel) configPanel.classList.toggle("is-open", !configPanel.classList.contains("is-open"));
   if (configPanelBackdrop) configPanelBackdrop.setAttribute("aria-hidden", configPanel && configPanel.classList.contains("is-open") ? "false" : "true");
+  if (configPanel && configPanel.classList.contains("is-open")) actualizarIndicadorBackup();
 }
 
 function closeConfigPanel() {
@@ -2141,6 +2147,7 @@ function controlarNotificaciones() {
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
+    showToast("Datos actualizados", "success");
   }
 
   function ejecutarFinalizarExtension() {
@@ -2808,6 +2815,12 @@ function controlarNotificaciones() {
   if (btnEliminar) {
     btnEliminar.addEventListener("click", () => {
       if (!fecha.value || !state.registros[fecha.value]) return;
+      const fechaElim = fecha.value;
+      const modalFechaEl = document.getElementById("modalConfirmarEliminarFecha");
+      if (modalFechaEl) {
+        const d = new Date(fechaElim + "T12:00:00");
+        modalFechaEl.textContent = "Día: " + d.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      }
       if (modalConfirmarEliminar) modalConfirmarEliminar.hidden = false;
     });
   }
@@ -3219,6 +3232,36 @@ if (btnExcel) {
   });
 }
 
+const exportMesActual = document.getElementById("exportMesActual");
+const exportAnoActual = document.getElementById("exportAnoActual");
+if (exportMesActual) {
+  exportMesActual.addEventListener("click", () => {
+    const desde = document.getElementById("exportDesde");
+    const hasta = document.getElementById("exportHasta");
+    const excelBtn = document.getElementById("excel");
+    if (!desde || !hasta || !excelBtn) return;
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    desde.value = `${y}-${m}-01`;
+    const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
+    hasta.value = `${y}-${m}-${String(lastDay).padStart(2, "0")}`;
+    excelBtn.click();
+  });
+}
+if (exportAnoActual) {
+  exportAnoActual.addEventListener("click", () => {
+    const desde = document.getElementById("exportDesde");
+    const hasta = document.getElementById("exportHasta");
+    const excelBtn = document.getElementById("excel");
+    if (!desde || !hasta || !excelBtn) return;
+    const y = new Date().getFullYear();
+    desde.value = `${y}-01-01`;
+    hasta.value = `${y}-12-31`;
+    excelBtn.click();
+  });
+}
+
 // ===============================
 // BACKUP
 // ===============================
@@ -3402,6 +3445,27 @@ function checkRecordatorioBackup() {
 }
 setTimeout(checkRecordatorioBackup, 5000);
 
+function actualizarIndicadorBackup() {
+  const el = document.getElementById("configBackupIndicador");
+  if (!el) return;
+  try {
+    const last = localStorage.getItem(LAST_BACKUP_KEY);
+    if (!last) {
+      el.textContent = "Aún no has hecho ningún backup. Recomendado: haz uno pronto.";
+      el.style.opacity = "1";
+      return;
+    }
+    const d = new Date(last);
+    const haceDias = Math.floor((Date.now() - d.getTime()) / (24 * 60 * 60 * 1000));
+    if (haceDias === 0) el.textContent = "Último backup: hoy.";
+    else if (haceDias === 1) el.textContent = "Último backup: ayer.";
+    else el.textContent = "Último backup: hace " + haceDias + " días.";
+    el.style.opacity = haceDias > 7 ? "1" : "0.85";
+  } catch (e) {
+    el.textContent = "";
+  }
+}
+
 function simplePinHash(pin) {
   const s = String(pin || "");
   return s.split("").reduce((h, c) => ((h * 31) + c.charCodeAt(0)) | 0, 0).toString(36);
@@ -3454,6 +3518,7 @@ if (btnEstablecerPin) {
 }
 
 const RECORDATORIO_FICHAR_KEY = "jornadaPro_recordatorioFicharShown";
+const RECORDATORIO_SALIDA_KEY = "jornadaPro_recordatorioSalidaShown";
 setInterval(() => {
   const hora = (state.config && state.config.recordatorioFicharHora) || "";
   if (!hora) return;
@@ -3471,6 +3536,26 @@ setInterval(() => {
   showToast("¿Has fichado la entrada hoy?", "info");
 }, 60 * 1000);
 
+setInterval(() => {
+  try {
+    const hoy = typeof getHoyISO === "function" ? getHoyISO() : new Date().toISOString().slice(0, 10);
+    const reg = state.registros[hoy];
+    const tieneEntrada = reg && (reg.entrada || reg.entradaPrimera);
+    const tieneSalida = reg && reg.salidaReal != null && reg.salidaReal !== "";
+    if (!tieneEntrada || tieneSalida) return;
+    const entradaStr = reg.entrada || reg.entradaPrimera || "";
+    const entMin = (() => { const p = entradaStr.split(":"); return (parseInt(p[0], 10) || 0) * 60 + (parseInt(p[1], 10) || 0); })();
+    const ahora = new Date();
+    const ahoraMin = ahora.getHours() * 60 + ahora.getMinutes();
+    let diffMin = ahoraMin - entMin;
+    if (diffMin < 0) diffMin += 24 * 60;
+    if (diffMin < 9 * 60) return;
+    try { if (localStorage.getItem(RECORDATORIO_SALIDA_KEY + "_" + hoy)) return; } catch (e) { return; }
+    try { localStorage.setItem(RECORDATORIO_SALIDA_KEY + "_" + hoy, "1"); } catch (e) {}
+    showToast("¿Has fichado la salida?", "info");
+  } catch (e) {}
+}, 60 * 1000);
+
 const configChangelogList = document.getElementById("configChangelogList");
 if (configChangelogList) {
   fetch("changelog.json").then(r => r.ok ? r.json() : []).catch(() => []).then(arr => {
@@ -3482,7 +3567,86 @@ if (configChangelogList) {
       configChangelogList.appendChild(li);
     });
   });
-}  
+}
+
+const btnQueHayNuevo = document.getElementById("btnQueHayNuevo");
+const modalChangelog = document.getElementById("modalChangelog");
+const modalChangelogContenido = document.getElementById("modalChangelogContenido");
+const modalChangelogCerrar = document.getElementById("modalChangelogCerrar");
+if (btnQueHayNuevo && modalChangelog) {
+  btnQueHayNuevo.addEventListener("click", () => {
+    if (modalChangelogContenido) {
+      modalChangelogContenido.innerHTML = "<p>Cargando…</p>";
+      fetch("changelog.json").then(r => r.ok ? r.json() : []).catch(() => []).then(arr => {
+        if (!Array.isArray(arr) || arr.length === 0) {
+          modalChangelogContenido.innerHTML = "<p>No hay novedades cargadas.</p>";
+          return;
+        }
+        modalChangelogContenido.innerHTML = arr.map(entry => "<div class=\"changelog-entry\"><strong>" + (entry.version || "") + "</strong> (" + (entry.date || "") + ")<ul>" + (entry.items || []).map(i => "<li>" + i + "</li>").join("") + "</ul></div>").join("");
+      });
+    }
+    modalChangelog.hidden = false;
+  });
+}
+if (modalChangelogCerrar && modalChangelog) {
+  modalChangelogCerrar.addEventListener("click", () => { modalChangelog.hidden = true; });
+  const backdropChangelog = modalChangelog.querySelector(".modal-extender-backdrop");
+  if (backdropChangelog) backdropChangelog.addEventListener("click", () => { modalChangelog.hidden = true; });
+}
+
+const btnInstalarIOS = document.getElementById("btnInstalarIOS");
+const modalInstalarIOS = document.getElementById("modalInstalarIOS");
+if (btnInstalarIOS && modalInstalarIOS) {
+  btnInstalarIOS.addEventListener("click", () => { modalInstalarIOS.hidden = false; });
+  const cerrarIOS = document.getElementById("modalInstalarIOSCerrar");
+  if (cerrarIOS) cerrarIOS.addEventListener("click", () => { modalInstalarIOS.hidden = true; });
+  const backdropIOS = modalInstalarIOS.querySelector(".modal-extender-backdrop");
+  if (backdropIOS) backdropIOS.addEventListener("click", () => { modalInstalarIOS.hidden = true; });
+}
+
+const modalConfirmarBorrarTodo = document.getElementById("modalConfirmarBorrarTodo");
+const modalBorrarTodoConfirmo = document.getElementById("modalBorrarTodoConfirmo");
+const modalBorrarTodoSi = document.getElementById("modalBorrarTodoSi");
+const modalBorrarTodoCancelar = document.getElementById("modalBorrarTodoCancelar");
+if (modalBorrarTodoConfirmo && modalBorrarTodoSi) {
+  modalBorrarTodoConfirmo.addEventListener("change", () => {
+    modalBorrarTodoSi.disabled = !modalBorrarTodoConfirmo.checked;
+  });
+}
+if (modalBorrarTodoSi && modalConfirmarBorrarTodo) {
+  modalBorrarTodoSi.addEventListener("click", () => {
+    if (!modalBorrarTodoConfirmo || !modalBorrarTodoConfirmo.checked) return;
+    saveState(createInitialState());
+    if (modalBorrarTodoConfirmo) modalBorrarTodoConfirmo.checked = false;
+    if (modalBorrarTodoSi) modalBorrarTodoSi.disabled = true;
+    modalConfirmarBorrarTodo.hidden = true;
+    if (typeof closeConfigPanel === "function") closeConfigPanel();
+    document.location.reload();
+  });
+}
+if (modalBorrarTodoCancelar && modalConfirmarBorrarTodo) {
+  modalBorrarTodoCancelar.addEventListener("click", () => {
+    if (modalBorrarTodoConfirmo) modalBorrarTodoConfirmo.checked = false;
+    if (modalBorrarTodoSi) modalBorrarTodoSi.disabled = true;
+    modalConfirmarBorrarTodo.hidden = true;
+  });
+}
+const btnBorrarTodosDatos = document.getElementById("btnBorrarTodosDatos");
+if (btnBorrarTodosDatos && modalConfirmarBorrarTodo) {
+  btnBorrarTodosDatos.addEventListener("click", () => {
+    if (modalBorrarTodoConfirmo) modalBorrarTodoConfirmo.checked = false;
+    if (modalBorrarTodoSi) modalBorrarTodoSi.disabled = true;
+    modalConfirmarBorrarTodo.hidden = false;
+  });
+}
+if (modalConfirmarBorrarTodo) {
+  const backdropBorrar = modalConfirmarBorrarTodo.querySelector(".modal-extender-backdrop");
+  if (backdropBorrar) backdropBorrar.addEventListener("click", () => {
+    if (modalBorrarTodoConfirmo) modalBorrarTodoConfirmo.checked = false;
+    if (modalBorrarTodoSi) modalBorrarTodoSi.disabled = true;
+    modalConfirmarBorrarTodo.hidden = true;
+  });
+}
   
   // ===============================
   // CALENDARIO
