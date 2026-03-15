@@ -14,11 +14,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">  
 
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=2">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=2"></script>
+<script type="module" src="app.js?v=3"></script>
 </head>
 
 <body>
@@ -487,9 +487,9 @@
     <span class="resumen-jornada-icon" aria-hidden="true">●</span>
     <span id="resumenPortadaJornadaTexto">Fichado desde 08:00</span>
   </div>
-  <div id="resumenPortadaAccesosRapidos" class="resumen-portada-accesos-rapidos resumen-portada-accion-jornada" hidden>
+  <div id="resumenPortadaAccesosRapidos" class="resumen-portada-accesos-rapidos resumen-portada-accion-jornada" hidden data-jornada-control="boton">
     <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar" aria-label="Iniciar o finalizar jornada">Iniciar jornada</button>
-    <div id="finalizarJornadaWrap" class="finalizar-slider-wrap" hidden>
+    <div id="finalizarJornadaWrap" class="finalizar-slider-wrap" hidden aria-hidden="true">
       <div id="finalizarSliderTrack" class="finalizar-slider-track">
         <span id="finalizarSliderText" class="finalizar-slider-text">Desliza para finalizar jornada</span>
         <div id="finalizarSliderThumb" class="finalizar-slider-thumb" role="button" tabindex="0" aria-label="Deslizar para finalizar jornada"></div>

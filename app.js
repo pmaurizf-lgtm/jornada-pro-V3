@@ -2721,6 +2721,7 @@ function controlarNotificaciones() {
         btnIniciarJornada.hidden = false;
       }
       if (finalizarJornadaWrap) finalizarJornadaWrap.hidden = true;
+      if (resumenPortadaAccesosRapidos) resumenPortadaAccesosRapidos.setAttribute("data-jornada-control", "boton");
       actualizarEstadoFinalizarJornada();
       return;
     }
@@ -2768,6 +2769,7 @@ function controlarNotificaciones() {
     }
     const mostrarSliderFinalizar = ((esHoy && tieneEntrada && !yaFinalizado) && !mostrarContinuar) || (!esModoMinutosSemanal() && enExtension);
     // Un solo control visible: o botón (verde/naranja) o slider rojo para finalizar
+    if (resumenPortadaAccesosRapidos) resumenPortadaAccesosRapidos.setAttribute("data-jornada-control", mostrarSliderFinalizar ? "slider" : "boton");
     if (btnIniciarJornada) btnIniciarJornada.hidden = mostrarSliderFinalizar;
     if (finalizarJornadaWrap) {
       finalizarJornadaWrap.hidden = !mostrarSliderFinalizar;

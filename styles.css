@@ -3298,6 +3298,13 @@ body.dark .empty-state--calendar {
   flex-wrap: wrap;
 }
 
+/* Un solo control visible: botón (verde/naranja) o slider rojo */
+.resumen-portada-accion-jornada[data-jornada-control="boton"] .finalizar-slider-wrap {
+  display: none !important;
+}
+.resumen-portada-accion-jornada[data-jornada-control="slider"] .btn-jornada {
+  display: none !important;
+}
 .resumen-portada-accion-jornada .btn-jornada,
 .resumen-portada-accion-jornada .finalizar-slider-wrap {
   flex: 1;
