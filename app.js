@@ -2570,12 +2570,9 @@ function controlarNotificaciones() {
     renderCalendario();
     actualizarResumenDia();
     actualizarEstadoIniciarJornada();
-    // Tras elegir grupo la primera vez, ofrecer indicar días LD del año en curso
+    // Tras elegir grupo la primera vez, ofrecer indicar días LD del año en curso (sin modal de onboarding)
     const anioCurso = new Date().getFullYear();
     setTimeout(() => { abrirModalLDAnio(anioCurso); }, 100);
-    if (!localStorage.getItem(ONBOARDING_KEY)) {
-      setTimeout(mostrarOnboarding, 400);
-    }
   }
 
   [modalElegirGP1, modalElegirGP2, modalElegirGP3, modalElegirGP4].forEach(function (btn) {
@@ -2702,7 +2699,7 @@ function controlarNotificaciones() {
     finalizarJornadaWrap.setAttribute("aria-disabled", "false");
   }
 
-  function actualizarEstadoIniciarJornada() {
+  function actualizarEstadoIniciarJornada(skipActualizarResumenPortada) {
     const esDiaVacaciones = !!(fecha && state.registros[fecha.value]?.vacaciones);
     const esDiaLD = !!(fecha && state.registros[fecha.value]?.libreDisposicion);
     const esDiaDisfruteHorasExtra = !!(fecha && state.registros[fecha.value]?.disfruteHorasExtra);
@@ -2780,7 +2777,7 @@ function controlarNotificaciones() {
       }
     }
     actualizarEstadoFinalizarJornada();
-    if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
+    if (typeof actualizarResumenPortada === "function" && !skipActualizarResumenPortada) actualizarResumenPortada();
   }
 
 function mostrarPopupFestivo(texto){
@@ -3404,6 +3401,7 @@ if(festivos && festivos[fechaISO]){
 
   function actualizarResumenPortada() {
     if (!resumenPortada) return;
+    actualizarEstadoIniciarJornada(true);
     const now = new Date();
     const hoyISO = getHoyISO();
     if (resumenPortadaFecha) {
