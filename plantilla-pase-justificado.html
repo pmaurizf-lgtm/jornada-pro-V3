@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<title>Xustificante de Ausencias</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    margin:40px;
+    color:#000;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    font-size:22px;
+    margin-bottom:30px;
+}
+
+.section-title{
+    font-weight:bold;
+    margin-top:25px;
+    margin-bottom:10px;
+}
+
+.line{
+    border-bottom:1px solid #000;
+    display:inline-block;
+    min-width:200px;
+    height:18px;
+}
+
+.long-line{
+    border-bottom:1px solid #000;
+    display:inline-block;
+    width:400px;
+    height:18px;
+}
+
+.table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+.table td{
+    padding:6px 4px;
+    vertical-align:top;
+}
+
+.checkbox{
+    font-size:18px;
+    padding-left:10px;
+}
+
+.signature{
+    margin-top:60px;
+}
+
+.firma-imagen{
+    margin-bottom:12px;
+}
+.firma-imagen img{
+    max-width:220px;
+    height:auto;
+    display:block;
+}
+
+.note{
+    margin-top:40px;
+    font-size:13px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>XUSTIFICANTE DE AUSENCIAS</h1>
+
+<div class="section-title">DATOS A CUBRIR POLO/LA TRABALLADOR/A</div>
+
+<p>
+D/Dª <span class="long-line">{{NOMBRE_COMPLETO}}</span>
+&nbsp;&nbsp; Mat. <span class="line">{{NUMERO_SAP}}</span>
+&nbsp;&nbsp; Centro <span class="line">{{CENTRO_COSTE}}</span>
+</p>
+
+<p>
+desprazarase ás <span class="line">{{HORA_SALIDA}}</span>
+Horas do día <span class="line">{{DIA}}</span>
+do mes de <span class="line">{{MES}}</span>
+para:
+</p>
+
+<p><em>(Marcar cunha cruz o recadro correspondente)</em></p>
+
+<table class="table">
+<tr>
+<td>LS3: Consulta médica co/a especialista do/a traballador/a</td>
+<td class="checkbox">{{MARCAR_OPCION_1}}</td>
+</tr>
+
+<tr>
+<td>Realización de probas complementarias do/a traballador/a</td>
+<td class="checkbox">{{MARCAR_OPCION_2}}</td>
+</tr>
+
+<tr>
+<td>LS3: Consulta pediatría</td>
+<td class="checkbox">{{MARCAR_OPCION_3}}</td>
+</tr>
+</table>
+
+<p>
+Ferrol, a <span class="line">{{DIA}}</span>
+de <span class="line">{{MES}}</span>
+de <span class="line" style="min-width:50px">{{ANHO}}</span>
+</p>
+
+<div class="signature">
+<div class="firma-imagen">{{FIRMA_IMG}}</div>
+<p>Sinatura do/da traballador/a</p>
+</div>
+
+
+<div class="section-title">DATOS A CUBRIR POLO/LA FACULTATIVO/A</div>
+
+<p>
+D/Dª <span class="long-line"></span>
+estaba citado/a
+</p>
+
+<p>
+neste Servizo as <span class="line"></span>
+horas para <span class="long-line"></span>,
+</p>
+
+<p>
+Permanecendo no mesmo hasta as <span class="line"></span>
+Horas do día <span class="line"></span>.
+</p>
+
+<p>
+Sinatura, Nº Colexiado e Selo do Centro.
+</p>
+
+<div class="note">
+<p><strong>Nota:</strong></p>
+<p>
+Prégase achegar citación. De non existir, deberá cumplimentar o facultativo
+a hora da citación e saida da consulta.
+</p>
+<p>
+Este documento entregarase debidamente cumprimentado na Oficina de
+Administración de Personal.
+</p>
+</div>
+
+</div>
+
+</body>
+</html>

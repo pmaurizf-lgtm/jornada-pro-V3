@@ -94,6 +94,50 @@
   </div>
 </div>
 
+<!-- Modal: Opciones pase justificado (solo registrar o generar PDF) -->
+<div id="modalPaseJustificadoOpciones" class="modal-extender" role="dialog" aria-labelledby="modalPaseJustificadoOpcionesTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalPaseJustificadoOpcionesTitulo" class="modal-extender-titulo">Pase de salida justificado</h3>
+    <p class="modal-extender-texto">¿Deseas generar el formulario con tus datos para imprimir o guardar como PDF?</p>
+    <div class="modal-extender-botones modal-pase-botones">
+      <button type="button" id="modalPaseJustificadoSoloRegistrar" class="modal-extender-btn modal-extender-no">Solo registrar pase</button>
+      <button type="button" id="modalPaseJustificadoGenerarPDF" class="modal-extender-btn modal-pase-justificado">Registrar y generar formulario PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Elixir motivo do xustificante (1 de 3 opcións) -->
+<div id="modalPaseJustificadoMotivo" class="modal-extender" role="dialog" aria-labelledby="modalPaseJustificadoMotivoTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalPaseJustificadoMotivoTitulo" class="modal-extender-titulo">Motivo do xustificante</h3>
+    <p class="modal-extender-texto">Marca a opción que corresponda para este pase de salida:</p>
+    <div class="modal-extender-botones modal-pase-botones" style="flex-direction: column;">
+      <button type="button" id="modalPaseMotivo1" class="modal-extender-btn modal-pase-justificado" data-opcion="1">LS3: Consulta médica co/a especialista do/a traballador/a</button>
+      <button type="button" id="modalPaseMotivo2" class="modal-extender-btn modal-pase-justificado" data-opcion="2">Realización de probas complementarias do/a traballador/a</button>
+      <button type="button" id="modalPaseMotivo3" class="modal-extender-btn modal-pase-justificado" data-opcion="3">LS3: Consulta pediatría</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Firma táctil / ratón para o xustificante -->
+<div id="modalPaseFirma" class="modal-extender" role="dialog" aria-labelledby="modalPaseFirmaTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box modal-firma-box">
+    <h3 id="modalPaseFirmaTitulo" class="modal-extender-titulo">Firma</h3>
+    <p class="modal-extender-texto">Deseña a túa firma na zona de abaixo (táctil ou co rato). Aparecerá no formulario encima de «Sinatura do/da traballador/a».</p>
+    <div class="firma-canvas-wrap">
+      <canvas id="canvasFirma" width="400" height="160" aria-label="Zona de firma"></canvas>
+    </div>
+    <div class="modal-extender-botones modal-firma-botones">
+      <button type="button" id="modalPaseFirmaLimpar" class="modal-extender-btn modal-extender-no">Limpar</button>
+      <button type="button" id="modalPaseFirmaConfirmar" class="modal-extender-btn modal-pase-justificado">Confirmar firma</button>
+      <button type="button" id="modalPaseFirmaSinFirmar" class="modal-extender-btn">Continuar sen firmar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: ¿De qué saldo se descuenta el tiempo no trabajado? (al salir antes / pase sin justificar / fin de jornada) -->
 <div id="modalDescuentoDe" class="modal-extender" role="dialog" aria-labelledby="modalDescuentoDeTitulo" aria-modal="true" hidden>
   <div class="modal-extender-backdrop"></div>

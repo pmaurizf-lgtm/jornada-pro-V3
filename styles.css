@@ -2743,6 +2743,35 @@ body:not(.dark) .cal-day.festivo-ferrol small {
   border: 1px solid var(--border);
 }
 
+/* Modal firma (pase justificado) */
+.modal-firma-box {
+  max-width: 420px;
+}
+.firma-canvas-wrap {
+  margin: 1rem 0;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+#canvasFirma {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  max-height: 200px;
+  touch-action: none;
+  cursor: crosshair;
+}
+.modal-firma-botones {
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.modal-firma-botones .modal-extender-btn {
+  flex: 1;
+  min-width: 100px;
+}
+
 .modal-extender-si {
   background: var(--accent, #5df56b);
   color: #fff;

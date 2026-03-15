@@ -283,6 +283,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalExtenderSi = document.getElementById("modalExtenderSi");
   const modalPaseSalida = document.getElementById("modalPaseSalida");
   const modalPaseJustificado = document.getElementById("modalPaseJustificado");
+  const modalPaseJustificadoOpciones = document.getElementById("modalPaseJustificadoOpciones");
+  const modalPaseJustificadoSoloRegistrar = document.getElementById("modalPaseJustificadoSoloRegistrar");
+  const modalPaseJustificadoGenerarPDF = document.getElementById("modalPaseJustificadoGenerarPDF");
+  const modalPaseJustificadoMotivo = document.getElementById("modalPaseJustificadoMotivo");
+  const modalPaseMotivo1 = document.getElementById("modalPaseMotivo1");
+  const modalPaseMotivo2 = document.getElementById("modalPaseMotivo2");
+  const modalPaseMotivo3 = document.getElementById("modalPaseMotivo3");
+  const modalPaseFirma = document.getElementById("modalPaseFirma");
+  const canvasFirma = document.getElementById("canvasFirma");
+  const modalPaseFirmaLimpar = document.getElementById("modalPaseFirmaLimpar");
+  const modalPaseFirmaConfirmar = document.getElementById("modalPaseFirmaConfirmar");
+  const modalPaseFirmaSinFirmar = document.getElementById("modalPaseFirmaSinFirmar");
   const modalPaseSinJustificar = document.getElementById("modalPaseSinJustificar");
   const modalPaseFinJornada = document.getElementById("modalPaseFinJornada");
   const modalConfirmarEliminar = document.getElementById("modalConfirmarEliminar");
@@ -1327,21 +1339,223 @@ function controlarNotificaciones() {
     return hoy > early.endDate || (hoy === early.endDate && ahoraHoraISO() >= early.hastaTime);
   }
 
+  function registrarPaseJustificadoYCerrar() {
+    const hoy = hoyISO();
+    const fin = calcularFinTeorico();
+    state.paseJustificadoHasta = {
+      fecha: hoy,
+      hastaTime: fin.time,
+      endDate: fin.nextDay ? nextDayISO(hoy) : hoy
+    };
+    if (salida) salida.value = "";
+    saveState(state);
+    if (modalPaseJustificadoOpciones) modalPaseJustificadoOpciones.hidden = true;
+    cerrarModalPaseSalida();
+    actualizarEstadoIniciarJornada();
+    actualizarProgreso();
+    actualizarResumenDia();
+  }
+
+  const PLANTILLA_PASE_DEFAULT = "<!DOCTYPE html><html lang=\"gl\"><head><meta charset=\"UTF-8\"><title>Xustificante</title><style>body{font-family:sans-serif;padding:2rem;} .l{border-bottom:1px solid #000;display:inline-block;min-width:120px;}</style></head><body><h1>XUSTIFICANTE DE AUSENCIAS</h1><p>D/Dª <span class=\"l\">{{NOMBRE_COMPLETO}}</span> Mat. <span class=\"l\">{{NUMERO_SAP}}</span> Centro <span class=\"l\">{{CENTRO_COSTE}}</span></p><p>desprazarase ás <span class=\"l\">{{HORA_SALIDA}}</span> Horas do día <span class=\"l\">{{DIA}}</span> do mes de <span class=\"l\">{{MES}}</span> de 202<span class=\"l\">{{ANHO}}</span></p><p>Opción: {{MARCAR_OPCION_1}} {{MARCAR_OPCION_2}} {{MARCAR_OPCION_3}}</p><p>Ferrol, a {{DIA}} de {{MES}} de {{ANHO}}</p></body></html>";
+
+  function reemplazarPlaceholdersPase(html, opcion, firmaDataURL) {
+    const ahora = new Date();
+    const fechaHoraActual = ahora.toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" });
+    const hoy = getHoyISO();
+    const d = new Date(hoy + "T12:00:00");
+    const fechaDia = d.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    const diaNum = d.getDate();
+    const mesNombre = d.toLocaleDateString("gl", { month: "long" });
+    const anho = d.getFullYear();
+    const horaEntrada = (entrada && entrada.value) ? entrada.value : "--";
+    const horaSalida = ahora.toTimeString().slice(0, 5);
+    const cfg = state.config || {};
+    const n = parseInt(opcion, 10);
+    const marcar1 = n === 1 ? "☒" : "□";
+    const marcar2 = n === 2 ? "☒" : "□";
+    const marcar3 = n === 3 ? "☒" : "□";
+    const firmaImg = (firmaDataURL && firmaDataURL.length > 0)
+      ? '<img src="' + firmaDataURL.replace(/"/g, "&quot;") + '" alt="Firma" class="firma-img">'
+      : "";
+    return html
+      .replace(/\{\{NOMBRE_COMPLETO\}\}/g, (cfg.nombreCompleto || "").trim() || "—")
+      .replace(/\{\{NUMERO_SAP\}\}/g, (cfg.numeroSAP || "").trim() || "—")
+      .replace(/\{\{CENTRO_COSTE\}\}/g, (cfg.centroCoste || "").trim() || "—")
+      .replace(/\{\{GRUPO_PROFESIONAL\}\}/g, (cfg.grupoProfesional || "").trim() || "—")
+      .replace(/\{\{FECHA\}\}/g, fechaDia.charAt(0).toUpperCase() + fechaDia.slice(1))
+      .replace(/\{\{DIA\}\}/g, String(diaNum))
+      .replace(/\{\{MES\}\}/g, mesNombre.charAt(0).toUpperCase() + mesNombre.slice(1))
+      .replace(/\{\{ANHO\}\}/g, String(anho))
+      .replace(/\{\{HORA_ENTRADA\}\}/g, horaEntrada)
+      .replace(/\{\{HORA_SALIDA\}\}/g, horaSalida)
+      .replace(/\{\{MARCAR_OPCION_1\}\}/g, marcar1)
+      .replace(/\{\{MARCAR_OPCION_2\}\}/g, marcar2)
+      .replace(/\{\{MARCAR_OPCION_3\}\}/g, marcar3)
+      .replace(/\{\{FIRMA_IMG\}\}/g, firmaImg)
+      .replace(/\{\{FECHA_HORA_ACTUAL\}\}/g, fechaHoraActual);
+  }
+
+  function abrirFormularioPasePDF(opcion, firmaDataURL) {
+    const horaSalidaActual = new Date().toTimeString().slice(0, 5);
+    if (salida) salida.value = horaSalidaActual;
+    const op = parseInt(opcion, 10) || 1;
+    fetch("plantilla-pase-justificado.html")
+      .then(r => r.ok ? r.text() : Promise.reject())
+      .catch(() => PLANTILLA_PASE_DEFAULT)
+      .then(html => {
+        const filled = reemplazarPlaceholdersPase(html, op, firmaDataURL || null);
+        const w = window.open("", "_blank");
+        if (w) {
+          w.document.write(filled);
+          w.document.close();
+          w.setTimeout(() => w.print(), 300);
+        } else {
+          showToast("Permite ventanas emergentes para imprimir el formulario", "error");
+        }
+      })
+      .catch(() => {
+        const filled = reemplazarPlaceholdersPase(PLANTILLA_PASE_DEFAULT, op, firmaDataURL || null);
+        const w = window.open("", "_blank");
+        if (w) {
+          w.document.write(filled);
+          w.document.close();
+          w.setTimeout(() => w.print(), 300);
+        }
+      });
+  }
+
+  let paseJustificadoOpcionSeleccionada = null;
+
+  function initCanvasFirma() {
+    if (!canvasFirma) return;
+    const ctx = canvasFirma.getContext("2d");
+    if (!ctx) return;
+    const w = canvasFirma.width;
+    const h = canvasFirma.height;
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    let drawing = false;
+    function getXY(e) {
+      const rect = canvasFirma.getBoundingClientRect();
+      const scaleX = canvasFirma.width / rect.width;
+      const scaleY = canvasFirma.height / rect.height;
+      if (e.touches && e.touches.length) {
+        return { x: (e.touches[0].clientX - rect.left) * scaleX, y: (e.touches[0].clientY - rect.top) * scaleY };
+      }
+      return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+    }
+    function start(e) {
+      e.preventDefault();
+      drawing = true;
+      const p = getXY(e);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+    }
+    function move(e) {
+      e.preventDefault();
+      if (!drawing) return;
+      const p = getXY(e);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    }
+    function end(e) {
+      e.preventDefault();
+      drawing = false;
+    }
+    canvasFirma.onmousedown = start;
+    canvasFirma.onmousemove = move;
+    canvasFirma.onmouseup = end;
+    canvasFirma.onmouseleave = end;
+    canvasFirma.ontouchstart = start;
+    canvasFirma.ontouchmove = move;
+    canvasFirma.ontouchend = end;
+    canvasFirma.ontouchcancel = end;
+  }
+
+  function limpiarCanvasFirma() {
+    if (!canvasFirma) return;
+    const ctx = canvasFirma.getContext("2d");
+    if (ctx) {
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvasFirma.width, canvasFirma.height);
+    }
+  }
+
   if (modalPaseJustificado) {
     modalPaseJustificado.addEventListener("click", () => {
-      const hoy = hoyISO();
-      const fin = calcularFinTeorico();
-      state.paseJustificadoHasta = {
-        fecha: hoy,
-        hastaTime: fin.time,
-        endDate: fin.nextDay ? nextDayISO(hoy) : hoy
-      };
-      if (salida) salida.value = "";
-      saveState(state);
       cerrarModalPaseSalida();
-      actualizarEstadoIniciarJornada();
-      actualizarProgreso();
-      actualizarResumenDia();
+      if (modalPaseJustificadoOpciones) modalPaseJustificadoOpciones.hidden = false;
+    });
+  }
+  if (modalPaseJustificadoSoloRegistrar) {
+    modalPaseJustificadoSoloRegistrar.addEventListener("click", () => {
+      registrarPaseJustificadoYCerrar();
+    });
+  }
+  if (modalPaseJustificadoGenerarPDF) {
+    modalPaseJustificadoGenerarPDF.addEventListener("click", () => {
+      if (modalPaseJustificadoOpciones) modalPaseJustificadoOpciones.hidden = true;
+      if (modalPaseJustificadoMotivo) modalPaseJustificadoMotivo.hidden = false;
+    });
+  }
+  [modalPaseMotivo1, modalPaseMotivo2, modalPaseMotivo3].forEach((btn) => {
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      const opcion = btn.getAttribute("data-opcion") || "1";
+      paseJustificadoOpcionSeleccionada = opcion;
+      if (modalPaseJustificadoMotivo) modalPaseJustificadoMotivo.hidden = true;
+      if (modalPaseFirma) {
+        modalPaseFirma.hidden = false;
+        limpiarCanvasFirma();
+        initCanvasFirma();
+      } else {
+        abrirFormularioPasePDF(opcion, null);
+        registrarPaseJustificadoYCerrar();
+      }
+    });
+  });
+  if (modalPaseFirmaLimpar) modalPaseFirmaLimpar.addEventListener("click", () => limpiarCanvasFirma());
+  if (modalPaseFirmaConfirmar) {
+    modalPaseFirmaConfirmar.addEventListener("click", () => {
+      let firmaDataURL = null;
+      if (canvasFirma) {
+        try { firmaDataURL = canvasFirma.toDataURL("image/png"); } catch (_) {}
+      }
+      if (modalPaseFirma) modalPaseFirma.hidden = true;
+      if (paseJustificadoOpcionSeleccionada != null) {
+        abrirFormularioPasePDF(paseJustificadoOpcionSeleccionada, firmaDataURL);
+        registrarPaseJustificadoYCerrar();
+      }
+      paseJustificadoOpcionSeleccionada = null;
+    });
+  }
+  if (modalPaseFirmaSinFirmar) {
+    modalPaseFirmaSinFirmar.addEventListener("click", () => {
+      if (modalPaseFirma) modalPaseFirma.hidden = true;
+      if (paseJustificadoOpcionSeleccionada != null) {
+        abrirFormularioPasePDF(paseJustificadoOpcionSeleccionada, null);
+        registrarPaseJustificadoYCerrar();
+      }
+      paseJustificadoOpcionSeleccionada = null;
+    });
+  }
+  if (modalPaseFirma && modalPaseFirma.querySelector(".modal-extender-backdrop")) {
+    modalPaseFirma.querySelector(".modal-extender-backdrop").addEventListener("click", () => {
+      modalPaseFirma.hidden = true;
+      paseJustificadoOpcionSeleccionada = null;
+    });
+  }
+  if (modalPaseJustificadoMotivo && modalPaseJustificadoMotivo.querySelector(".modal-extender-backdrop")) {
+    modalPaseJustificadoMotivo.querySelector(".modal-extender-backdrop").addEventListener("click", () => {
+      if (modalPaseJustificadoMotivo) modalPaseJustificadoMotivo.hidden = true;
+    });
+  }
+  if (modalPaseJustificadoOpciones && modalPaseJustificadoOpciones.querySelector(".modal-extender-backdrop")) {
+    modalPaseJustificadoOpciones.querySelector(".modal-extender-backdrop").addEventListener("click", () => {
+      modalPaseJustificadoOpciones.hidden = true;
     });
   }
   function ejecutarDescuentoDe(descuentoDe) {
