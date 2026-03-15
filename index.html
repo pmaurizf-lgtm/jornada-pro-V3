@@ -498,8 +498,14 @@
     <span class="resumen-jornada-icon" aria-hidden="true">●</span>
     <span id="resumenPortadaJornadaTexto">Fichado desde 08:00</span>
   </div>
-  <div id="resumenPortadaAccesosRapidos" class="resumen-portada-accesos-rapidos" hidden>
-    <button type="button" id="resumenBtnJornada" class="resumen-btn-rapido resumen-btn-jornada">Iniciar jornada</button>
+  <div id="resumenPortadaAccesosRapidos" class="resumen-portada-accesos-rapidos resumen-portada-accion-jornada" hidden>
+    <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar" aria-label="Iniciar o finalizar jornada">Iniciar jornada</button>
+    <div id="finalizarJornadaWrap" class="finalizar-slider-wrap" hidden>
+      <div id="finalizarSliderTrack" class="finalizar-slider-track">
+        <span id="finalizarSliderText" class="finalizar-slider-text">Desliza para finalizar jornada</span>
+        <div id="finalizarSliderThumb" class="finalizar-slider-thumb" role="button" tabindex="0" aria-label="Deslizar para finalizar jornada"></div>
+      </div>
+    </div>
   </div>
   <div class="resumen-portada-line" id="resumenPortadaSemanaWrap">
     <span id="resumenPortadaSemanaLabel">Esta semana</span>
@@ -530,13 +536,6 @@
   <div class="form-card registro-card">
 
     <h3 style="margin-top:0;">Registro Diario</h3>
-
-    <!-- BOTÓN ÚNICO INICIAR / FINALIZAR JORNADA -->
-    <div class="jornada-acciones jornada-acciones-unico">
-      <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar" aria-label="Iniciar o finalizar jornada">
-        Iniciar jornada
-      </button>
-    </div>
 
     <!-- FECHA + ENTRADA -->
     <div class="grid-2">

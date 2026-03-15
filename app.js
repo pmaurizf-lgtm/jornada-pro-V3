@@ -263,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const finalizarJornadaWrap = document.getElementById("finalizarJornadaWrap");
   const finalizarSliderTrack = document.getElementById("finalizarSliderTrack");
   const finalizarSliderThumb = document.getElementById("finalizarSliderThumb");
+  const finalizarSliderText = document.getElementById("finalizarSliderText");
   const modalExtenderJornada = document.getElementById("modalExtenderJornada");
   const modalExtenderNo = document.getElementById("modalExtenderNo");
   const modalExtenderSi = document.getElementById("modalExtenderSi");
@@ -1843,35 +1844,6 @@ function controlarNotificaciones() {
   if (btnIniciarJornada) {
     btnIniciarJornada.onclick = () => {
       const hoy = hoyISO();
-      const esHoy = fecha && fecha.value === hoy;
-      const tieneEntrada = entrada && entrada.value;
-      const yaFinalizado = state.registros[hoy] && state.registros[hoy].salidaReal != null;
-      const enExtension = state.extensionJornada && state.extensionJornada.fecha === hoy;
-      if ((esHoy && tieneEntrada && !yaFinalizado) || (esHoy && enExtension)) {
-        if (enExtension) {
-          ejecutarFinalizarExtension();
-          actualizarEstadoIniciarJornada();
-          actualizarResumenDia();
-          if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
-          return;
-        }
-        const salidaAhora = ahoraHoraISO();
-        if (esSalidaAnticipada(salidaAhora)) {
-          if (esDiaNoLaborable(fecha.value)) {
-            ejecutarFinalizarJornada();
-          } else if (yaUsóPaseHoy(hoy)) {
-            ejecutarTerminarJornadaTrasPase();
-          } else {
-            abrirModalPaseSalida(salidaAhora);
-          }
-        } else {
-          ejecutarFinalizarJornada();
-        }
-        actualizarEstadoIniciarJornada();
-        actualizarResumenDia();
-        if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
-        return;
-      }
       const textoBtn = (btnIniciarJornada.textContent || "").trim();
       const esExtender = textoBtn.includes("Extender jornada") && !btnIniciarJornada.disabled;
 
@@ -1887,6 +1859,7 @@ function controlarNotificaciones() {
       const esContinuar = textoBtn.toLowerCase().includes("continuar");
 
       if (esContinuar && state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy) {
+        if (fecha) fecha.value = hoy;
         if (!state.registros[hoy]) {
           state.registros[hoy] = { entrada: entrada.value, paseJustificado: true };
         } else {
@@ -1895,10 +1868,16 @@ function controlarNotificaciones() {
         state.paseJustificadoHasta = null;
         if (salida) salida.value = "";
         saveState(state);
-        renderCalendario();
-        actualizarEstadoIniciarJornada();
+        guardarBorradorSesion();
+        recalcularEnVivo();
         actualizarProgreso();
+        renderCalendario();
+        actualizarBanco();
+        actualizarGrafico();
+        actualizarEstadoEliminar();
+        actualizarEstadoIniciarJornada();
         actualizarResumenDia();
+        if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
         return;
       }
 
@@ -2733,10 +2712,19 @@ function controlarNotificaciones() {
       btnIniciarJornada.classList.add("btn-iniciar");
       btnIniciarJornada.classList.remove("btn-finalizar");
     }
+    const mostrarSliderFinalizar = (esHoy && tieneEntrada && !yaFinalizado) || (!esModoMinutosSemanal() && enExtension);
+    if (btnIniciarJornada) btnIniciarJornada.hidden = !!mostrarSliderFinalizar;
+    if (finalizarJornadaWrap) {
+      finalizarJornadaWrap.hidden = !mostrarSliderFinalizar;
+      if (mostrarSliderFinalizar) {
+        if (finalizarSliderText) finalizarSliderText.textContent = enExtension ? "Desliza para finalizar extensión" : "Desliza para finalizar jornada";
+        if (finalizarSliderThumb) finalizarSliderThumb.style.left = "0%";
+      }
+    }
     actualizarEstadoFinalizarJornada();
     if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
   }
-  
+
 function mostrarPopupFestivo(texto){
 
   const popup = document.createElement("div");
@@ -3449,46 +3437,7 @@ if(festivos && festivos[fechaISO]){
         resumenPortadaJornadaEnCurso.hidden = true;
       }
     }
-    if (resumenPortadaAccesosRapidos && resumenBtnJornada) {
-      resumenPortadaAccesosRapidos.hidden = false;
-      const regHoy = state.registros[hoyISO];
-      const tieneEntradaHoy = !!(regHoy && (regHoy.entrada || regHoy.entradaPrimera)) || (fecha && fecha.value === hoyISO && entrada && entrada.value);
-      const yaFinalizadoHoy = !!(regHoy && regHoy.salidaReal != null);
-      const enPaseJustificado = state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoyISO;
-      const enEarlyExit = state.earlyExitState && state.earlyExitState.fecha === hoyISO && !pasadoFinTeorico(state.earlyExitState);
-      const enExtension = state.extensionJornada && state.extensionJornada.fecha === hoyISO;
-      const esDiaNoTrabajable = !!(regHoy && (regHoy.vacaciones || regHoy.libreDisposicion || regHoy.disfruteHorasExtra || regHoy.disfruteExcesoJornada));
-      const esDiaFinDeSemanaOFestivo = esDiaNoLaborable(hoyISO);
-      const mostrarContinuar = enPaseJustificado || enEarlyExit;
-      if (esDiaNoTrabajable) {
-        resumenBtnJornada.textContent = "Iniciar jornada";
-        resumenBtnJornada.disabled = true;
-        resumenBtnJornada.dataset.accion = "iniciar";
-      } else if (mostrarContinuar) {
-        resumenBtnJornada.textContent = "Continuar jornada";
-        resumenBtnJornada.disabled = false;
-        resumenBtnJornada.dataset.accion = "iniciar";
-      } else if (!esModoMinutosSemanal() && enExtension) {
-        resumenBtnJornada.textContent = "Extender jornada";
-        resumenBtnJornada.disabled = true;
-        resumenBtnJornada.dataset.accion = "iniciar";
-      } else if (!esModoMinutosSemanal() && yaFinalizadoHoy) {
-        resumenBtnJornada.textContent = "Extender jornada";
-        resumenBtnJornada.disabled = false;
-        resumenBtnJornada.dataset.accion = "iniciar";
-      } else if (tieneEntradaHoy && !yaFinalizadoHoy) {
-        resumenBtnJornada.textContent = "Terminar jornada";
-        resumenBtnJornada.disabled = false;
-        resumenBtnJornada.dataset.accion = "terminar";
-      } else {
-        resumenBtnJornada.textContent = !esModoMinutosSemanal() && esDiaFinDeSemanaOFestivo ? "Iniciar TxT" : "Iniciar jornada";
-        resumenBtnJornada.disabled = false;
-        resumenBtnJornada.dataset.accion = "iniciar";
-      }
-      const esTerminar = (resumenBtnJornada.dataset.accion || "") === "terminar";
-      resumenBtnJornada.classList.toggle("resumen-btn-terminar", esTerminar);
-      resumenBtnJornada.classList.toggle("resumen-btn-iniciar", !esTerminar);
-    }
+    if (resumenPortadaAccesosRapidos) resumenPortadaAccesosRapidos.hidden = false;
     resumenPortada.hidden = false;
     const festivos = obtenerFestivos(currentYear);
     let nextFestivo = null;
@@ -3549,50 +3498,6 @@ if(festivos && festivos[fechaISO]){
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     renderCalendario();
   };
-
-  if (resumenBtnJornada) {
-    resumenBtnJornada.addEventListener("click", () => {
-      if (resumenBtnJornada.disabled) return;
-      const hoy = getHoyISO();
-      if (fecha) fecha.value = hoy;
-      const accion = resumenBtnJornada.dataset.accion || "iniciar";
-      if (accion === "terminar") {
-        if (state.extensionJornada && state.extensionJornada.fecha === hoy) {
-          ejecutarFinalizarExtension();
-        } else {
-          const salidaAhora = ahoraHoraISO();
-          if (esSalidaAnticipada(salidaAhora)) {
-            if (esDiaNoLaborable(hoy)) {
-              ejecutarFinalizarJornada();
-            } else if (yaUsóPaseHoy(hoy)) {
-              ejecutarTerminarJornadaTrasPase();
-            } else {
-              abrirModalPaseSalida(salidaAhora);
-            }
-          } else {
-            ejecutarFinalizarJornada();
-          }
-        }
-      } else {
-        if (entrada) entrada.value = horaInicioJornada();
-        if (salida) salida.value = "";
-        if (minAntes) minAntes.value = "0";
-        if (disfrutadas) disfrutadas.value = "0";
-        try { localStorage.removeItem(EXTEND_PROMPT_KEY + "_" + hoy); } catch (e) {}
-        guardarBorradorSesion();
-        recalcularEnVivo();
-        actualizarProgreso();
-      }
-      if (accion === "terminar") cargarFormularioDesdeRegistro(hoy);
-      renderCalendario();
-      actualizarBanco();
-      actualizarGrafico();
-      actualizarEstadoEliminar();
-      actualizarEstadoIniciarJornada();
-      actualizarResumenDia();
-      actualizarResumenPortada();
-    });
-  }
 
   // ===============================
   // INIT – restaurar sesión en curso (PWA: al reabrir tras cerrar)

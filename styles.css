@@ -3288,6 +3288,12 @@ body.dark .empty-state--calendar {
   flex-wrap: wrap;
 }
 
+.resumen-portada-accion-jornada .btn-jornada,
+.resumen-portada-accion-jornada .finalizar-slider-wrap {
+  flex: 1;
+  min-width: 100%;
+}
+
 .resumen-btn-rapido {
   flex: 1;
   min-width: 8rem;
