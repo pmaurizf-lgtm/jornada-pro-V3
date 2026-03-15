@@ -2688,7 +2688,7 @@ function controlarNotificaciones() {
       finalizarJornadaWrap.hidden = true;
       return;
     }
-    finalizarJornadaWrap.hidden = false;
+    // No forzar .hidden = false aquí: la visibilidad del slider la decide solo actualizarEstadoIniciarJornada (mostrarSliderFinalizar)
     const esVacaciones = !!(fecha && state.registros[fecha.value]?.vacaciones);
     const esLD = !!(fecha && state.registros[fecha.value]?.libreDisposicion);
     const esDisfruteHorasExtra = !!(fecha && state.registros[fecha.value]?.disfruteHorasExtra);
@@ -2719,7 +2719,11 @@ function controlarNotificaciones() {
     if (btnDisfruteExcesoJornada) btnDisfruteExcesoJornada.disabled = esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra || esDiaDisfruteExcesoJornada;
 
     if (esDiaNoTrabajable) {
-      if (btnIniciarJornada) btnIniciarJornada.disabled = true;
+      if (btnIniciarJornada) {
+        btnIniciarJornada.disabled = true;
+        btnIniciarJornada.hidden = false;
+      }
+      if (finalizarJornadaWrap) finalizarJornadaWrap.hidden = true;
       actualizarEstadoFinalizarJornada();
       return;
     }
@@ -2766,7 +2770,8 @@ function controlarNotificaciones() {
       btnIniciarJornada.classList.add("btn-iniciar");
     }
     const mostrarSliderFinalizar = ((esHoy && tieneEntrada && !yaFinalizado) && !mostrarContinuar) || (!esModoMinutosSemanal() && enExtension);
-    if (btnIniciarJornada) btnIniciarJornada.hidden = !!mostrarSliderFinalizar;
+    // Un solo control visible: o botón (verde/naranja) o slider rojo para finalizar
+    if (btnIniciarJornada) btnIniciarJornada.hidden = mostrarSliderFinalizar;
     if (finalizarJornadaWrap) {
       finalizarJornadaWrap.hidden = !mostrarSliderFinalizar;
       if (mostrarSliderFinalizar) {
@@ -3575,6 +3580,7 @@ if(festivos && festivos[fechaISO]){
     limpiarBorradorSesion();
   }
 
+  if (fecha && !fecha.value) fecha.value = getHoyISO();
   renderCalendario();
   actualizarBanco();
   actualizarGrafico();
@@ -3644,15 +3650,11 @@ if(festivos && festivos[fechaISO]){
   if (configAppVersion) configAppVersion.textContent = "v" + APP_VERSION;
   if (configAppVersionFooter) configAppVersionFooter.textContent = "v" + APP_VERSION;
 
-  // Ocultar splash tras carga inicial
+  // Ocultar splash tras carga inicial; mostrar consejo del día una vez al día
   setTimeout(() => {
     hideSplash();
     try {
-      if (!localStorage.getItem(ONBOARDING_KEY) && localStorage.getItem(GP_ELIGIDO_KEY)) {
-        mostrarOnboarding();
-      } else if (localStorage.getItem(ONBOARDING_KEY)) {
-        setTimeout(mostrarSugerenciaDiaSiAplica, 300);
-      }
+      setTimeout(mostrarSugerenciaDiaSiAplica, 300);
     } catch (e) {}
   }, 450);
 
