@@ -1859,7 +1859,34 @@ function controlarNotificaciones() {
   if (btnIniciarJornada) {
     btnIniciarJornada.onclick = () => {
       const hoy = hoyISO();
+      const esHoy = fecha && fecha.value === hoy;
+      const tieneEntrada = entrada && entrada.value;
+      const yaFinalizado = state.registros[hoy] && state.registros[hoy].salidaReal != null;
+      const enExtension = state.extensionJornada && state.extensionJornada.fecha === hoy;
       const textoBtn = (btnIniciarJornada.textContent || "").trim();
+      const esFinalizar = textoBtn.includes("Finalizar jornada") || textoBtn.includes("Finalizar extensión");
+      if (esFinalizar && (esHoy && tieneEntrada && !yaFinalizado || enExtension)) {
+        if (enExtension) {
+          ejecutarFinalizarExtension();
+        } else {
+          const salidaAhora = ahoraHoraISO();
+          if (esSalidaAnticipada(salidaAhora)) {
+            if (esDiaNoLaborable(fecha.value)) {
+              ejecutarFinalizarJornada();
+            } else if (yaUsóPaseHoy(hoy)) {
+              ejecutarTerminarJornadaTrasPase();
+            } else {
+              abrirModalPaseSalida(salidaAhora);
+            }
+          } else {
+            ejecutarFinalizarJornada();
+          }
+        }
+        actualizarEstadoIniciarJornada();
+        actualizarResumenDia();
+        if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
+        return;
+      }
       const esExtender = textoBtn.includes("Extender jornada") && !btnIniciarJornada.disabled;
 
       if (esExtender && state.registros[hoy] && state.registros[hoy].salidaReal && getHoyISO() === hoy) {
@@ -2735,15 +2762,7 @@ function controlarNotificaciones() {
       btnIniciarJornada.classList.remove("btn-finalizar", "btn-continuar");
       btnIniciarJornada.classList.add("btn-iniciar");
     }
-    const mostrarSliderFinalizar = ((esHoy && tieneEntrada && !yaFinalizado) && !mostrarContinuar) || (!esModoMinutosSemanal() && enExtension);
-    if (btnIniciarJornada) btnIniciarJornada.hidden = !!mostrarSliderFinalizar;
-    if (finalizarJornadaWrap) {
-      finalizarJornadaWrap.hidden = !mostrarSliderFinalizar;
-      if (mostrarSliderFinalizar) {
-        if (finalizarSliderText) finalizarSliderText.textContent = enExtension ? "Desliza para finalizar extensión" : "Desliza para finalizar jornada";
-        if (finalizarSliderThumb) finalizarSliderThumb.style.left = "0%";
-      }
-    }
+    if (btnIniciarJornada) btnIniciarJornada.hidden = false;
     actualizarEstadoFinalizarJornada();
     if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
   }
