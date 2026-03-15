@@ -2685,23 +2685,23 @@ function controlarNotificaciones() {
     if (mostrarContinuar) {
       btnIniciarJornada.textContent = "Continuar jornada";
       btnIniciarJornada.disabled = false;
-      btnIniciarJornada.classList.add("btn-iniciar");
-      btnIniciarJornada.classList.remove("btn-finalizar");
+      btnIniciarJornada.classList.remove("btn-iniciar", "btn-finalizar");
+      btnIniciarJornada.classList.add("btn-continuar");
     } else if (esHoy && tieneEntrada && !yaFinalizado) {
       btnIniciarJornada.textContent = "Finalizar jornada";
       btnIniciarJornada.disabled = false;
-      btnIniciarJornada.classList.remove("btn-iniciar");
+      btnIniciarJornada.classList.remove("btn-iniciar", "btn-continuar");
       btnIniciarJornada.classList.add("btn-finalizar");
     } else if (!esModoMinutosSemanal() && enExtension) {
       btnIniciarJornada.textContent = "Finalizar extensión";
       btnIniciarJornada.disabled = false;
-      btnIniciarJornada.classList.remove("btn-iniciar");
+      btnIniciarJornada.classList.remove("btn-iniciar", "btn-continuar");
       btnIniciarJornada.classList.add("btn-finalizar");
     } else if (!esModoMinutosSemanal() && yaFinalizado && esHoy) {
       btnIniciarJornada.textContent = "Extender jornada";
       btnIniciarJornada.disabled = false;
+      btnIniciarJornada.classList.remove("btn-finalizar", "btn-continuar");
       btnIniciarJornada.classList.add("btn-iniciar");
-      btnIniciarJornada.classList.remove("btn-finalizar");
     } else {
       if (!esModoMinutosSemanal() && esDiaFinDeSemanaOFestivo) {
         btnIniciarJornada.textContent = "Iniciar TxT";
@@ -2709,8 +2709,8 @@ function controlarNotificaciones() {
         btnIniciarJornada.textContent = "Iniciar jornada";
       }
       btnIniciarJornada.disabled = false;
+      btnIniciarJornada.classList.remove("btn-finalizar", "btn-continuar");
       btnIniciarJornada.classList.add("btn-iniciar");
-      btnIniciarJornada.classList.remove("btn-finalizar");
     }
     const mostrarSliderFinalizar = (esHoy && tieneEntrada && !yaFinalizado) || (!esModoMinutosSemanal() && enExtension);
     if (btnIniciarJornada) btnIniciarJornada.hidden = !!mostrarSliderFinalizar;

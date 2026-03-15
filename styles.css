@@ -1475,6 +1475,16 @@ button:disabled {
   opacity: 0.9;
 }
 
+.btn-continuar {
+  background: #d97706;
+  color: #fff;
+  border: 1px solid #d97706;
+}
+
+.btn-continuar:hover {
+  opacity: 0.9;
+}
+
 .jornada-acciones-unico {
   grid-template-columns: 1fr;
 }
