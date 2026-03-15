@@ -1,7 +1,24 @@
 [
   {
+    "version": "1.2",
+    "date": "2026-03",
+    "items": [
+      "Pase justificado: hora de desprazamento, motivo (consulta/pruebas/pediatría), firma opcional y descarga directa del PDF (sin diálogo de impresión).",
+      "Modal de eliminar registro: confirmación con día concreto y aviso de que no se puede deshacer.",
+      "Texto más grande en Configuración para toda la app.",
+      "Recordatorio de fichar entrada (hora configurable) y recordatorio de fichar salida (tras 9 h desde entrada).",
+      "Recordatorio de backup (cada 7 días) e indicador de último backup en Copia y seguridad.",
+      "Exportar Excel/Backup con atajos «Mes actual» y «Año actual»; Informe PDF mensual.",
+      "Restaurar: aviso si hay datos locales más recientes que el backup.",
+      "Borrar todos los datos con doble confirmación (casilla + botón).",
+      "Guía e instalación: Ver guía, Qué hay de nuevo (changelog), Añadir a pantalla de inicio (iOS).",
+      "Accesibilidad: etiquetas para lectores de pantalla (aria-label) en botones principales.",
+      "Feedback al guardar: «Día guardado» y «Datos actualizados» al finalizar jornada."
+    ]
+  },
+  {
     "version": "1.1",
-    "date": "2025-02",
+    "date": "2026-02",
     "items": [
       "Resumen portada: fecha completa, reloj, esta semana, comparativa mes anterior, días trabajados/vac/LD.",
       "Indicador «Fichado desde» y accesos rápidos Fichar entrada / Fichar salida.",
@@ -11,13 +28,12 @@
       "Exportar Excel y Backup con rango de fechas opcional.",
       "Informe PDF mensual (imprimir).",
       "Al restaurar backup: aviso si hay datos más recientes locales.",
-      "Recordatorio de hacer backup (cada 7 días).",
-      "Modo desarrollador y Plof: 5 toques en «Autor» o 7 en la versión."
+      "Recordatorio de hacer backup (cada 7 días)."
     ]
   },
   {
     "version": "1.0",
-    "date": "2025-01",
+    "date": "2026-01",
     "items": [
       "Toasts y mensajes de confirmación.",
       "Onboarding en el primer uso.",

@@ -24,7 +24,7 @@ import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.j
 import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
 import { renderGrafico, renderGraficoEvolucion } from "./ui/charts.js";
 
-const APP_VERSION = "1.0";
+const APP_VERSION = "1.2";
 
 document.addEventListener("DOMContentLoaded", () => {
 
