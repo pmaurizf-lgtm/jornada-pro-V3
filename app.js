@@ -1433,7 +1433,8 @@ function controlarNotificaciones() {
         const imgData = canvas.toDataURL("image/png");
         const pdf = new JsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
         pdf.addImage(imgData, "PNG", 0, 0, 210, 297);
-        pdf.save("xustificante-ausencias.pdf");
+        const hoy = typeof getHoyISO === "function" ? getHoyISO() : new Date().toISOString().slice(0, 10);
+        pdf.save("xustificante-ausencias-" + hoy + ".pdf");
       }).then(() => {
         document.body.removeChild(container);
         showToast("PDF gardado correctamente", "success");
