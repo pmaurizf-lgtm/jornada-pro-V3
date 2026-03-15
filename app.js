@@ -1401,33 +1401,87 @@ function controlarNotificaciones() {
       .replace(/\{\{FECHA_HORA_ACTUAL\}\}/g, fechaHoraActual);
   }
 
+  function guardarFormularioPaseComoPDF(filled) {
+    const JsPDF = (typeof jspdf !== "undefined" && jspdf.jsPDF) ? jspdf.jsPDF : (typeof window !== "undefined" && window.jspdf && (window.jspdf.jsPDF || window.jspdf));
+    if (typeof html2canvas === "undefined" || !JsPDF) return false;
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(filled, "text/html");
+      const styles = doc.querySelectorAll("style");
+      const styleHtml = Array.from(styles).map(s => s.outerHTML).join("");
+      const bodyHtml = doc.body ? doc.body.innerHTML : "";
+      const base = document.location.href.replace(/[^/]*$/, "");
+      const container = document.createElement("div");
+      container.setAttribute("aria-hidden", "true");
+      container.style.cssText = "position:fixed;left:-9999px;top:0;width:210mm;max-width:210mm;background:#fff;box-sizing:border-box;";
+      container.innerHTML = "<base href=\"" + base + "\">" + styleHtml + bodyHtml;
+      document.body.appendChild(container);
+      function waitForImages(el, timeoutMs) {
+        return new Promise(resolve => {
+          const imgs = el.querySelectorAll("img");
+          const pending = Array.from(imgs).filter(i => !i.complete);
+          if (pending.length === 0) return resolve();
+          let done = 0;
+          const onDone = () => { if (++done >= pending.length) resolve(); };
+          pending.forEach(i => { i.onload = onDone; i.onerror = onDone; });
+          setTimeout(resolve, timeoutMs || 4000);
+        });
+      }
+      return waitForImages(container, 4000).then(() => {
+        return html2canvas(container, { scale: 2, useCORS: true, logging: false, backgroundColor: "#ffffff" });
+      }).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new JsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+        pdf.addImage(imgData, "PNG", 0, 0, 210, 297);
+        pdf.save("xustificante-ausencias.pdf");
+      }).then(() => {
+        document.body.removeChild(container);
+        showToast("PDF gardado correctamente", "success");
+      }).catch(err => {
+        if (container.parentNode) document.body.removeChild(container);
+        throw err;
+      });
+    } catch (e) {
+      return Promise.resolve(false);
+    }
+  }
+
   function abrirFormularioPasePDF(opcion, firmaDataURL) {
     const horaSalidaActual = (paseJustificadoHoraDesplazamiento != null && paseJustificadoHoraDesplazamiento !== "")
       ? paseJustificadoHoraDesplazamiento
       : new Date().toTimeString().slice(0, 5);
     if (salida) salida.value = horaSalidaActual;
     const op = parseInt(opcion, 10) || 1;
+    const doFill = (html) => reemplazarPlaceholdersPase(html, op, firmaDataURL || null);
+    const usarPrintDialog = (filled) => {
+      const w = window.open("", "_blank");
+      if (w) {
+        w.document.write(filled);
+        w.document.close();
+        w.setTimeout(() => w.print(), 300);
+      } else {
+        showToast("Permite ventanas emergentes para imprimir o gardar o formulario", "error");
+      }
+    };
     fetch("plantilla-pase-justificado.html")
       .then(r => r.ok ? r.text() : Promise.reject())
       .catch(() => PLANTILLA_PASE_DEFAULT)
       .then(html => {
-        const filled = reemplazarPlaceholdersPase(html, op, firmaDataURL || null);
-        const w = window.open("", "_blank");
-        if (w) {
-          w.document.write(filled);
-          w.document.close();
-          w.setTimeout(() => w.print(), 300);
+        const filled = doFill(html);
+        const saved = guardarFormularioPaseComoPDF(filled);
+        if (saved && typeof saved.then === "function") {
+          saved.catch(() => usarPrintDialog(filled));
         } else {
-          showToast("Permite ventanas emergentes para imprimir el formulario", "error");
+          usarPrintDialog(filled);
         }
       })
       .catch(() => {
-        const filled = reemplazarPlaceholdersPase(PLANTILLA_PASE_DEFAULT, op, firmaDataURL || null);
-        const w = window.open("", "_blank");
-        if (w) {
-          w.document.write(filled);
-          w.document.close();
-          w.setTimeout(() => w.print(), 300);
+        const filled = doFill(PLANTILLA_PASE_DEFAULT);
+        const saved = guardarFormularioPaseComoPDF(filled);
+        if (saved && typeof saved.then === "function") {
+          saved.catch(() => usarPrintDialog(filled));
+        } else {
+          usarPrintDialog(filled);
         }
       });
   }
