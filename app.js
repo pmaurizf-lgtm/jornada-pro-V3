@@ -959,8 +959,10 @@ function recalcularEnVivo() {
     return;
   }
 
-  try {
+  const diaSel = (fecha && fecha.value) ? fecha.value : getHoyISO();
+  const noLaborable = typeof esDiaNoLaborable === "function" && esDiaNoLaborable(diaSel);
 
+  try {
     const resultado = calcularJornada({
       entrada: entrada.value,
       salidaReal: salida.value || null,
@@ -969,9 +971,13 @@ function recalcularEnVivo() {
       trabajoATurnos: state.config.trabajoATurnos === true
     });
 
-    if (salidaTeorica) salidaTeorica.innerText = minutesToTime(resultado.salidaTeoricaMin);
-    if (salidaAjustada) salidaAjustada.innerText = minutesToTime(resultado.salidaAjustadaMin);
-
+    if (noLaborable) {
+      if (salidaTeorica) salidaTeorica.innerText = "--";
+      if (salidaAjustada) salidaAjustada.innerText = (salida && salida.value) ? minutesToTime(resultado.salidaAjustadaMin) : "--";
+    } else {
+      if (salidaTeorica) salidaTeorica.innerText = minutesToTime(resultado.salidaTeoricaMin);
+      if (salidaAjustada) salidaAjustada.innerText = minutesToTime(resultado.salidaAjustadaMin);
+    }
   } catch {
     if (salidaTeorica) salidaTeorica.innerText = "--:--";
     if (salidaAjustada) salidaAjustada.innerText = "--:--";
@@ -1017,6 +1023,17 @@ function actualizarProgreso() {
     if (barra) barra.style.width = "0%";
     if (progresoInside) progresoInside.innerText = "";
     updateWidgetData(0, "", true, false);
+    return;
+  }
+
+  const diaSel = (fecha && fecha.value) ? fecha.value : hoy;
+  if (typeof esDiaNoLaborable === "function" && esDiaNoLaborable(diaSel)) {
+    if (barra) barra.style.width = "0%";
+    if (progresoInside) {
+      progresoInside.innerText = "Día TxT (sáb/dom/fest.)";
+      progresoInside.classList.add("light-text");
+    }
+    updateWidgetData(0, "Día TxT", true, false);
     return;
   }
 
@@ -1367,7 +1384,7 @@ function controlarNotificaciones() {
 
   const PLANTILLA_PASE_DEFAULT = "<!DOCTYPE html><html lang=\"gl\"><head><meta charset=\"UTF-8\"><title>Xustificante</title><style>body{font-family:sans-serif;padding:2rem;} .l{border-bottom:1px solid #000;display:inline-block;min-width:120px;}</style></head><body><h1>XUSTIFICANTE DE AUSENCIAS</h1><p>D/Dª <span class=\"l\">{{NOMBRE_COMPLETO}}</span> Mat. <span class=\"l\">{{NUMERO_SAP}}</span> Centro <span class=\"l\">{{CENTRO_COSTE}}</span></p><p>desprazarase ás <span class=\"l\">{{HORA_SALIDA}}</span> Horas do día <span class=\"l\">{{DIA}}</span> do mes de <span class=\"l\">{{MES}}</span> de 202<span class=\"l\">{{ANHO}}</span></p><p>Opción: {{MARCAR_OPCION_1}} {{MARCAR_OPCION_2}} {{MARCAR_OPCION_3}}</p><p>Ferrol, a {{DIA}} de {{MES}} de {{ANHO}}</p></body></html>";
 
-  function reemplazarPlaceholdersPase(html, opcion, firmaDataURL) {
+  function reemplazarPlaceholdersPase(html, opcion, firmaDataURL, horaSalidaModal) {
     const ahora = new Date();
     const fechaHoraActual = ahora.toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" });
     const hoy = getHoyISO();
@@ -1377,9 +1394,11 @@ function controlarNotificaciones() {
     const mesNombre = d.toLocaleDateString("gl", { month: "long" });
     const anho = d.getFullYear();
     const horaEntrada = (entrada && entrada.value) ? entrada.value : "--";
-    const horaSalida = (paseJustificadoHoraDesplazamiento != null && paseJustificadoHoraDesplazamiento !== "")
-      ? paseJustificadoHoraDesplazamiento
-      : ahora.toTimeString().slice(0, 5);
+    const horaSalida = (horaSalidaModal != null && horaSalidaModal !== "")
+      ? horaSalidaModal
+      : (paseJustificadoHoraDesplazamiento != null && paseJustificadoHoraDesplazamiento !== "")
+        ? paseJustificadoHoraDesplazamiento
+        : ahora.toTimeString().slice(0, 5);
     const cfg = state.config || {};
     const n = parseInt(opcion, 10);
     const marcar1 = n === 1 ? "☒" : "□";
@@ -1459,7 +1478,7 @@ function controlarNotificaciones() {
       : new Date().toTimeString().slice(0, 5);
     if (salida) salida.value = horaSalidaActual;
     const op = parseInt(opcion, 10) || 1;
-    const doFill = (html) => reemplazarPlaceholdersPase(html, op, firmaDataURL || null);
+    const doFill = (html) => reemplazarPlaceholdersPase(html, op, firmaDataURL || null, horaSalidaActual);
     const usarPrintDialog = (filled) => {
       const w = window.open("", "_blank");
       if (w) {

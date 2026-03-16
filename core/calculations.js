@@ -91,20 +91,16 @@ export function calcularJornada({
   };
 }
 
-const BOUNDARY_14_MIN = 14 * 60;
+const BOUNDARY_14_MIN = 14 * 60; // 14:00, límite mañana/tarde
 const SIX_HOURS_MIN = 6 * 60;
 
 /**
  * Calcula los minutos de TxT (banco de horas) para un día de fin de semana o festivo.
- *
- * Nuevo comportamiento:
- * - Sábados, domingos y festivos: todo el tiempo trabajado se computa como horas TxT,
- *   en bloques de 15 minutos y redondeando a la baja.
- * - Resto de días laborables: no aplica TxT especial (devuelve null).
+ * Reglas según convenio: sábado/domingo con bonos por mañana/tarde/día completo; festivo 1:1.
  *
  * @param {string} fechaISO - Fecha en YYYY-MM-DD
- * @param {string} entrada - Hora entrada HH:MM (no se usa en el cálculo actual)
- * @param {string} salidaReal - Hora salida HH:MM (no se usa en el cálculo actual)
+ * @param {string} entrada - Hora entrada HH:MM
+ * @param {string} salidaReal - Hora salida HH:MM
  * @param {number} trabajadosMin - Minutos trabajados reales en el día
  * @param {boolean} esFestivo - Si el día es festivo
  * @returns {number|null} Minutos TxT a sumar al banco, o null si es día laboral (no aplicar)
@@ -112,15 +108,45 @@ const SIX_HOURS_MIN = 6 * 60;
 export function calcularTxTFinDeSemanaYFestivos(fechaISO, entrada, salidaReal, trabajadosMin, esFestivo) {
   const [y, m, d] = fechaISO.split("-").map(Number);
   const date = new Date(y, m - 1, d);
-  const dow = date.getDay();
+  const dow = date.getDay(); // 0 = domingo, 6 = sábado
   const esFinDeSemana = dow === 0 || dow === 6;
 
-  // Solo aplica en sábados, domingos o festivos
   if (!esFestivo && !esFinDeSemana) return null;
 
   const baseMin = Math.max(0, Number(trabajadosMin) || 0);
   if (baseMin === 0) return 0;
 
-  // Usa el mismo redondeo a bloques de 15 min que la extensión de jornada.
-  return extraEnBloques15(baseMin);
+  // Festivo: 1 hora TxT por hora trabajada (1:1), en bloques de 15 min
+  if (esFestivo) return extraEnBloques15(baseMin);
+
+  const entradaMin = timeToMinutes(entrada);
+  let salidaMin = timeToMinutes(salidaReal);
+  if (entrada && salidaReal && salidaMin < entradaMin) salidaMin += 24 * 60;
+
+  const soloManana = salidaMin <= BOUNDARY_14_MIN;
+  const soloTarde = entradaMin >= BOUNDARY_14_MIN;
+  const diaCompleto = !soloManana && !soloTarde;
+
+  let txtMin;
+  if (dow === 6) {
+    // Sábado: mañana <6h→1:1, ≥6h→+2h; tarde <6h→1:1, ≥6h→+6h; día completo →+6h
+    if (soloManana) {
+      txtMin = baseMin >= SIX_HOURS_MIN ? baseMin + 2 * 60 : baseMin;
+    } else if (soloTarde) {
+      txtMin = baseMin >= SIX_HOURS_MIN ? baseMin + 6 * 60 : baseMin;
+    } else {
+      txtMin = baseMin + 6 * 60; // día completo
+    }
+  } else {
+    // Domingo (dow === 0): mañana <6h→1:1, ≥6h→+10h; tarde <6h→1:1, ≥6h→+14h; día completo →+14h
+    if (soloManana) {
+      txtMin = baseMin >= SIX_HOURS_MIN ? baseMin + 10 * 60 : baseMin;
+    } else if (soloTarde) {
+      txtMin = baseMin >= SIX_HOURS_MIN ? baseMin + 14 * 60 : baseMin;
+    } else {
+      txtMin = baseMin + 14 * 60; // día completo
+    }
+  }
+
+  return extraEnBloques15(txtMin);
 }

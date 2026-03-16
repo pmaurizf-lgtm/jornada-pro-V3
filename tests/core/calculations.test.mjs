@@ -38,9 +38,17 @@ const r2 = calcularJornada({ entrada: "08:00", salidaReal: "15:30", jornadaMin: 
 assert(r2.negativaMin === 9, "negativa 9 min");
 assert(r2.extraGeneradaMin === 0, "sin extra");
 
-// calcularTxTFinDeSemanaYFestivos
-const txtSab = calcularTxTFinDeSemanaYFestivos("2025-02-22", "08:00", "14:00", 360, false);
-assert(txtSab === 360, "sábado 6h -> 360 min TxT");
+// calcularTxTFinDeSemanaYFestivos (sábado 22 feb 2025 = sábado)
+const txtSabManana6h = calcularTxTFinDeSemanaYFestivos("2025-02-22", "08:00", "14:00", 360, false);
+assert(txtSabManana6h === 480, "sábado solo mañana 6h -> 6+2 = 8h TxT (480 min)");
+const txtSabTarde6h = calcularTxTFinDeSemanaYFestivos("2025-02-22", "14:00", "20:00", 360, false);
+assert(txtSabTarde6h === 720, "sábado solo tarde 6h -> 6+6 = 12h TxT (720 min)");
+const txtDomingoManana6h = calcularTxTFinDeSemanaYFestivos("2025-02-23", "08:00", "14:00", 360, false);
+assert(txtDomingoManana6h === 960, "domingo solo mañana 6h -> 6+10 = 16h TxT (960 min)");
+const txtDomingoDiaCompleto = calcularTxTFinDeSemanaYFestivos("2025-02-23", "06:00", "18:00", 720, false);
+assert(txtDomingoDiaCompleto === 1560, "domingo día completo 12h -> 12+14 = 26h TxT (1560 min)");
+const txtFestivo = calcularTxTFinDeSemanaYFestivos("2025-01-01", "09:00", "14:00", 300, true);
+assert(txtFestivo === 300, "festivo 5h -> 1:1 = 300 min TxT");
 const txtLaboral = calcularTxTFinDeSemanaYFestivos("2025-02-24", "08:00", "16:00", 480, false);
 assert(txtLaboral === null, "lunes no aplica TxT");
 
