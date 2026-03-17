@@ -4260,11 +4260,20 @@ if(festivos && festivos[fechaISO]){
       slot.innerHTML = `<div class="calendar-day-slot-hora">${horaStr}</div><div class="calendar-day-slot-body"></div>`;
       slot.title = "Doble clic para añadir evento o nota";
       const body = slot.querySelector(".calendar-day-slot-body");
-      const evs = eventos.filter(ev => !ev.time || ev.time.slice(0, 2) === String(h).padStart(2, "0"));
+      const evs = eventos.filter(ev => {
+        if (!ev.time) return h === 0;
+        return ev.time.slice(0, 2) === String(h).padStart(2, "0");
+      });
       if (evs.length) {
         evs.forEach((ev) => {
           const p = document.createElement("div");
-          p.textContent = (ev.time ? ev.time + " · " : "") + (ev.title || "");
+          p.className = "calendar-day-slot-evento";
+          const titulo = (ev.title || "").trim() || "Sin título";
+          if (ev.time) {
+            p.textContent = ev.time + " · " + titulo;
+          } else {
+            p.textContent = "Todo el día · " + titulo;
+          }
           body.appendChild(p);
         });
       }

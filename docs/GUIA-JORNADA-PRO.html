@@ -90,7 +90,7 @@
     <li><strong>Registro diario:</strong> fecha, entrada, salida; acciones: Iniciar jornada, Finalizar, Guardar, Vacaciones, LD, Disfr. TxT, Disfr. exceso (solo GP3/GP4), Licencias Retribuidas, Eliminar.</li>
     <li><strong>Salidas teórica y ajustada</strong> y <strong>barra de progreso</strong>: avance, porcentaje y tiempo que queda hasta el fin de jornada («Quedan Xh XXm»); en GP3/GP4 en extensión muestra horas extra. Texto legible con la barra poco o muy llena.</li>
     <li><strong>Resumen del día:</strong> GP3/GP4 = trabajado, extra, exceso, negativa; GP1/GP2 = trabajado, Bolsa de autorregulación (semana), hoy (delta).</li>
-    <li><strong>Calendario:</strong> vista mensual; indicadores según modo (saldos día o semana).</li>
+    <li><strong>Calendario:</strong> tres vistas (Mes, Semana, Día); al seleccionar un día aparece «Agenda del día» para eventos/notas; en vista Día, doble clic en una franja abre el modal con esa hora. En escritorio, mismo ancho que el resto de tarjetas.</li>
     <li><strong>Banco:</strong> pestaña «Horas TxT» (o «Bolsa de autorregulación» en GP1/GP2) y pestaña «Vacaciones/LD».</li>
     <li><strong>Gráfico:</strong> solo GP3/GP4.</li>
     <li>Al guardar o finalizar jornada se muestra un mensaje breve: «Día guardado» o «Datos actualizados».</li>
@@ -137,7 +137,15 @@
   <p><strong>Eliminar</strong> abre un modal de confirmación que muestra el día concreto y advierte de que la acción no se puede deshacer; al confirmar se borra todo el registro (si era vacaciones/LD, se devuelve el día al banco). <strong>Salir antes (min)</strong> solo GP3/GP4. Al <strong>Guardar</strong> manualmente se muestra «Día guardado».</p>
 
   <h2>5. Calendario</h2>
-  <p>Mes con celdas por día. Indicadores: ✓ = completada; +X.Xh / −X.Xh (TxT) o banco semana/delta (minutos); Disfr. X.Xh; 🪫 = disfrute exceso de jornada (centrado y destacado); 🎫 = licencia retribuida (centrado y destacado); 🏖️ = vacaciones; 🕶️ = Libre Disposición. Festivos resaltados; pulsar muestra el nombre.</p>
+  <p>El calendario tiene <strong>tres vistas</strong> (pestañas): <strong>Mes</strong>, <strong>Semana</strong> y <strong>Día</strong>. En <strong>versión de escritorio</strong> (pantallas grandes) la tarjeta del calendario ocupa el <strong>mismo ancho</strong> que el resto de tarjetas (registro, banco, etc.).</p>
+  <h3>5.1 Vista Mes</h3>
+  <p>Muestra el mes actual (flechas ◀ ▶). Cada celda es un día: <strong>pulsando</strong> en un día lo seleccionas y se cargan sus datos en el formulario; además aparece el bloque <strong>«Agenda del día»</strong> con la lista de eventos/notas y el botón <strong>«Añadir evento o nota»</strong>. Indicadores en celdas: ✓ = completada; +X.Xh / −X.Xh (TxT) o banco semana/delta (minutos); Disfr. X.Xh; 🪫 = disfrute exceso (centrado y destacado); 🎫 = licencia retribuida (centrado y destacado); 🏖️ = vacaciones; 🕶️ = Libre Disposición. Festivos resaltados; pulsar en un festivo muestra su nombre. Sábados y domingos con estilo diferenciado.</p>
+  <h3>5.2 Vista Semana</h3>
+  <p>Muestra los siete días (lunes a domingo) con horas trabajadas y número de eventos. <strong>Haz clic en un día</strong> para seleccionarlo: se actualiza la fecha en el formulario y aparece el bloque <strong>«Agenda del día»</strong> con la lista de eventos y el botón <strong>«Añadir evento o nota»</strong>. El día seleccionado se resalta.</p>
+  <h3>5.3 Vista Día</h3>
+  <p>Muestra el día en <strong>franjas horarias</strong> (00:00 a 23:00) con los eventos de cada hora. <strong>Doble clic en una franja</strong>: se abre el modal para añadir evento o nota con esa hora ya prefijada (campo de hora rellenado, «Todo el día» desmarcado).</p>
+  <h3>5.4 Eventos y notas (agenda)</h3>
+  <p>Desde <strong>«Agenda del día»</strong> (al seleccionar un día en Mes o Semana) puedes pulsar <strong>«Añadir evento o nota»</strong>. En el modal: título y, opcionalmente, «Todo el día» o una hora concreta. Los eventos se guardan por fecha (y opcionalmente por hora) y se muestran en la lista de la agenda y en la vista Día en la franja correspondiente.</p>
 
   <h2>6. Banco de horas / Bolsa de autorregulación</h2>
   <p><strong>Pestaña Horas TxT (o Bolsa de autorregulación en GP1/GP2):</strong> GP1/GP2 = Bolsa de autorregulación (esta semana), en fase de <em>implantación experimental</em>. GP3/GP4 = <strong>Total disponible TxT (acumulado)</strong> y <strong>Total disponible exceso de jornada (acumulado)</strong>; cada contador en <strong>tres filas</strong> (decimal, h+m, días; 1 día = 459 min); desplegables <strong>Desglose anual</strong> y <strong>Desglose mes</strong> con el mismo formato. Saldo previo (horas extra, exceso, vacaciones, días LD previos) y «Resetear saldo previo» en Configuración de jornada. <strong>Pestaña Vacaciones/LD:</strong> días de vacaciones (año curso y anterior) y días LD del año en curso (también en Saldo previo o en el modal al elegir grupo la primera vez).</p>
@@ -202,6 +210,7 @@
       <tr><td>Disfrutar horas TxT (GP3/GP4)</td><td>Disfr. TxT</td></tr>
       <tr><td>Disfrutar exceso de jornada (GP3/GP4)</td><td>Disfr. exceso</td></tr>
       <tr><td>Marcar días de licencia retribuida</td><td>Licencias Retribuidas (modal con opciones)</td></tr>
+      <tr><td>Añadir evento o nota al día</td><td>Seleccionar día (Mes o Semana) → «Agenda del día» → «Añadir evento o nota»; o en vista Día, doble clic en la franja horaria</td></tr>
       <tr><td>Borrar el día</td><td>Eliminar (modal con día concreto y confirmación)</td></tr>
       <tr><td>Cambiar grupo, tema, texto grande, notificaciones, jornada</td><td>Menú ☰ → Configuración</td></tr>
       <tr><td>Exportar datos</td><td>Configuración → Exportar Excel / Backup (Mes actual, Año actual)</td></tr>

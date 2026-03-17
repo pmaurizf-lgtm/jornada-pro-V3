@@ -41,7 +41,7 @@ Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración
 - **Resumen del día:**
   - **GP3/GP4:** horas trabajadas, extra, exceso jornada, negativa (en horas y minutos y en decimal).
   - **GP1/GP2:** trabajado, Bolsa de autorregulación (esta semana), hoy (delta). La bolsa se indica en fase de «implantación experimental».
-- **Calendario:** vista mensual con registros, saldos y días festivos. En modo minutos semanal se muestra el saldo de la semana; en modo TxT, el saldo del día (+X.Xh / −X.Xh).
+- **Calendario:** tres vistas (Mes, Semana, Día). Vista mensual con registros, saldos y días festivos; al seleccionar un día aparece el bloque «Agenda del día» para ver y añadir eventos o notas. En vista Semana, clic en un día muestra la agenda; en vista Día, doble clic en una franja horaria abre el modal para añadir evento con esa hora. En modo minutos semanal se muestra el saldo de la semana; en modo TxT, el saldo del día (+X.Xh / −X.Xh). En escritorio, el calendario tiene el mismo ancho que el resto de tarjetas.
 - **Banco (pestañas):**
   - **Horas TxT** (o **Bolsa de autorregulación** en GP1/GP2): en GP3/GP4 muestra **Total disponible TxT (acumulado)** y **Total disponible exceso de jornada (acumulado)**. Cada contador de horas se muestra en **tres filas** para evitar confusiones: **horas en decimal** (ej. 12,50h), **horas y minutos** (ej. 12h 30m) y **días** (1 día = 459 min). Lo mismo aplica a los desplegables **Desglose anual** (selector de año; TxT generado, exceso, horas TxT gastadas, horas exceso gastadas) y **Desglose mes** (selector de mes del año en curso; mismas métricas por mes). En GP1/GP2 solo la Bolsa de autorregulación de la semana actual (implantación experimental).
   - **Vacaciones/LD:** días de vacaciones disponibles (año en curso y anterior) y días de Libre Disposición del año en curso.
@@ -224,8 +224,12 @@ Estas dos últimas (lactancia y guarda legal) no implican días completos en el 
 
 ## 5. Calendario
 
-- Muestra el mes actual (o el que navegues con las flechas).
-- Cada celda es un día. **Pulsando** en un día lo seleccionas y se cargan sus datos en el formulario de registro.
+El calendario tiene **tres vistas** (pestañas): **Mes**, **Semana** y **Día**. En **versión de escritorio** (pantallas grandes) la tarjeta del calendario ocupa el **mismo ancho** que el resto de tarjetas (registro, banco, etc.).
+
+### 5.1 Vista Mes
+
+- Muestra el mes actual (o el que navegues con las flechas ◀ ▶).
+- Cada celda es un día. **Pulsando** en un día lo seleccionas y se cargan sus datos en el formulario de registro; además aparece el bloque **«Agenda del día»** con la lista de eventos/notas de ese día y el botón **«Añadir evento o nota»**.
 - **Indicadores en las celdas:**
   - **Triángulo verde con ✓:** jornada completada (entrada y salida registradas).
   - **+X.Xh / −X.Xh:** (modo TxT, GP3/GP4) saldo del día (positivo o negativo respecto a la jornada).
@@ -237,6 +241,21 @@ Estas dos últimas (lactancia y guarda legal) no implican días completos en el 
   - **🕶️:** día de Libre Disposición.
 - **Festivos:** se muestran resaltados (nacional, Galicia, Ferrol). Pulsar en un festivo muestra su nombre.
 - Sábados y domingos tienen un estilo diferenciado.
+
+### 5.2 Vista Semana
+
+- Muestra los siete días de la semana (lunes a domingo) con las horas trabajadas y el número de eventos de cada día.
+- **Haz clic en un día** para seleccionarlo: se actualiza la fecha en el formulario de registro y aparece el bloque **«Agenda del día»** con la lista de eventos/notas de ese día y el botón **«Añadir evento o nota»**. El día seleccionado se resalta visualmente.
+
+### 5.3 Vista Día
+
+- Muestra el día seleccionado en **franjas horarias** (00:00 a 23:00). En cada franja se listan los eventos o notas que tengan esa hora (o «todo el día»).
+- **Doble clic en una franja horaria:** se abre el modal para **añadir evento o nota** con esa hora ya prefijada (opción «Todo el día» desmarcada y campo de hora rellenado). Así puedes crear rápidamente un evento a una hora concreta.
+
+### 5.4 Eventos y notas (agenda)
+
+- Desde el bloque **«Agenda del día»** (visible al seleccionar un día en vista Mes o Semana) puedes pulsar **«Añadir evento o nota»**. En el modal puedes indicar un título y, opcionalmente, marcar **«Todo el día»** o elegir una **hora** concreta.
+- Los eventos se guardan por fecha (y opcionalmente por hora) y se muestran en la lista de la agenda del día y en la vista Día en la franja correspondiente.
 
 ---
 
@@ -420,6 +439,7 @@ En pantallas pequeñas (móvil) la aplicación adapta el diseño para un uso có
 | Disfrutar horas TxT (GP3/GP4) | Disfr. TxT |
 | Disfrutar exceso de jornada (GP3/GP4) | Disfr. exceso |
 | Marcar días de licencia retribuida | Licencias Retribuidas (modal con opciones) |
+| Añadir evento o nota al día | Seleccionar día (Mes o Semana) → «Agenda del día» → «Añadir evento o nota»; o en vista Día, doble clic en la franja horaria |
 | Borrar el día | Eliminar (con confirmación) |
 | Cambiar grupo, tema, notificaciones, jornada | Menú ☰ → Configuración |
 | Exportar datos | Configuración → Exportar Excel / Backup (puedes usar «Mes actual» o «Año actual» para el rango) |

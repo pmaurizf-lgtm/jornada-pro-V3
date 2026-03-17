@@ -1217,6 +1217,18 @@ body.dark .metric {
 
 .calendar-day-slot-body {
   flex: 1;
+  min-width: 0;
+}
+
+.calendar-day-slot-evento {
+  font-size: 0.85rem;
+  line-height: 1.35;
+  margin-bottom: 2px;
+  word-break: break-word;
+  color: var(--text);
+}
+.calendar-day-slot-evento:last-child {
+  margin-bottom: 0;
 }
 
 /* Leyenda del calendario (solo símbolos presentes en el mes visible) */
