@@ -653,6 +653,16 @@
     <span>Próximo festivo</span>
     <span id="resumenPortadaFestivo">--</span>
   </div>
+  <!-- Progreso jornada (barra) justo debajo de Iniciar jornada -->
+  <div class="progress-wrapper">
+    <div id="barra"></div>
+    <div id="progresoInside" class="progress-text-inside"></div>
+  </div>
+  <!-- Agenda de mañana (resumen rápido) -->
+  <div class="resumen-portada-line resumen-portada-agenda" id="resumenPortadaAgendaWrap">
+    <span>Mañana</span>
+    <span id="resumenPortadaAgendaTexto">Sin eventos en la agenda</span>
+  </div>
 </div>
 
 <!-- REGISTRO DIARIO -->
@@ -746,12 +756,6 @@
     </div>
   </div>
 
-  <!-- PROGRESO -->
-  <div class="progress-wrapper">
-  <div id="barra"></div>
-  <div id="progresoInside" class="progress-text-inside"></div>
-</div>
-
 <div id="resumenDia" class="resumen-dia">
   <div id="resumenDiaHorasWrap">
     <div class="resumen-line">
@@ -799,26 +803,51 @@
   <!-- CALENDARIO -->
   <div class="card calendar-card">
 
-    <div class="cal-nav">
-      <button id="prevMes">◀</button>
-      <span id="mesAnioLabel"></span>
-      <button id="nextMes">▶</button>
+    <div class="calendar-tabs" role="tablist" aria-label="Vista de calendario">
+      <button type="button" id="btnCalMes" class="calendar-tab calendar-tab--active" role="tab" aria-selected="true">Mes</button>
+      <button type="button" id="btnCalSemana" class="calendar-tab" role="tab" aria-selected="false">Semana</button>
+      <button type="button" id="btnCalDia" class="calendar-tab" role="tab" aria-selected="false">Día</button>
     </div>
 
-    <div id="calendarGrid" class="calendar-grid"></div>
-    <div id="emptyStateCalendar" class="empty-state empty-state--calendar" hidden>
-      <p class="empty-state-text">Aún no hay registros este mes</p>
-      <p class="empty-state-hint">Usa «Iniciar jornada» o selecciona un día y guarda para empezar.</p>
+    <!-- Vista mensual (actual) -->
+    <div id="calendarViewMes" class="calendar-view calendar-view--active" role="tabpanel">
+      <div class="cal-nav">
+        <button id="prevMes">◀</button>
+        <span id="mesAnioLabel"></span>
+        <button id="nextMes">▶</button>
+      </div>
+
+      <div id="calendarGrid" class="calendar-grid"></div>
+      <div id="emptyStateCalendar" class="empty-state empty-state--calendar" hidden>
+        <p class="empty-state-text">Aún no hay registros este mes</p>
+        <p class="empty-state-hint">Usa «Iniciar jornada» o selecciona un día y guarda para empezar.</p>
+      </div>
+
+      <div id="calendarLegend" class="cal-leyenda" aria-label="Leyenda del mes visible"></div>
+
+      <!-- Agenda del día (visible al seleccionar una fecha) -->
+      <div id="agendaDiaWrap" class="card agenda-dia-wrap" hidden>
+        <h3 class="agenda-dia-titulo">Agenda del día</h3>
+        <p id="agendaDiaFechaLabel" class="agenda-dia-fecha-label"></p>
+        <ul id="agendaDiaLista" class="agenda-dia-lista" aria-label="Eventos del día"></ul>
+        <button type="button" id="btnAgendaAnadir" class="config-btn agenda-dia-btn-anadir">Añadir evento o nota</button>
+      </div>
     </div>
 
-    <div id="calendarLegend" class="cal-leyenda" aria-label="Leyenda del mes visible"></div>
+    <!-- Vista semanal sencilla -->
+    <div id="calendarViewSemana" class="calendar-view" role="tabpanel" hidden>
+      <div class="calendar-week-header">
+        <span id="calendarSemanaLabel">Semana actual</span>
+      </div>
+      <div id="calendarWeekGrid" class="calendar-week-grid" aria-label="Calendario semanal"></div>
+    </div>
 
-    <!-- Agenda del día (visible al seleccionar una fecha) -->
-    <div id="agendaDiaWrap" class="card agenda-dia-wrap" hidden>
-      <h3 class="agenda-dia-titulo">Agenda del día</h3>
-      <p id="agendaDiaFechaLabel" class="agenda-dia-fecha-label"></p>
-      <ul id="agendaDiaLista" class="agenda-dia-lista" aria-label="Eventos del día"></ul>
-      <button type="button" id="btnAgendaAnadir" class="config-btn agenda-dia-btn-anadir">Añadir evento o nota</button>
+    <!-- Vista de día en horas (tipo agenda) -->
+    <div id="calendarViewDia" class="calendar-view" role="tabpanel" hidden>
+      <div class="calendar-day-header">
+        <span id="calendarDiaLabel">Hoy</span>
+      </div>
+      <div id="calendarDayHoras" class="calendar-day-horas" aria-label="Horario del día"></div>
     </div>
 
   </div>

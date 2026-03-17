@@ -143,6 +143,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const calendarLegend = document.getElementById("calendarLegend");
   const prevMes = document.getElementById("prevMes");
   const nextMes = document.getElementById("nextMes");
+  const btnCalMes = document.getElementById("btnCalMes");
+  const btnCalSemana = document.getElementById("btnCalSemana");
+  const btnCalDia = document.getElementById("btnCalDia");
+  const calendarViewMes = document.getElementById("calendarViewMes");
+  const calendarViewSemana = document.getElementById("calendarViewSemana");
+  const calendarViewDia = document.getElementById("calendarViewDia");
+  const calendarWeekGrid = document.getElementById("calendarWeekGrid");
+  const calendarSemanaLabel = document.getElementById("calendarSemanaLabel");
+  const calendarDayHoras = document.getElementById("calendarDayHoras");
+  const calendarDiaLabel = document.getElementById("calendarDiaLabel");
+  const resumenPortadaAgendaWrap = document.getElementById("resumenPortadaAgendaWrap");
+  const resumenPortadaAgendaTexto = document.getElementById("resumenPortadaAgendaTexto");
   const agendaDiaWrap = document.getElementById("agendaDiaWrap");
   const agendaDiaFechaLabel = document.getElementById("agendaDiaFechaLabel");
   const agendaDiaLista = document.getElementById("agendaDiaLista");
@@ -3996,6 +4008,27 @@ if(festivos && festivos[fechaISO]){
       const m = totalMin % 60;
       resumenPortadaHoras.textContent = m > 0 ? `${h}h ${m}m` : `${h}h`;
     }
+    // Agenda de mañana en portada
+    if (resumenPortadaAgendaWrap && resumenPortadaAgendaTexto) {
+      try {
+        const mañana = new Date(now);
+        mañana.setDate(mañana.getDate() + 1);
+        const mañanaISO = `${mañana.getFullYear()}-${String(mañana.getMonth() + 1).padStart(2, "0")}-${String(mañana.getDate()).padStart(2, "0")}`;
+        const eventos = (state.agenda && state.agenda[mañanaISO]) || [];
+        if (!eventos.length) {
+          resumenPortadaAgendaTexto.textContent = "Sin eventos en la agenda";
+        } else {
+          const titulos = eventos.map(ev => (ev.title || "").trim()).filter(Boolean);
+          const primeros = titulos.slice(0, 2).join(", ");
+          const resto = titulos.length - 2;
+          let texto = primeros;
+          if (resto > 0) texto += ` (+${resto} más)`;
+          resumenPortadaAgendaTexto.textContent = texto || "Eventos en la agenda";
+        }
+      } catch (e) {
+        resumenPortadaAgendaTexto.textContent = "Sin eventos en la agenda";
+      }
+    }
     if (resumenPortadaJornadaEnCurso && resumenPortadaJornadaTexto) {
       const regHoy = state.registros[hoyISO];
       const tieneEntrada = entrada && entrada.value;
@@ -4057,6 +4090,8 @@ if(festivos && festivos[fechaISO]){
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
     renderAgendaDia(fechaISO);
+    if (typeof renderCalendarioSemana === "function") renderCalendarioSemana();
+    if (typeof renderCalendarioDia === "function") renderCalendarioDia();
     if (state.modoPlof) mostrarPlofAgenda(fechaISO);
   }
 
@@ -4156,6 +4191,93 @@ if(festivos && festivos[fechaISO]){
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     renderCalendario();
   };
+
+  function setCalendarView(view) {
+    const tabs = [btnCalMes, btnCalSemana, btnCalDia];
+    const views = {
+      mes: calendarViewMes,
+      semana: calendarViewSemana,
+      dia: calendarViewDia
+    };
+    tabs.forEach((btn) => {
+      if (!btn) return;
+      btn.classList.remove("calendar-tab--active");
+      btn.setAttribute("aria-selected", "false");
+    });
+    Object.values(views).forEach((v) => { if (v) v.hidden = true; });
+    if (view === "semana") {
+      if (btnCalSemana) { btnCalSemana.classList.add("calendar-tab--active"); btnCalSemana.setAttribute("aria-selected", "true"); }
+      if (calendarViewSemana) calendarViewSemana.hidden = false;
+      if (typeof renderCalendarioSemana === "function") renderCalendarioSemana();
+    } else if (view === "dia") {
+      if (btnCalDia) { btnCalDia.classList.add("calendar-tab--active"); btnCalDia.setAttribute("aria-selected", "true"); }
+      if (calendarViewDia) calendarViewDia.hidden = false;
+      if (typeof renderCalendarioDia === "function") renderCalendarioDia();
+    } else {
+      if (btnCalMes) { btnCalMes.classList.add("calendar-tab--active"); btnCalMes.setAttribute("aria-selected", "true"); }
+      if (calendarViewMes) calendarViewMes.hidden = false;
+      renderCalendario();
+    }
+  }
+
+  if (btnCalMes) btnCalMes.addEventListener("click", () => setCalendarView("mes"));
+  if (btnCalSemana) btnCalSemana.addEventListener("click", () => setCalendarView("semana"));
+  if (btnCalDia) btnCalDia.addEventListener("click", () => setCalendarView("dia"));
+
+  function renderCalendarioSemana() {
+    if (!calendarWeekGrid || !calendarViewSemana) return;
+    const refISO = (fecha && fecha.value) || getHoyISO();
+    const [lunesStr, domingoStr] = getLunesDomingoSemana(refISO);
+    if (calendarSemanaLabel) {
+      calendarSemanaLabel.textContent = `Semana ${lunesStr} – ${domingoStr}`;
+    }
+    calendarWeekGrid.innerHTML = "";
+    const start = new Date(lunesStr + "T12:00:00");
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      const reg = (state.registros || {})[iso];
+      const eventos = (state.agenda && state.agenda[iso]) || [];
+      const li = document.createElement("div");
+      li.className = "calendar-week-day";
+      const label = d.toLocaleDateString("es-ES", { weekday: "short", day: "numeric" });
+      const workedMin = reg && reg.trabajadosMin != null ? reg.trabajadosMin : 0;
+      const h = Math.floor(workedMin / 60);
+      const m = workedMin % 60;
+      const horasText = workedMin ? (m > 0 ? `${h}h ${m}m` : `${h}h`) : "—";
+      const eventosText = eventos.length ? `${eventos.length} evento(s)` : "";
+      li.innerHTML = `<span class="calendar-week-day-label">${label}</span><div class="calendar-week-day-body">${horasText}${eventosText ? " · " + eventosText : ""}</div>`;
+      calendarWeekGrid.appendChild(li);
+    }
+  }
+
+  function renderCalendarioDia() {
+    if (!calendarDayHoras || !calendarViewDia) return;
+    const refISO = (fecha && fecha.value) || getHoyISO();
+    const d = new Date(refISO + "T12:00:00");
+    if (calendarDiaLabel) {
+      calendarDiaLabel.textContent = d.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    }
+    const eventos = (state.agenda && state.agenda[refISO]) || [];
+    calendarDayHoras.innerHTML = "";
+    for (let h = 0; h < 24; h++) {
+      const slot = document.createElement("div");
+      slot.className = "calendar-day-slot";
+      const horaStr = String(h).padStart(2, "0") + ":00";
+      slot.innerHTML = `<div class="calendar-day-slot-hora">${horaStr}</div><div class="calendar-day-slot-body"></div>`;
+      const body = slot.querySelector(".calendar-day-slot-body");
+      const evs = eventos.filter(ev => !ev.time || ev.time.slice(0, 2) === String(h).padStart(2, "0"));
+      if (evs.length) {
+        evs.forEach((ev) => {
+          const p = document.createElement("div");
+          p.textContent = (ev.time ? ev.time + " · " : "") + (ev.title || "");
+          body.appendChild(p);
+        });
+      }
+      calendarDayHoras.appendChild(slot);
+    }
+  }
 
   // ===============================
   // INIT – restaurar sesión en curso (PWA: al reabrir tras cerrar)

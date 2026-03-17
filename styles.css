@@ -1126,6 +1126,94 @@ body.dark .metric {
   margin-top: 15px;
 }
 
+/* Tabs de calendario (Mes / Semana / Día) */
+.calendar-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.calendar-tab {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.calendar-tab.calendar-tab--active {
+  background: var(--accent, #5df56b);
+  color: #000;
+  border-color: var(--accent, #5df56b);
+}
+
+.calendar-view[hidden] {
+  display: none !important;
+}
+
+.calendar-week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.calendar-week-day {
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.8rem;
+}
+
+.calendar-week-day-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.calendar-week-day-body {
+  font-size: 0.78rem;
+  opacity: 0.9;
+}
+
+.calendar-day-horas {
+  margin-top: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.calendar-day-slot {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.8rem;
+}
+
+.calendar-day-slot:last-child {
+  border-bottom: none;
+}
+
+.calendar-day-slot-hora {
+  flex-shrink: 0;
+  width: 2.5rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+.calendar-day-slot-body {
+  flex: 1;
+}
+
 /* Leyenda del calendario (solo símbolos presentes en el mes visible) */
 .cal-leyenda {
   display: flex;
@@ -1496,8 +1584,8 @@ body.dark .cal-day.seleccionado {
 .cal-day-agenda-dot {
   position: absolute;
   bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 4px;
+  transform: none;
   font-size: 0.75rem;
   opacity: 0.9;
   pointer-events: none;
