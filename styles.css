@@ -1168,17 +1168,14 @@ body.dark .metric {
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.08);
   font-size: 0.8rem;
+  cursor: pointer;
 }
-
-.calendar-week-day-label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 2px;
+.calendar-week-day:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
-
-.calendar-week-day-body {
-  font-size: 0.78rem;
-  opacity: 0.9;
+.calendar-week-day--selected {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.15);
 }
 
 .calendar-day-horas {
@@ -1191,6 +1188,7 @@ body.dark .metric {
 }
 
 .calendar-day-slot {
+  cursor: pointer;
   display: flex;
   align-items: flex-start;
   gap: 6px;
@@ -3198,8 +3196,7 @@ body.modo-plof::before {
 }
 
 body.modo-plof #seccionRegistro,
-body.modo-plof #seccionMetrics,
-body.modo-plof #chartCard {
+body.modo-plof #seccionMetrics {
   display: none !important;
 }
 

@@ -22,7 +22,6 @@ import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.j
 // ===============================
 
 import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
-import { renderGrafico, renderGraficoEvolucion } from "./ui/charts.js";
 
 const APP_VERSION = "1.2";
 
@@ -243,7 +242,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const rTrabajadoMin = document.getElementById("rTrabajadoMin");
   const rBancoMinutosSemana = document.getElementById("rBancoMinutosSemana");
   const rHoyDelta = document.getElementById("rHoyDelta");
-  const chartCard = document.getElementById("chartCard");
   const bVacacionesTotal = document.getElementById("bVacacionesTotal");
   const bVacacionesAnioCursoLabel = document.getElementById("bVacacionesAnioCursoLabel");
   const bVacacionesAnioCurso = document.getElementById("bVacacionesAnioCurso");
@@ -355,10 +353,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const plofAgendaGrid = document.getElementById("plofAgendaGrid");
   const plofBtnCaca = document.getElementById("plofBtnCaca");
   const plofBtnGallo = document.getElementById("plofBtnGallo");
-
-  const chartCanvas = document.getElementById("chart");
-  const chartEvolucion = document.getElementById("chartEvolucion");
-  const chartEvolucionCard = document.getElementById("chartEvolucionCard");
 
   let plofSelectedHour = null;
   let plofSelectedDate = null;
@@ -754,8 +748,6 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     if (wrapMinAntes) wrapMinAntes.style.display = modoMin ? "none" : "";
     if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.style.display = modoMin ? "none" : "";
     if (btnDisfruteExcesoJornada) btnDisfruteExcesoJornada.style.display = modoMin ? "none" : "";
-    if (chartCard) chartCard.style.display = modoMin ? "none" : "";
-    if (chartEvolucionCard) chartEvolucionCard.style.display = modoMin ? "none" : "";
     if (mainGrid) mainGrid.classList.toggle("main-grid--full", modoMin);
     if (bankTabHoras) bankTabHoras.textContent = modoMin ? "Tiempo Exceso Jornada" : "Horas TxT";
     if (modoMin && minAntes) minAntes.value = "0";
@@ -948,27 +940,7 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
   }
 
   function actualizarGrafico() {
-    if (esModoMinutosSemanal()) {
-      if (chartEvolucionCard) chartEvolucionCard.style.display = "none";
-      return;
-    }
-    if (chartCanvas) {
-      const anual = calcularResumenAnual(state.registros, bankYear);
-      renderGrafico(chartCanvas, anual);
-    }
-    if (chartEvolucion && chartEvolucionCard) {
-      chartEvolucionCard.style.display = "";
-      const anio = bankYear || new Date().getFullYear();
-      let acum = 0;
-      const monthlySaldoHours = [];
-      for (let m = 0; m < 12; m++) {
-        const res = calcularResumenMensual(state.registros, m, anio);
-        const deltaMin = (res.generadas || 0) + (res.exceso || 0) - (res.negativas || 0) - (res.disfrutadas || 0);
-        acum += deltaMin;
-        monthlySaldoHours.push(Math.round((acum / 60) * 100) / 100);
-      }
-      renderGraficoEvolucion(chartEvolucion, monthlySaldoHours, anio);
-    }
+    /* Gráfica de horas eliminada de la app */
   }
 
 // ===============================
@@ -4137,15 +4109,23 @@ if(festivos && festivos[fechaISO]){
     });
   }
 
-  if (btnAgendaAnadir) {
-    btnAgendaAnadir.addEventListener("click", () => {
-      if (!fecha || !fecha.value) return;
-      if (agendaEventoTitulo) agendaEventoTitulo.value = "";
+  function abrirModalAgendaConHora(hora) {
+    if (!fecha || !fecha.value) return;
+    if (agendaEventoTitulo) agendaEventoTitulo.value = "";
+    if (hora != null && hora !== "") {
+      if (agendaEventoAllDay) agendaEventoAllDay.checked = false;
+      if (agendaEventoHora) agendaEventoHora.value = hora;
+      if (agendaEventoHoraWrap) agendaEventoHoraWrap.hidden = false;
+    } else {
       if (agendaEventoAllDay) agendaEventoAllDay.checked = true;
       if (agendaEventoHora) agendaEventoHora.value = "";
       if (agendaEventoHoraWrap) agendaEventoHoraWrap.hidden = true;
-      if (modalAgendaEvento) modalAgendaEvento.hidden = false;
-    });
+    }
+    if (modalAgendaEvento) modalAgendaEvento.hidden = false;
+  }
+
+  if (btnAgendaAnadir) {
+    btnAgendaAnadir.addEventListener("click", () => abrirModalAgendaConHora());
   }
   if (agendaEventoAllDay && agendaEventoHoraWrap) {
     agendaEventoAllDay.addEventListener("change", () => {
@@ -4209,6 +4189,10 @@ if(festivos && festivos[fechaISO]){
       if (btnCalSemana) { btnCalSemana.classList.add("calendar-tab--active"); btnCalSemana.setAttribute("aria-selected", "true"); }
       if (calendarViewSemana) calendarViewSemana.hidden = false;
       if (typeof renderCalendarioSemana === "function") renderCalendarioSemana();
+      if (agendaDiaWrap && fecha && fecha.value) {
+        renderAgendaDia(fecha.value);
+        agendaDiaWrap.hidden = false;
+      }
     } else if (view === "dia") {
       if (btnCalDia) { btnCalDia.classList.add("calendar-tab--active"); btnCalDia.setAttribute("aria-selected", "true"); }
       if (calendarViewDia) calendarViewDia.hidden = false;
@@ -4248,6 +4232,14 @@ if(festivos && festivos[fechaISO]){
       const horasText = workedMin ? (m > 0 ? `${h}h ${m}m` : `${h}h`) : "—";
       const eventosText = eventos.length ? `${eventos.length} evento(s)` : "";
       li.innerHTML = `<span class="calendar-week-day-label">${label}</span><div class="calendar-week-day-body">${horasText}${eventosText ? " · " + eventosText : ""}</div>`;
+      li.dataset.iso = iso;
+      if (fecha && fecha.value === iso) li.classList.add("calendar-week-day--selected");
+      li.addEventListener("click", () => {
+        if (fecha) fecha.value = iso;
+        renderAgendaDia(iso);
+        if (agendaDiaWrap) agendaDiaWrap.hidden = false;
+        renderCalendarioSemana();
+      });
       calendarWeekGrid.appendChild(li);
     }
   }
@@ -4266,6 +4258,7 @@ if(festivos && festivos[fechaISO]){
       slot.className = "calendar-day-slot";
       const horaStr = String(h).padStart(2, "0") + ":00";
       slot.innerHTML = `<div class="calendar-day-slot-hora">${horaStr}</div><div class="calendar-day-slot-body"></div>`;
+      slot.title = "Doble clic para añadir evento o nota";
       const body = slot.querySelector(".calendar-day-slot-body");
       const evs = eventos.filter(ev => !ev.time || ev.time.slice(0, 2) === String(h).padStart(2, "0"));
       if (evs.length) {
@@ -4275,6 +4268,7 @@ if(festivos && festivos[fechaISO]){
           body.appendChild(p);
         });
       }
+      slot.addEventListener("dblclick", () => abrirModalAgendaConHora(horaStr));
       calendarDayHoras.appendChild(slot);
     }
   }

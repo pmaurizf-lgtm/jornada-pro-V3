@@ -16,7 +16,6 @@
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="styles.css?v=2">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script type="module" src="app.js?v=3"></script>
 </head>
@@ -649,6 +648,11 @@
     <span id="resumenPortadaDiasLabel">Días</span>
     <span id="resumenPortadaDiasValor">--</span>
   </div>
+  <!-- Agenda de mañana (resumen rápido) -->
+  <div class="resumen-portada-line resumen-portada-agenda" id="resumenPortadaAgendaWrap">
+    <span>Mañana</span>
+    <span id="resumenPortadaAgendaTexto">Sin eventos en la agenda</span>
+  </div>
   <div class="resumen-portada-line resumen-portada-festivo" id="resumenPortadaFestivoWrap" hidden>
     <span>Próximo festivo</span>
     <span id="resumenPortadaFestivo">--</span>
@@ -657,11 +661,6 @@
   <div class="progress-wrapper">
     <div id="barra"></div>
     <div id="progresoInside" class="progress-text-inside"></div>
-  </div>
-  <!-- Agenda de mañana (resumen rápido) -->
-  <div class="resumen-portada-line resumen-portada-agenda" id="resumenPortadaAgendaWrap">
-    <span>Mañana</span>
-    <span id="resumenPortadaAgendaTexto">Sin eventos en la agenda</span>
   </div>
 </div>
 
@@ -824,14 +823,6 @@
       </div>
 
       <div id="calendarLegend" class="cal-leyenda" aria-label="Leyenda del mes visible"></div>
-
-      <!-- Agenda del día (visible al seleccionar una fecha) -->
-      <div id="agendaDiaWrap" class="card agenda-dia-wrap" hidden>
-        <h3 class="agenda-dia-titulo">Agenda del día</h3>
-        <p id="agendaDiaFechaLabel" class="agenda-dia-fecha-label"></p>
-        <ul id="agendaDiaLista" class="agenda-dia-lista" aria-label="Eventos del día"></ul>
-        <button type="button" id="btnAgendaAnadir" class="config-btn agenda-dia-btn-anadir">Añadir evento o nota</button>
-      </div>
     </div>
 
     <!-- Vista semanal sencilla -->
@@ -850,6 +841,14 @@
       <div id="calendarDayHoras" class="calendar-day-horas" aria-label="Horario del día"></div>
     </div>
 
+    <!-- Agenda del día (visible al seleccionar una fecha en Mes o Semana) -->
+    <div id="agendaDiaWrap" class="card agenda-dia-wrap" hidden>
+      <h3 class="agenda-dia-titulo">Agenda del día</h3>
+      <p id="agendaDiaFechaLabel" class="agenda-dia-fecha-label"></p>
+      <ul id="agendaDiaLista" class="agenda-dia-lista" aria-label="Eventos del día"></ul>
+      <button type="button" id="btnAgendaAnadir" class="config-btn agenda-dia-btn-anadir">Añadir evento o nota</button>
+    </div>
+
   </div>
 
   <!-- MODO PLOF: botones y agenda del día (oculto por defecto) -->
@@ -862,15 +861,6 @@
       <h3 id="plofAgendaTitulo" class="plof-agenda-titulo">Día</h3>
       <div id="plofAgendaGrid" class="plof-agenda-grid"></div>
     </div>
-  </div>
-
-  <!-- GRÁFICO LATERAL -->
-  <div id="chartCard" class="card chart-card">
-    <canvas id="chart"></canvas>
-  </div>
-  <div id="chartEvolucionCard" class="card chart-card chart-evolucion-card">
-    <h4 class="chart-evolucion-title">Evolución saldo TxT (año en curso)</h4>
-    <canvas id="chartEvolucion"></canvas>
   </div>
 
 </section>
