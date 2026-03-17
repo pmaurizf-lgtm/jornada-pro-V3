@@ -806,6 +806,7 @@
       <button type="button" id="btnCalMes" class="calendar-tab calendar-tab--active" role="tab" aria-selected="true">Mes</button>
       <button type="button" id="btnCalSemana" class="calendar-tab" role="tab" aria-selected="false">Semana</button>
       <button type="button" id="btnCalDia" class="calendar-tab" role="tab" aria-selected="false">Día</button>
+      <button type="button" id="btnCalAgenda" class="calendar-tab" role="tab" aria-selected="false">Agenda</button>
     </div>
 
     <!-- Vista mensual (actual) -->
@@ -839,6 +840,14 @@
         <span id="calendarDiaLabel">Hoy</span>
       </div>
       <div id="calendarDayHoras" class="calendar-day-horas" aria-label="Horario del día"></div>
+    </div>
+
+    <!-- Vista agenda: lista de eventos del año agrupados por fecha -->
+    <div id="calendarViewAgenda" class="calendar-view" role="tabpanel" hidden>
+      <div class="calendar-agenda-header">
+        <span id="calendarAgendaLabel">Agenda año actual</span>
+      </div>
+      <div id="calendarAgendaLista" class="calendar-agenda-lista" aria-label="Agenda del año"></div>
     </div>
 
     <!-- Agenda del día (visible al seleccionar una fecha en Mes o Semana) -->
