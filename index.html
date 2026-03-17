@@ -291,6 +291,30 @@
   </div>
 </div>
 
+<!-- Modal: Añadir / editar evento de agenda -->
+<div id="modalAgendaEvento" class="modal-extender" role="dialog" aria-labelledby="modalAgendaEventoTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box modal-agenda-box">
+    <h3 id="modalAgendaEventoTitulo" class="modal-extender-titulo">Añadir evento o nota</h3>
+    <div class="config-row" style="margin-bottom:0.75rem;">
+      <label class="config-label" for="agendaEventoTitulo">Título</label>
+      <input type="text" id="agendaEventoTitulo" class="config-input" maxlength="120" placeholder="Reunión, cita, recordatorio…" style="max-width:100%;">
+    </div>
+    <label class="config-row config-toggle-row" style="margin-bottom:0.75rem;">
+      <input type="checkbox" id="agendaEventoAllDay" class="config-checkbox" checked>
+      <span class="config-label">Todo el día</span>
+    </label>
+    <div id="agendaEventoHoraWrap" class="config-row" style="margin-bottom:1rem;" hidden>
+      <label class="config-label" for="agendaEventoHora">Hora</label>
+      <input type="time" id="agendaEventoHora" class="config-input config-input-time">
+    </div>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalAgendaCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
+      <button type="button" id="modalAgendaGuardar" class="modal-extender-btn modal-extender-si">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Confirmar restaurar backup (datos más recientes locales) -->
 <div id="modalConfirmarRestaurar" class="modal-extender" role="dialog" aria-labelledby="modalConfirmarRestaurarTitulo" aria-modal="true" hidden>
   <div class="modal-extender-backdrop"></div>
@@ -788,6 +812,14 @@
     </div>
 
     <div id="calendarLegend" class="cal-leyenda" aria-label="Leyenda del mes visible"></div>
+
+    <!-- Agenda del día (visible al seleccionar una fecha) -->
+    <div id="agendaDiaWrap" class="card agenda-dia-wrap" hidden>
+      <h3 class="agenda-dia-titulo">Agenda del día</h3>
+      <p id="agendaDiaFechaLabel" class="agenda-dia-fecha-label"></p>
+      <ul id="agendaDiaLista" class="agenda-dia-lista" aria-label="Eventos del día"></ul>
+      <button type="button" id="btnAgendaAnadir" class="config-btn agenda-dia-btn-anadir">Añadir evento o nota</button>
+    </div>
 
   </div>
 

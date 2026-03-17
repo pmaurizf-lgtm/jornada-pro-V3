@@ -14,6 +14,8 @@ export function createInitialState() {
     modoPlof: false,
     /** En modo Plof: por fecha y hora el símbolo. Ej: { "2025-02-22": { "10": "💩", "14": "🐓" } } */
     plofAgenda: {},
+    /** Agenda: eventos/notas por día. Ej: { "2026-02-22": [ { id, title, time?, allDay } ] } */
+    agenda: {},
     config: {
       nombreCompleto: "",
       numeroSAP: "",

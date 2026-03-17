@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let state = loadState();
   ensureAnioActual(state, new Date().getFullYear());
+  if (!state.agenda || typeof state.agenda !== "object") state.agenda = {};
   let currentDate = new Date();
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
@@ -142,6 +143,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const calendarLegend = document.getElementById("calendarLegend");
   const prevMes = document.getElementById("prevMes");
   const nextMes = document.getElementById("nextMes");
+  const agendaDiaWrap = document.getElementById("agendaDiaWrap");
+  const agendaDiaFechaLabel = document.getElementById("agendaDiaFechaLabel");
+  const agendaDiaLista = document.getElementById("agendaDiaLista");
+  const btnAgendaAnadir = document.getElementById("btnAgendaAnadir");
+  const modalAgendaEvento = document.getElementById("modalAgendaEvento");
+  const agendaEventoTitulo = document.getElementById("agendaEventoTitulo");
+  const agendaEventoAllDay = document.getElementById("agendaEventoAllDay");
+  const agendaEventoHoraWrap = document.getElementById("agendaEventoHoraWrap");
+  const agendaEventoHora = document.getElementById("agendaEventoHora");
+  const modalAgendaCancelar = document.getElementById("modalAgendaCancelar");
+  const modalAgendaGuardar = document.getElementById("modalAgendaGuardar");
 
   const selectBankYear = document.getElementById("selectBankYear");
   const selectBankMonth = document.getElementById("selectBankMonth");
@@ -1929,6 +1941,7 @@ function controlarNotificaciones() {
     if (fecha.value === getHoyISO() && entrada && entrada.value) guardarBorradorSesion();
     else if (fecha.value !== getHoyISO()) limpiarBorradorSesion();
     actualizarEstadoIniciarJornada();
+    if (typeof renderAgendaDia === "function") renderAgendaDia(fecha.value);
   });
 
   // ===============================
@@ -3845,6 +3858,11 @@ if(festivos && festivos[fechaISO]){
       div.innerHTML += "<small class=\"cal-saldo cal-saldo-hm cal-saldo-neg\">" + hm + "</small>";
     }
 
+    if (state.agenda && state.agenda[fechaISO] && state.agenda[fechaISO].length > 0) {
+      div.classList.add("cal-day--agenda");
+      div.innerHTML += "<span class=\"cal-day-agenda-dot\" aria-label=\"Tiene eventos en la agenda\">📌</span>";
+    }
+
     fragment.appendChild(div);
   }
 
@@ -4038,7 +4056,94 @@ if(festivos && festivos[fechaISO]){
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
+    renderAgendaDia(fechaISO);
     if (state.modoPlof) mostrarPlofAgenda(fechaISO);
+  }
+
+  function renderAgendaDia(fechaISO) {
+    if (!agendaDiaWrap || !agendaDiaLista) return;
+    if (!fechaISO) {
+      agendaDiaWrap.hidden = true;
+      return;
+    }
+    agendaDiaWrap.hidden = false;
+    const eventos = (state.agenda && state.agenda[fechaISO]) || [];
+    const d = new Date(fechaISO + "T12:00:00");
+    if (agendaDiaFechaLabel) agendaDiaFechaLabel.textContent = d.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    agendaDiaLista.innerHTML = "";
+    eventos.slice().sort((a, b) => {
+      if (a.allDay && b.allDay) return 0;
+      if (a.allDay) return 1;
+      if (b.allDay) return -1;
+      return (a.time || "").localeCompare(b.time || "");
+    }).forEach((ev) => {
+      const li = document.createElement("li");
+      li.className = "agenda-dia-item";
+      const timePart = ev.allDay || !ev.time ? "" : "<span class=\"agenda-dia-item-time\">" + ev.time + "</span> ";
+      li.innerHTML = timePart + "<span class=\"agenda-dia-item-title\">" + (ev.title || "").replace(/</g, "&lt;") + "</span> <button type=\"button\" class=\"agenda-dia-item-borrar\" data-agenda-id=\"" + (ev.id || "").replace(/"/g, "&quot;") + "\" aria-label=\"Eliminar evento\">×</button>";
+      agendaDiaLista.appendChild(li);
+    });
+    if (eventos.length === 0) {
+      const li = document.createElement("li");
+      li.className = "agenda-dia-item agenda-dia-item--empty";
+      li.textContent = "Sin eventos. Añade reuniones, citas o notas.";
+      agendaDiaLista.appendChild(li);
+    }
+    agendaDiaLista.querySelectorAll(".agenda-dia-item-borrar").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-agenda-id");
+        if (!id || !state.agenda[fechaISO]) return;
+        state.agenda[fechaISO] = state.agenda[fechaISO].filter((e) => e.id !== id);
+        if (state.agenda[fechaISO].length === 0) delete state.agenda[fechaISO];
+        saveState(state);
+        renderAgendaDia(fechaISO);
+        renderCalendario();
+      });
+    });
+  }
+
+  if (btnAgendaAnadir) {
+    btnAgendaAnadir.addEventListener("click", () => {
+      if (!fecha || !fecha.value) return;
+      if (agendaEventoTitulo) agendaEventoTitulo.value = "";
+      if (agendaEventoAllDay) agendaEventoAllDay.checked = true;
+      if (agendaEventoHora) agendaEventoHora.value = "";
+      if (agendaEventoHoraWrap) agendaEventoHoraWrap.hidden = true;
+      if (modalAgendaEvento) modalAgendaEvento.hidden = false;
+    });
+  }
+  if (agendaEventoAllDay && agendaEventoHoraWrap) {
+    agendaEventoAllDay.addEventListener("change", () => {
+      agendaEventoHoraWrap.hidden = agendaEventoAllDay.checked;
+    });
+  }
+  if (modalAgendaCancelar && modalAgendaEvento) {
+    modalAgendaCancelar.addEventListener("click", () => { modalAgendaEvento.hidden = true; });
+  }
+  if (modalAgendaEvento) {
+    const backdropAgenda = modalAgendaEvento.querySelector(".modal-extender-backdrop");
+    if (backdropAgenda) backdropAgenda.addEventListener("click", () => { modalAgendaEvento.hidden = true; });
+  }
+  if (modalAgendaGuardar && agendaEventoTitulo) {
+    modalAgendaGuardar.addEventListener("click", () => {
+      const titulo = (agendaEventoTitulo.value || "").trim();
+      if (!titulo) {
+        showToast("Escribe un título para el evento", "info");
+        return;
+      }
+      const fechaISO = fecha && fecha.value ? fecha.value : null;
+      if (!fechaISO) return;
+      if (!state.agenda[fechaISO]) state.agenda[fechaISO] = [];
+      const allDay = agendaEventoAllDay ? agendaEventoAllDay.checked : true;
+      const time = (allDay || !agendaEventoHora || !agendaEventoHora.value) ? "" : agendaEventoHora.value;
+      const id = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "ev-" + Date.now();
+      state.agenda[fechaISO].push({ id, title: titulo, time, allDay });
+      saveState(state);
+      modalAgendaEvento.hidden = true;
+      renderAgendaDia(fechaISO);
+      renderCalendario();
+      showToast("Evento añadido", "success");
+    });
   }
 
   if (prevMes) prevMes.onclick = () => {
@@ -4077,6 +4182,7 @@ if(festivos && festivos[fechaISO]){
 
   if (fecha && !fecha.value) fecha.value = getHoyISO();
   renderCalendario();
+  if (typeof renderAgendaDia === "function") renderAgendaDia(fecha ? fecha.value : null);
   actualizarBanco();
   actualizarGrafico();
   actualizarEstadoEliminar();
