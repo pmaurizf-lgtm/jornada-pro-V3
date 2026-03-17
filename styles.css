@@ -1111,6 +1111,13 @@ body.dark .metric {
   grid-template-columns: 1fr;
 }
 
+/* Escritorio: calendario mismo ancho que el resto de tarjetas (una columna) */
+@media (min-width: 769px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ============================= */
 /* CALENDARIO                    */
 /* ============================= */
