@@ -2276,14 +2276,16 @@ function controlarNotificaciones() {
         return;
       }
 
-      const diaSel = (fecha && fecha.value) ? fecha.value : hoy;
-      if (esDiaNoLaborable(diaSel) && state.registros[diaSel] && state.registros[diaSel].salidaReal != null && modalIniciarOtroPeriodo) {
-        pendingIniciarOtroPeriodoDia = diaSel;
+      // «Iniciar jornada» siempre es para el día actual. Antes se usaba la fecha del selector:
+      // por la mañana (p. ej. antes de las 6:00) a menudo seguía en el día anterior; si ese día
+      // era sábado/domingo o festivo y ya había jornada cerrada, aparecía el modal de «otro periodo»
+      // al intentar fichar un día laborable cualquiera (no solo el lunes).
+      if (fecha) fecha.value = hoy;
+      if (esDiaNoLaborable(hoy) && state.registros[hoy] && state.registros[hoy].salidaReal != null && modalIniciarOtroPeriodo) {
+        pendingIniciarOtroPeriodoDia = hoy;
         modalIniciarOtroPeriodo.hidden = false;
         return;
       }
-
-      if (fecha) fecha.value = hoy;
       if (entrada) entrada.value = horaInicioJornada();
       if (salida) salida.value = "";
       if (minAntes) minAntes.value = "0";
