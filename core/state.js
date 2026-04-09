@@ -27,6 +27,10 @@ export function createInitialState() {
       notificationsEnabled: true,
       trabajoATurnos: false,
       turno: "06-14",
+      /** Modo Noruega (GP3/GP4): horario fijo y TxT automático en un rango de fechas. */
+      modoNoruega: false,
+      modoNoruegaDesde: "",
+      modoNoruegaHasta: "",
       horasExtraInicialMin: 0,
       excesoJornadaInicialMin: 0,
       /** Saldo de días de vacaciones previo (año 2025) al usar la app. */

@@ -300,6 +300,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const cfgVacacionesDiasPrevio = document.getElementById("cfgVacacionesDiasPrevio");
   const btnResetSaldoPrevio = document.getElementById("resetSaldoPrevio");
   const configTurnoWrap = document.getElementById("configTurnoWrap");
+  const cfgModoNoruega = document.getElementById("cfgModoNoruega");
+  const cfgModoNoruegaDesde = document.getElementById("cfgModoNoruegaDesde");
+  const cfgModoNoruegaHasta = document.getElementById("cfgModoNoruegaHasta");
+  const configModoNoruegaWrap = document.getElementById("configModoNoruegaWrap");
+  const configModoNoruegaFechasWrap = document.getElementById("configModoNoruegaFechasWrap");
   const guardarConfig = document.getElementById("guardarConfig");
   const finalizarJornadaWrap = document.getElementById("finalizarJornadaWrap");
   const finalizarSliderTrack = document.getElementById("finalizarSliderTrack");
@@ -389,6 +394,10 @@ function aplicarEstadoConfigAUI() {
   if (cfgLDDiasPrevio) cfgLDDiasPrevio.value = String(state.ldDiasPorAnio?.[anioCurso] ?? 0);
   if (labelLDDiasPrevio) labelLDDiasPrevio.textContent = "Días de Libre disposición previos (" + anioCurso + ")";
   if (configTurnoWrap) configTurnoWrap.hidden = !state.config.trabajoATurnos;
+  if (cfgModoNoruega) cfgModoNoruega.checked = state.config.modoNoruega === true;
+  if (cfgModoNoruegaDesde) cfgModoNoruegaDesde.value = state.config.modoNoruegaDesde || "";
+  if (cfgModoNoruegaHasta) cfgModoNoruegaHasta.value = state.config.modoNoruegaHasta || "";
+  if (configModoNoruegaFechasWrap) configModoNoruegaFechasWrap.hidden = !state.config.modoNoruega;
 }
 
 aplicarEstadoConfigAUI();
@@ -397,6 +406,105 @@ aplicarEstadoConfigAUI();
 if (cfgTrabajoTurnos && configTurnoWrap) {
   cfgTrabajoTurnos.addEventListener("change", () => {
     configTurnoWrap.hidden = !cfgTrabajoTurnos.checked;
+  });
+}
+
+  function esGpTxT() {
+    const gp = state.config.grupoProfesional;
+    return gp === "GP3" || gp === "GP4";
+  }
+
+  function modoNoruegaPeriodoValido() {
+    if (state.config.modoNoruega !== true || !state.config.modoNoruegaDesde) return false;
+    const hasta = (state.config.modoNoruegaHasta || "").trim();
+    if (hasta && state.config.modoNoruegaDesde > hasta) return false;
+    return true;
+  }
+
+  function fechaEnRangoModoNoruega(fechaISO) {
+    if (!fechaISO || !esGpTxT()) return false;
+    if (!state.config.modoNoruega || !state.config.modoNoruegaDesde) return false;
+    if (fechaISO < state.config.modoNoruegaDesde) return false;
+    const hasta = (state.config.modoNoruegaHasta || "").trim();
+    if (hasta && fechaISO > hasta) return false;
+    return true;
+  }
+
+  function desactivarModoNoruegaSiFechaFinPasada() {
+    if (!state.config.modoNoruega || !state.config.modoNoruegaHasta) return;
+    if (getHoyISO() > state.config.modoNoruegaHasta) {
+      state.config.modoNoruega = false;
+      saveState(state);
+      if (cfgModoNoruega) cfgModoNoruega.checked = false;
+      if (configModoNoruegaFechasWrap) configModoNoruegaFechasWrap.hidden = true;
+      aplicarEstadoConfigAUI();
+    }
+  }
+
+  function sincronizarRegistrosModoNoruega() {
+    desactivarModoNoruegaSiFechaFinPasada();
+    if (!modoNoruegaPeriodoValido() || !esGpTxT()) return;
+    const desde = state.config.modoNoruegaDesde;
+    const hasta = (state.config.modoNoruegaHasta || "").trim();
+    const hoy = getHoyISO();
+    let fin = hoy;
+    if (hasta && hasta < fin) fin = hasta;
+    if (fin < desde) return;
+    let cur = new Date(desde + "T12:00:00");
+    const finD = new Date(fin + "T12:00:00");
+    while (cur <= finD) {
+      const iso = cur.getFullYear() + "-" + String(cur.getMonth() + 1).padStart(2, "0") + "-" + String(cur.getDate()).padStart(2, "0");
+      const dow = cur.getDay();
+      const fest = obtenerFestivos(cur.getFullYear());
+      if (dow === 0 || (fest && fest[iso])) {
+        cur.setDate(cur.getDate() + 1);
+        continue;
+      }
+      const reg = state.registros[iso];
+      if (reg && reg.noruegaManual) { cur.setDate(cur.getDate() + 1); continue; }
+      if (reg && (reg.vacaciones || reg.libreDisposicion || reg.disfruteHorasExtra || reg.disfruteExcesoJornada || reg.licenciaRetribuida)) { cur.setDate(cur.getDate() + 1); continue; }
+      if (reg && (reg.paseJustificado || reg.paseSinJustificado)) { cur.setDate(cur.getDate() + 1); continue; }
+      if (dow >= 1 && dow <= 5) {
+        state.registros[iso] = {
+          entrada: "07:00",
+          salidaReal: "19:00",
+          trabajadosMin: 720,
+          extraGeneradaMin: 240,
+          excesoJornadaMin: 21,
+          negativaMin: 0,
+          salidaTeoricaMin: 0,
+          salidaAjustadaMin: 0,
+          disfrutadasManualMin: reg?.disfrutadasManualMin || 0,
+          vacaciones: false,
+          modoNoruega: true,
+          noruegaAuto: true,
+          ultimaModificacionISO: new Date().toISOString()
+        };
+      } else if (dow === 6) {
+        state.registros[iso] = {
+          entrada: "08:00",
+          salidaReal: "14:00",
+          trabajadosMin: 360,
+          extraGeneradaMin: 480,
+          excesoJornadaMin: 0,
+          negativaMin: 0,
+          salidaTeoricaMin: 0,
+          salidaAjustadaMin: 0,
+          disfrutadasManualMin: reg?.disfrutadasManualMin || 0,
+          vacaciones: false,
+          modoNoruega: true,
+          noruegaAuto: true,
+          ultimaModificacionISO: new Date().toISOString()
+        };
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
+    saveState(state);
+  }
+
+if (cfgModoNoruega && configModoNoruegaFechasWrap) {
+  cfgModoNoruega.addEventListener("change", () => {
+    configModoNoruegaFechasWrap.hidden = !cfgModoNoruega.checked;
   });
 }
 
@@ -508,6 +616,28 @@ if (guardarConfig) {
     state.config.notificationsEnabled = cfgNotificaciones ? cfgNotificaciones.checked : true;
     state.config.trabajoATurnos = cfgTrabajoTurnos ? cfgTrabajoTurnos.checked : false;
     state.config.turno = cfgTurno ? cfgTurno.value : "06-14";
+    const gpSel = state.config.grupoProfesional;
+    const noruegaOk = gpSel === "GP3" || gpSel === "GP4";
+    if (cfgModoNoruega && cfgModoNoruega.checked && noruegaOk) {
+      if (!cfgModoNoruegaDesde || !cfgModoNoruegaDesde.value) {
+        showToast("Indica la fecha de inicio del modo Noruega.", "error");
+        return;
+      }
+      const hastaNor = cfgModoNoruegaHasta && cfgModoNoruegaHasta.value ? cfgModoNoruegaHasta.value : "";
+      if (hastaNor && cfgModoNoruegaDesde.value > hastaNor) {
+        showToast("La fecha de inicio debe ser anterior o igual a la de fin.", "error");
+        return;
+      }
+    }
+    state.config.modoNoruega = !!(cfgModoNoruega && cfgModoNoruega.checked && noruegaOk);
+    state.config.modoNoruegaDesde = (cfgModoNoruegaDesde && cfgModoNoruegaDesde.value) ? cfgModoNoruegaDesde.value : "";
+    state.config.modoNoruegaHasta = (cfgModoNoruegaHasta && cfgModoNoruegaHasta.value) ? cfgModoNoruegaHasta.value : "";
+    if (!noruegaOk) state.config.modoNoruega = false;
+    if (state.config.modoNoruega) {
+      state.config.trabajoATurnos = false;
+      if (cfgTrabajoTurnos) cfgTrabajoTurnos.checked = false;
+      if (configTurnoWrap) configTurnoWrap.hidden = true;
+    }
     const parseDecimal = (v) => parseFloat(String(v || "").replace(",", ".")) || 0;
     state.config.horasExtraInicialMin = Math.round(parseDecimal(cfgHorasExtraPrevias?.value) * 60);
     state.config.excesoJornadaInicialMin = Math.round(parseDecimal(cfgExcesoJornadaPrevias?.value) * 60);
@@ -524,6 +654,9 @@ if (guardarConfig) {
     state.ldDiasPorAnio = state.ldDiasPorAnio && typeof state.ldDiasPorAnio === "object" ? { ...state.ldDiasPorAnio, [anioCurso]: ldPrev } : { [anioCurso]: ldPrev };
 
     saveState(state);
+
+    sincronizarRegistrosModoNoruega();
+    aplicarEstadoConfigAUI();
 
     aplicarTheme(state.config.theme);
     aplicarModoGrupoProfesional();
@@ -748,6 +881,7 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     if (bankPanelMinutosSemana) bankPanelMinutosSemana.hidden = !modoMin;
     if (bankPanelHorasTxT) bankPanelHorasTxT.style.display = modoMin ? "none" : "";
     if (configSaldoHorasExtraWrap) configSaldoHorasExtraWrap.style.display = modoMin ? "none" : "";
+    if (configModoNoruegaWrap) configModoNoruegaWrap.hidden = modoMin;
     if (configResetSaldoWrap) configResetSaldoWrap.style.display = modoMin ? "none" : "";
     if (wrapMinAntes) wrapMinAntes.style.display = modoMin ? "none" : "";
     if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.style.display = modoMin ? "none" : "";
@@ -2477,6 +2611,12 @@ function controlarNotificaciones() {
     if (yaPaseSinJustificadoGuardar) state.registros[fecha.value].paseSinJustificado = true;
     if (yaPaseJustificadoGuardar) state.registros[fecha.value].paseJustificado = true;
 
+    if (prevGuardar && (prevGuardar.noruegaAuto || prevGuardar.modoNoruega)) {
+      state.registros[fecha.value].noruegaManual = true;
+      delete state.registros[fecha.value].noruegaAuto;
+      state.registros[fecha.value].modoNoruega = true;
+    }
+
     saveState(state);
     if (fecha.value === getHoyISO()) limpiarBorradorSesion();
     renderCalendario();
@@ -3073,6 +3213,29 @@ function controlarNotificaciones() {
       return;
     }
 
+    const hoyCheck = getHoyISO();
+    const regFecha = fecha && state.registros[fecha.value];
+    const esNoruegaAutoHoy = fecha
+      && fecha.value === hoyCheck
+      && regFecha
+      && regFecha.modoNoruega === true
+      && regFecha.noruegaAuto === true
+      && !regFecha.noruegaManual;
+    if (esNoruegaAutoHoy) {
+      if (btnIniciarJornada) {
+        btnIniciarJornada.hidden = false;
+        btnIniciarJornada.disabled = true;
+        btnIniciarJornada.textContent = "Modo Noruega (automático)";
+        btnIniciarJornada.classList.remove("btn-finalizar", "btn-continuar");
+        btnIniciarJornada.classList.add("btn-iniciar");
+      }
+      if (finalizarJornadaWrap) finalizarJornadaWrap.hidden = true;
+      if (resumenPortadaAccesosRapidos) resumenPortadaAccesosRapidos.setAttribute("data-jornada-control", "boton");
+      actualizarEstadoFinalizarJornada();
+      if (typeof actualizarResumenPortada === "function" && !skipActualizarResumenPortada) actualizarResumenPortada();
+      return;
+    }
+
     if (!btnIniciarJornada) return;
     const hoy = getHoyISO();
     const esHoy = fecha && fecha.value === hoy;
@@ -3341,6 +3504,7 @@ function aplicarRestoreState(newState) {
   saveState(state);
   aplicarTheme(state.config.theme);
   aplicarEstadoConfigAUI();
+  sincronizarRegistrosModoNoruega();
   if (fecha && fecha.value) cargarFormularioDesdeRegistro(fecha.value);
   renderCalendario();
   actualizarBanco();
@@ -3705,7 +3869,7 @@ function renderCalendario() {
     fragment.appendChild(empty);
   }
 
-  const legendActive = { ld: false, vacaciones: false, disfruteHorasExtra: false, disfruteExceso: false, licencia: false, jornadaCompletada: false, paseSinJustificar: false };
+  const legendActive = { ld: false, vacaciones: false, disfruteHorasExtra: false, disfruteExceso: false, licencia: false, jornadaCompletada: false, paseSinJustificar: false, noruega: false };
 
   for(let d=1; d<=totalDias; d++){
 
@@ -3839,6 +4003,10 @@ if(festivos && festivos[fechaISO]){
           legendActive.paseSinJustificar = true;
           saldoHtml += "<span class=\"cal-day-especial\" aria-hidden=\"true\"><span class=\"cal-day-especial-symbol\">*</span></span>";
         }
+        if (registro.modoNoruega) {
+          legendActive.noruega = true;
+          saldoHtml += "<span class=\"cal-day-noruega-flag\" aria-label=\"Modo Noruega\">🇳🇴</span>";
+        }
         div.innerHTML += saldoHtml;
       }
     } else if (deduccionDia > 0) {
@@ -3869,6 +4037,7 @@ if(festivos && festivos[fechaISO]){
     const items = [];
     if (legendActive.ld) items.push({ icon: "🕶️", text: "Libre disposición" });
     if (legendActive.vacaciones) items.push({ icon: "🏖️", text: "Vacaciones" });
+    if (legendActive.noruega) items.push({ icon: "🇳🇴", text: "Modo Noruega" });
     if (legendActive.disfruteHorasExtra) items.push({ icon: "⏳", text: "Disfr. TxT" });
     if (legendActive.disfruteExceso) items.push({ icon: "🪫", text: "Disfr. exceso" });
     if (legendActive.licencia) items.push({ icon: "🎫", text: "Licencia retribuida" });
@@ -4425,6 +4594,8 @@ if(festivos && festivos[fechaISO]){
   }
 
   if (fecha && !fecha.value) fecha.value = getHoyISO();
+  desactivarModoNoruegaSiFechaFinPasada();
+  sincronizarRegistrosModoNoruega();
   renderCalendario();
   if (typeof renderAgendaDia === "function") renderAgendaDia(fecha ? fecha.value : null);
   actualizarBanco();
@@ -4484,7 +4655,15 @@ if(festivos && festivos[fechaISO]){
   });
 
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") checkExtendPromptFromUrl();
+    if (document.visibilityState !== "visible") return;
+    checkExtendPromptFromUrl();
+    desactivarModoNoruegaSiFechaFinPasada();
+    sincronizarRegistrosModoNoruega();
+    if (typeof renderCalendario === "function") renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+    actualizarEstadoIniciarJornada();
+    actualizarResumenDia();
   });
 
   window.addEventListener("focus", checkExtendPromptFromUrl);
