@@ -23,7 +23,7 @@ import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.j
 
 import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
 
-const APP_VERSION = "1.3";
+const APP_VERSION = "1.3.0";
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -593,15 +593,13 @@ function aplicarSimboloPlof(symbol) {
   }
 }
 
-// Guardar configuración
-if (guardarConfig) {
-  guardarConfig.addEventListener("click", () => {
-
+  /** Incluye nombre, SAP, Noruega, LD, saldos previos, etc. */
+  function sincronizarConfiguracionDesdeFormulario() {
     state.config.nombreCompleto = (cfgNombreCompleto && cfgNombreCompleto.value) ? cfgNombreCompleto.value.trim() : "";
     let sap = (cfgNumeroSAP && cfgNumeroSAP.value) ? String(cfgNumeroSAP.value).replace(/\D/g, "").slice(0, 8) : "";
     if (sap.length > 0 && sap.length !== 8) {
       showToast("El número SAP debe tener exactamente 8 cifras.", "error");
-      return;
+      return false;
     }
     state.config.numeroSAP = sap;
 
@@ -621,12 +619,12 @@ if (guardarConfig) {
     if (cfgModoNoruega && cfgModoNoruega.checked && noruegaOk) {
       if (!cfgModoNoruegaDesde || !cfgModoNoruegaDesde.value) {
         showToast("Indica la fecha de inicio de Trabajos en Noruega.", "error");
-        return;
+        return false;
       }
       const hastaNor = cfgModoNoruegaHasta && cfgModoNoruegaHasta.value ? cfgModoNoruegaHasta.value : "";
       if (hastaNor && cfgModoNoruegaDesde.value > hastaNor) {
         showToast("La fecha de inicio debe ser anterior o igual a la de fin.", "error");
-        return;
+        return false;
       }
     }
     state.config.modoNoruega = !!(cfgModoNoruega && cfgModoNoruega.checked && noruegaOk);
@@ -652,6 +650,56 @@ if (guardarConfig) {
     const anioCurso = new Date().getFullYear();
     const ldPrev = Math.max(0, parseInt(cfgLDDiasPrevio?.value, 10) || 0);
     state.ldDiasPorAnio = state.ldDiasPorAnio && typeof state.ldDiasPorAnio === "object" ? { ...state.ldDiasPorAnio, [anioCurso]: ldPrev } : { [anioCurso]: ldPrev };
+    return true;
+  }
+
+  function descargarArchivoBackupJson(json, nombreBase) {
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const hoy = new Date();
+    const fechaExport = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${nombreBase}-${fechaExport}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    try { localStorage.setItem("jornadaPro_lastBackup", new Date().toISOString()); } catch (e) {}
+  }
+
+  function ejecutarBackupAntesDeActualizarSW() {
+    return new Promise((resolve, reject) => {
+      if (!sincronizarConfiguracionDesdeFormulario()) {
+        reject(new Error("config"));
+        return;
+      }
+      saveState(state);
+      sincronizarRegistrosModoNoruega();
+      try {
+        const json = exportBackup(state, { fechaReferenciaISO: getHoyISO() });
+        descargarArchivoBackupJson(json, "backup-jornada-pre-actualizacion");
+        showToast("Copia de seguridad descargada. Aplicando actualización…", "success");
+        setTimeout(() => resolve(), 900);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  document.addEventListener("jornada-pro-pre-update-backup", (ev) => {
+    const d = ev.detail || {};
+    ejecutarBackupAntesDeActualizarSW()
+      .then(() => { if (typeof d.onDone === "function") d.onDone(); })
+      .catch(() => {
+        showToast("No se pudo crear la copia de seguridad. Corrige la configuración o inténtalo de nuevo.", "error");
+        if (typeof d.onError === "function") d.onError();
+      });
+  });
+
+// Guardar configuración
+if (guardarConfig) {
+  guardarConfig.addEventListener("click", () => {
+
+    if (!sincronizarConfiguracionDesdeFormulario()) return;
 
     saveState(state);
 
@@ -3453,40 +3501,11 @@ if (exportAnoActual) {
 
 if (btnBackup) {
   btnBackup.addEventListener("click", () => {
-
-    // Sincronizar formulario de configuración al estado para incluir todo (nombre, SAP, etc.) aunque no se haya pulsado "Guardar configuración"
-    if (state.config) {
-      state.config.nombreCompleto = (cfgNombreCompleto && cfgNombreCompleto.value) ? String(cfgNombreCompleto.value).trim() : (state.config.nombreCompleto || "");
-      state.config.numeroSAP = (cfgNumeroSAP && cfgNumeroSAP.value) ? String(cfgNumeroSAP.value).replace(/\D/g, "").slice(0, 8) : (state.config.numeroSAP || "");
-      state.config.centroCoste = (cfgCentroCoste && cfgCentroCoste.value) ? String(cfgCentroCoste.value).trim() : (state.config.centroCoste || "");
-      state.config.grupoProfesional = (cfgGrupoProfesional && cfgGrupoProfesional.value && ["GP1", "GP2", "GP3", "GP4"].includes(cfgGrupoProfesional.value)) ? cfgGrupoProfesional.value : (state.config.grupoProfesional || "GP1");
-      state.config.jornadaMin = Number(cfgJornada?.value) || state.config.jornadaMin || 459;
-      state.config.avisoMin = Number(cfgAviso?.value) ?? state.config.avisoMin ?? 10;
-      state.config.theme = (cfgTheme && cfgTheme.value) ? cfgTheme.value : (state.config.theme || "light");
-      state.config.notificationsEnabled = cfgNotificaciones ? cfgNotificaciones.checked : state.config.notificationsEnabled !== false;
-      state.config.trabajoATurnos = cfgTrabajoTurnos ? cfgTrabajoTurnos.checked : !!state.config.trabajoATurnos;
-      state.config.turno = (cfgTurno && cfgTurno.value) ? cfgTurno.value : (state.config.turno || "06-14");
-      const parseDecimal = (v) => parseFloat(String(v || "").replace(",", ".")) || 0;
-      state.config.horasExtraInicialMin = Math.round(parseDecimal(cfgHorasExtraPrevias?.value) * 60) || (state.config.horasExtraInicialMin || 0);
-      state.config.excesoJornadaInicialMin = Math.round(parseDecimal(cfgExcesoJornadaPrevias?.value) * 60) || (state.config.excesoJornadaInicialMin || 0);
-      const vp = parseInt(cfgVacacionesDiasPrevio?.value, 10);
-      state.config.vacacionesDiasPrevio = Math.max(0, !isNaN(vp) ? vp : (state.config.vacacionesDiasPrevio || 0));
-    }
-
+    if (!sincronizarConfiguracionDesdeFormulario()) return;
+    saveState(state);
+    sincronizarRegistrosModoNoruega();
     const json = exportBackup(state, { fechaReferenciaISO: getHoyISO() });
-
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-
-    const hoy = new Date();
-    const fechaExport = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `backup-jornada-${fechaExport}.json`;
-    a.click();
-
-    URL.revokeObjectURL(url);
-    try { localStorage.setItem("jornadaPro_lastBackup", new Date().toISOString()); } catch (e) {}
+    descargarArchivoBackupJson(json, "backup-jornada");
     showToast("Backup descargado correctamente", "success");
   });
 }
@@ -3785,6 +3804,16 @@ if (btnInstalarIOS && modalInstalarIOS) {
   if (cerrarIOS) cerrarIOS.addEventListener("click", () => { modalInstalarIOS.hidden = true; });
   const backdropIOS = modalInstalarIOS.querySelector(".modal-extender-backdrop");
   if (backdropIOS) backdropIOS.addEventListener("click", () => { modalInstalarIOS.hidden = true; });
+}
+
+const btnInstalarAndroid = document.getElementById("btnInstalarAndroid");
+const modalInstalarAndroid = document.getElementById("modalInstalarAndroid");
+if (btnInstalarAndroid && modalInstalarAndroid) {
+  btnInstalarAndroid.addEventListener("click", () => { modalInstalarAndroid.hidden = false; });
+  const cerrarAndroid = document.getElementById("modalInstalarAndroidCerrar");
+  if (cerrarAndroid) cerrarAndroid.addEventListener("click", () => { modalInstalarAndroid.hidden = true; });
+  const backdropAndroid = modalInstalarAndroid.querySelector(".modal-extender-backdrop");
+  if (backdropAndroid) backdropAndroid.addEventListener("click", () => { modalInstalarAndroid.hidden = true; });
 }
 
 const modalConfirmarBorrarTodo = document.getElementById("modalConfirmarBorrarTodo");
@@ -4755,13 +4784,11 @@ if(festivos && festivos[fechaISO]){
     }
   } catch (e) {}
 
-  // ===============================
-  // REGISTRO SERVICE WORKER
-  // ===============================
-  
-  if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./service-worker.js")
-    .then(() => console.log("Service Worker registrado"));
-}
+  document.addEventListener("jornada-pro-toast", (ev) => {
+    try {
+      const d = ev.detail;
+      if (d && d.message) showToast(d.message, d.type || "info");
+    } catch (_) {}
+  });
 
 });

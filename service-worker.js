@@ -2,7 +2,7 @@
 // CACHE CONFIG (offline-first en móvil)
 // ===============================
 
-const CACHE_NAME = "jornada-pro-v4";
+const CACHE_NAME = "jornada-pro-v6";
 
 const urlsToCache = [
   "./",
@@ -10,6 +10,8 @@ const urlsToCache = [
   "./styles.css",
   "./app.js",
   "./manifest.json",
+  "./plantilla-pase-justificado.html",
+  "./changelog.json",
   "./core/storage.js",
   "./core/state.js",
   "./core/calculations.js",
@@ -36,7 +38,12 @@ self.addEventListener("install", event => {
       .then(cache => cache.addAll(urlsToCache))
       .catch(() => { /* fallback si algún recurso falla en install */ })
   );
-  self.skipWaiting();
+});
+
+self.addEventListener("message", event => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 // ===============================
@@ -54,6 +61,15 @@ self.addEventListener("activate", event => {
   );
   self.clients.claim();
 });
+
+// Coincide con entradas precacheadas aunque el HTML pida ?v= para bust de caché
+function cacheMatchOffline(request) {
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin || request.method !== "GET") {
+    return caches.match(request);
+  }
+  return caches.match(request, { ignoreSearch: true }).then((hit) => hit || caches.match(request));
+}
 
 // ===============================
 // FETCH (offline support)
@@ -78,8 +94,10 @@ self.addEventListener("fetch", event => {
             return response;
           })
           .catch(() => {
-            if (event.request.mode === "navigate") return caches.match("./index.html").then(r => r || new Response("Sin conexión", { status: 503 }));
-            return caches.match(event.request).then(r => r || new Response("", { status: 503 }));
+            if (event.request.mode === "navigate") {
+              return caches.match("./index.html").then((r) => r || new Response("Sin conexión", { status: 503 }));
+            }
+            return cacheMatchOffline(event.request).then((r) => r || new Response("", { status: 503 }));
           })
       );
       return;
@@ -87,7 +105,7 @@ self.addEventListener("fetch", event => {
   }
 
   event.respondWith(
-    caches.match(event.request).then(cached => {
+    cacheMatchOffline(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).then(response => {
         if (!response || response.status !== 200 || response.type === "opaque") return response;

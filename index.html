@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="styles.css?v=7">
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=4"></script>
+<script type="module" src="app.js?v=5"></script>
 </head>
 
 <body>
@@ -375,6 +375,25 @@
   </div>
 </div>
 
+<!-- Modal: Añadir a pantalla de inicio (Android) -->
+<div id="modalInstalarAndroid" class="modal-extender" role="dialog" aria-labelledby="modalInstalarAndroidTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalInstalarAndroidTitulo" class="modal-extender-titulo">Añadir a la pantalla de inicio</h3>
+    <p class="modal-extender-texto">Para instalar la app en tu <strong>Android</strong> (recomendado: <strong>Chrome</strong>):</p>
+    <ol class="modal-instalar-ios-pasos">
+      <li>Abre esta página en <strong>Chrome</strong>. Si usas otro navegador, los pasos pueden variar.</li>
+      <li>Pulsa el menú <strong>⋮</strong> (tres puntos), arriba a la derecha.</li>
+      <li>Elige <strong>«Instalar aplicación»</strong>, <strong>«Añadir a la pantalla de inicio»</strong> o <strong>«Instalar app»</strong> (el nombre exacto depende de la versión de Chrome).</li>
+      <li>Confirma en el cuadro de diálogo. Si aparece un aviso inferior de instalación, también puedes pulsarlo.</li>
+    </ol>
+    <p class="modal-extender-texto">Así tendrás el icono de Jornada Pro en tu pantalla de inicio como una app.</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalInstalarAndroidCerrar" class="modal-extender-btn modal-extender-si">Entendido</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Primera vez – elegir grupo profesional -->
 <div id="modalElegirGP" class="modal-extender" role="dialog" aria-labelledby="modalElegirGPTitulo" aria-modal="true" hidden>
   <div class="modal-extender-box modal-elegir-gp">
@@ -602,6 +621,8 @@
       <button type="button" id="btnAbrirGuia" class="config-btn config-btn-guia">Ver guía de la app</button>
       <button type="button" id="btnQueHayNuevo" class="config-btn config-btn-guia">Qué hay de nuevo</button>
       <button type="button" id="btnInstalarIOS" class="config-btn config-btn-guia">Añadir a pantalla de inicio (iOS)</button>
+      <button type="button" id="btnInstalarAndroid" class="config-btn config-btn-guia">Añadir a pantalla de inicio (Android)</button>
+      <button type="button" id="btnBuscarActualizacion" class="config-btn config-btn-guia">Buscar actualizaciones</button>
     </div>
 
     <!-- Acerca de: versión, novedades, contacto -->
@@ -609,7 +630,7 @@
       <summary class="config-summary">Acerca de</summary>
       <div class="config-details-body">
         <div class="config-app-info">
-          <span class="config-app-name">Jornada Pro</span> <span id="configAppVersion" class="config-app-version config-version-tap">v1.3</span>
+          <span class="config-app-name">Jornada Pro</span> <span id="configAppVersion" class="config-app-version config-version-tap">v1.3.0</span>
           <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap">Autor</span>: Pablo Mouriz Fontao</div>
         </div>
         <div class="config-contacto">
@@ -620,7 +641,7 @@
     </details>
 
     <div class="config-app-info config-app-info-footer" aria-hidden="true">
-      <span class="config-app-name">Jornada Pro</span> <span id="configAppVersionFooter" class="config-app-version">v1.3</span>
+      <span class="config-app-name">Jornada Pro</span> <span id="configAppVersionFooter" class="config-app-version">v1.3.0</span>
     </div>
     <div id="configDevMenu" class="config-dev-menu" hidden>
       <p class="config-dev-title">Desarrollador</p>
@@ -1080,10 +1101,231 @@
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+<div id="swUpdateBanner" class="sw-update-banner" hidden role="status" aria-live="polite" aria-hidden="true">
+  <span class="sw-update-banner-text">Hay una nueva versión de Jornada Pro.</span>
+  <button type="button" id="swUpdateBtn" class="sw-update-banner-btn">Actualizar</button>
+  <button type="button" id="swUpdateDismiss" class="sw-update-banner-dismiss" aria-label="Cerrar aviso">×</button>
+</div>
+
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./service-worker.js');
-}
+(function () {
+  const btnBuscarActualizacion = document.getElementById("btnBuscarActualizacion");
+  function emitToast(message, type) {
+    try {
+      document.dispatchEvent(new CustomEvent("jornada-pro-toast", { detail: { message: message, type: type || "info" } }));
+    } catch (e) {}
+  }
+
+  if (!("serviceWorker" in navigator)) {
+    if (btnBuscarActualizacion) {
+      btnBuscarActualizacion.hidden = true;
+    }
+    return;
+  }
+
+  const SW_URL = "./service-worker.js?v=6";
+  let pendingReload = false;
+  var swReg = null;
+  const banner = document.getElementById("swUpdateBanner");
+  const bannerTextEl = banner ? banner.querySelector(".sw-update-banner-text") : null;
+  const SW_BANNER_DEFAULT_MSG = "Hay una nueva versión de Jornada Pro.";
+  const btnUpdate = document.getElementById("swUpdateBtn");
+  const btnDismiss = document.getElementById("swUpdateDismiss");
+
+  function showUpdateBanner() {
+    if (banner) {
+      if (bannerTextEl) bannerTextEl.textContent = SW_BANNER_DEFAULT_MSG;
+      banner.hidden = false;
+      banner.setAttribute("aria-hidden", "false");
+    }
+  }
+  function hideUpdateBanner() {
+    if (banner) {
+      if (bannerTextEl) bannerTextEl.textContent = SW_BANNER_DEFAULT_MSG;
+      banner.hidden = true;
+      banner.setAttribute("aria-hidden", "true");
+    }
+  }
+
+  navigator.serviceWorker.addEventListener("controllerchange", function () {
+    if (pendingReload) {
+      window.location.reload();
+    }
+  });
+
+  function handleWaitingWorker(reg) {
+    var w = reg.waiting;
+    if (!w) return;
+    if (navigator.serviceWorker.controller) {
+      showUpdateBanner();
+    } else {
+      w.postMessage({ type: "SKIP_WAITING" });
+    }
+  }
+
+  /** Tras reg.update(): si hay worker nuevo, muestra la barra (sin toast; el aviso es la propia barra). */
+  function applyUpdateIfFound(reg) {
+    if (!reg) return;
+    if (reg.waiting) {
+      handleWaitingWorker(reg);
+      return;
+    }
+    var iw = reg.installing;
+    if (!iw) return;
+    if (iw.state === "installed") {
+      handleWaitingWorker(reg);
+      return;
+    }
+    iw.addEventListener(
+      "statechange",
+      function () {
+        if (iw.state === "installed") handleWaitingWorker(reg);
+      },
+      { once: true }
+    );
+  }
+
+  var lastSilentUpdateCheck = 0;
+  var SILENT_UPDATE_MIN_MS = 4 * 60 * 1000;
+
+  /** force=true ignora el throttle (arranque, vuelve la red). */
+  function checkForUpdatesSilently(force) {
+    var now = Date.now();
+    if (!force && now - lastSilentUpdateCheck < SILENT_UPDATE_MIN_MS) return;
+    lastSilentUpdateCheck = now;
+    if (!swReg) return;
+    swReg
+      .update()
+      .then(function () {
+        setTimeout(function () {
+          applyUpdateIfFound(swReg);
+        }, 400);
+      })
+      .catch(function () {});
+  }
+
+  function afterUpdateCheck(reg) {
+    function finishOk(msg) {
+      emitToast(msg, "success");
+    }
+    if (reg.waiting) {
+      handleWaitingWorker(reg);
+      finishOk("Hay una nueva versión. Pulsa «Actualizar» en la barra inferior.");
+      return;
+    }
+    var iw = reg.installing;
+    if (iw) {
+      if (iw.state === "installed") {
+        handleWaitingWorker(reg);
+        if (navigator.serviceWorker.controller) {
+          finishOk("Hay una nueva versión. Pulsa «Actualizar» en la barra inferior.");
+        }
+        return;
+      }
+      iw.addEventListener(
+        "statechange",
+        function () {
+          if (iw.state === "installed") {
+            handleWaitingWorker(reg);
+            if (navigator.serviceWorker.controller) {
+              finishOk("Hay una nueva versión. Pulsa «Actualizar» en la barra inferior.");
+            }
+          }
+        },
+        { once: true }
+      );
+      return;
+    }
+    finishOk("Ya tienes la última versión publicada.");
+  }
+
+  navigator.serviceWorker
+    .register(SW_URL)
+    .then(function (reg) {
+      swReg = reg;
+      if (reg.waiting) handleWaitingWorker(reg);
+      navigator.serviceWorker.ready.then(function (r) {
+        if (r.waiting) handleWaitingWorker(r);
+      });
+      reg.addEventListener("updatefound", function () {
+        var iw = reg.installing;
+        if (!iw) return;
+        iw.addEventListener("statechange", function () {
+          if (iw.state === "installed") {
+            handleWaitingWorker(reg);
+          }
+        });
+      });
+      if (btnUpdate) {
+        btnUpdate.addEventListener("click", function () {
+          if (!reg.waiting) return;
+          if (bannerTextEl) bannerTextEl.textContent = "Preparando copia...";
+          btnUpdate.disabled = true;
+          if (btnDismiss) btnDismiss.disabled = true;
+          document.dispatchEvent(
+            new CustomEvent("jornada-pro-pre-update-backup", {
+              detail: {
+                onDone: function () {
+                  btnUpdate.disabled = false;
+                  if (btnDismiss) btnDismiss.disabled = false;
+                  pendingReload = true;
+                  hideUpdateBanner();
+                  reg.waiting.postMessage({ type: "SKIP_WAITING" });
+                },
+                onError: function () {
+                  btnUpdate.disabled = false;
+                  if (btnDismiss) btnDismiss.disabled = false;
+                  showUpdateBanner();
+                }
+              }
+            })
+          );
+        });
+      }
+      if (btnDismiss) {
+        btnDismiss.addEventListener("click", hideUpdateBanner);
+      }
+      if (btnBuscarActualizacion) {
+        btnBuscarActualizacion.addEventListener("click", function () {
+          if (!swReg) return;
+          btnBuscarActualizacion.disabled = true;
+          swReg
+            .update()
+            .then(function () {
+              setTimeout(function () {
+                btnBuscarActualizacion.disabled = false;
+                afterUpdateCheck(swReg);
+              }, 500);
+            })
+            .catch(function () {
+              btnBuscarActualizacion.disabled = false;
+              emitToast("No se pudo comprobar actualizaciones. Revisa la conexión.", "error");
+            });
+        });
+      }
+      setInterval(function () {
+        checkForUpdatesSilently();
+      }, 60 * 60 * 1000);
+
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") {
+          checkForUpdatesSilently();
+        }
+      });
+      window.addEventListener("pageshow", function () {
+        checkForUpdatesSilently();
+      });
+      window.addEventListener("online", function () {
+        checkForUpdatesSilently(true);
+      });
+      setTimeout(function () {
+        checkForUpdatesSilently(true);
+      }, 2000);
+
+    })
+    .catch(function () {});
+})();
 </script>  
 
 </body>

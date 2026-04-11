@@ -369,7 +369,10 @@ Se abre desde el **menú (☰)** de la cabecera. Está organizada en bloques des
 
 - **Ver guía de la app:** abre esta guía en una nueva pestaña.
 - **Qué hay de nuevo:** abre un modal con el **changelog** (versiones y novedades; incluye detalles de la v1.3, p. ej. Trabajos en Noruega, backup completo, interfaz).
-- **Añadir a pantalla de inicio (iOS):** abre un modal con las instrucciones para instalar la app en iPhone o iPad (Safari → Compartir → «Añadir a la pantalla de inicio»). Así tendrás el icono de Jornada Pro en la pantalla de inicio como una app.
+- **Añadir a pantalla de inicio (iOS):** abre un modal con las instrucciones para instalar la app en iPhone o iPad (Safari → Compartir → «Añadir a la pantalla de inicio»).
+- **Añadir a pantalla de inicio (Android):** abre un modal con las instrucciones para instalar desde Chrome (menú ⋮ → «Instalar aplicación» / «Añadir a la pantalla de inicio», según la versión).
+
+En ambos casos tendrás el icono de Jornada Pro en la pantalla de inicio como una app.
 
 Al final del panel aparecen el nombre de la app, la versión y el autor (Acerca de).
 
@@ -456,6 +459,7 @@ En pantallas pequeñas (móvil) la aplicación adapta el diseño para un uso có
 | Exportar datos | Configuración → **Exportar Excel** / **Informe PDF**: rango opcional («Mes actual» / «Año actual»). **Backup** JSON: copia completa siempre; el rango no acorta el backup |
 | Ver novedades | Configuración → Qué hay de nuevo |
 | Instalar en iPhone/iPad | Configuración → Añadir a pantalla de inicio (iOS) |
+| Instalar en Android | Configuración → Añadir a pantalla de inicio (Android) |
 | Borrar todo (doble confirmación) | Configuración → Borrar todos los datos |
 | Dejar la app como nueva | Configuración → Restaurar valores de fábrica |
 

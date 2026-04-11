@@ -4003,6 +4003,80 @@ body.dark .splash-spinner {
 }
 
 /* ============================= */
+/* AVISO ACTUALIZACIÓN PWA (SW)  */
+/* ============================= */
+
+.sw-update-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  padding: calc(var(--safe-bottom, 0px) + 0.75rem) 1rem 0.85rem;
+  background: linear-gradient(180deg, rgba(10, 22, 40, 0.92) 0%, rgba(5, 12, 24, 0.97) 100%);
+  color: #f0f4fa;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.35);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.sw-update-banner[hidden] {
+  display: none !important;
+}
+
+.sw-update-banner-text {
+  flex: 1 1 12rem;
+  min-width: 0;
+  text-align: center;
+}
+
+.sw-update-banner-btn {
+  flex-shrink: 0;
+  padding: 0.5rem 1.15rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--accent, #5df56b);
+  color: #0a1628;
+}
+
+.sw-update-banner-btn:hover,
+.sw-update-banner-btn:active {
+  filter: brightness(1.05);
+}
+
+.sw-update-banner-dismiss {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sw-update-banner-dismiss:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+body.dark .sw-update-banner {
+  background: linear-gradient(180deg, rgba(18, 22, 30, 0.96) 0%, rgba(8, 10, 14, 0.99) 100%);
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================= */
 /* TOASTS                        */
 /* ============================= */
 
