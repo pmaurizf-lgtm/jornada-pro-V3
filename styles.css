@@ -911,6 +911,11 @@ body.dark .card {
   padding-left: 16px;
   padding-right: 16px;
   padding-bottom: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+body.dark .bank-tabs {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
 }
 
 .bank-tab {
@@ -1060,12 +1065,43 @@ body.dark .bank-desplegable {
 .bank-desplegable-content {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0;
   padding: 8px 12px 12px;
   border-top: 1px solid var(--border);
 }
 
 body.dark .bank-desplegable-content {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Separación entre totales y desplegables, y entre los dos desplegables */
+#bankPanelHorasTxT .bank-desplegable:first-of-type {
+  margin-top: 14px;
+}
+
+#bankPanelHorasTxT .bank-desplegable + .bank-desplegable {
+  margin-top: 20px;
+}
+
+.bank-desplegable-content .metric + .metric {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 8px;
+}
+
+body.dark .bank-desplegable-content .metric + .metric {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.bank-vacaciones-col .metric + .metric,
+.bank-ld-col .metric + .metric {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+body.dark .bank-vacaciones-col .metric + .metric,
+body.dark .bank-ld-col .metric + .metric {
   border-top-color: rgba(255, 255, 255, 0.12);
 }
 
@@ -1298,14 +1334,16 @@ body.dark .metric {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 8px;
-  margin-top: 15px;
+  margin-top: 8px;
 }
 
-/* Tabs de calendario (Mes / Semana / Día) */
+/* Tabs de calendario (Mes / Semana / Día / Agenda) */
 .calendar-tabs {
   display: flex;
   gap: 4px;
-  margin-bottom: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
 }
 
 .calendar-tab {
@@ -1329,6 +1367,29 @@ body.dark .metric {
 
 body.dark .calendar-tab.calendar-tab--active {
   color: #04120a;
+}
+
+body.dark .calendar-tabs {
+  border-bottom-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Cabeceras de vista (separación del contenido por debajo) */
+.calendar-week-header,
+.calendar-day-header,
+.calendar-agenda-header {
+  display: block;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+body.dark .calendar-week-header,
+body.dark .calendar-day-header,
+body.dark .calendar-agenda-header {
+  border-bottom-color: rgba(255, 255, 255, 0.14);
 }
 
 .calendar-view[hidden] {
@@ -1740,6 +1801,13 @@ body.dark .agenda-dia-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+body.dark .cal-nav {
+  border-bottom-color: rgba(255, 255, 255, 0.14);
 }
 
 .cal-header {
