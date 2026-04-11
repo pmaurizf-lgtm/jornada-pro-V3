@@ -108,3 +108,88 @@ export function calcularResumenMensual(registros, mes, año) {
 export function calcularResumenTotal(registros) {
   return calcularResumenPeriodo(registros, () => true);
 }
+
+/** Lunes y domingo (ISO) de la semana que contiene fechaISO. */
+function getLunesDomingoSemana(fechaISO) {
+  const [y, m, d] = fechaISO.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  const day = date.getDay();
+  const diffLunes = day === 0 ? -6 : 1 - day;
+  const lunes = new Date(date);
+  lunes.setDate(date.getDate() + diffLunes);
+  const domingo = new Date(lunes);
+  domingo.setDate(lunes.getDate() + 6);
+  const toISO = (dt) =>
+    dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
+  return [toISO(lunes), toISO(domingo)];
+}
+
+/** Banco de minutos de la semana (GP1/GP2) para la semana que contiene fechaISO. */
+export function calcularBancoMinutosSemanaState(state, fechaISO) {
+  const [lunesStr, domingoStr] = getLunesDomingoSemana(fechaISO);
+  let total = 0;
+  const regs = state.registros || {};
+  const [ly, lm, ld] = lunesStr.split("-").map(Number);
+  const [dy, dm, dd] = domingoStr.split("-").map(Number);
+  const start = new Date(ly, lm - 1, ld);
+  const end = new Date(dy, dm - 1, dd);
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const iso =
+      d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    const r = regs[iso];
+    if (!r || r.vacaciones || r.libreDisposicion || r.disfruteHorasExtra) continue;
+    total += (r.extraGeneradaMin || 0) - (r.negativaMin || 0);
+  }
+  return total;
+}
+
+/** Totales TxT / exceso coherentes con la pantalla del banco (GP3/GP4). */
+export function computeBancoSnapshotForBackup(state) {
+  const total = calcularResumenTotal(state.registros || {});
+  const deducciones = state.deduccionesPorAusencia || {};
+  const deduccionTotalMin = Object.values(deducciones).reduce((a, b) => a + b, 0);
+  const inicialExtra = state.config?.horasExtraInicialMin || 0;
+  const inicialExceso = state.config?.excesoJornadaInicialMin || 0;
+  const saldoTxT =
+    total.generadas -
+    total.disfrutadas -
+    (total.disfruteHorasExtraMin || 0) -
+    total.negativasTxT +
+    inicialExtra;
+  const saldoExceso =
+    total.exceso - (total.disfruteExcesoJornadaMin || 0) - total.negativasExceso + inicialExceso;
+  const saldoCombinado = saldoTxT + saldoExceso - deduccionTotalMin;
+  return {
+    saldoTxTMin: saldoTxT,
+    saldoExcesoJornadaMin: saldoExceso,
+    saldoCombinadoMin: saldoCombinado,
+    deduccionTotalMin,
+    inicialExtraMin: inicialExtra,
+    inicialExcesoJornadaMin: inicialExceso,
+    resumen: total
+  };
+}
+
+/**
+ * Resumen del banco para incrustar en backup (misma lógica que la UI).
+ * @param {string} fechaReferenciaISO Fecha "hoy" del usuario al generar la copia (YYYY-MM-DD).
+ */
+export function computeBackupBancoResumen(state, fechaReferenciaISO) {
+  const gp = state.config?.grupoProfesional || "GP1";
+  const base = {
+    grupoProfesional: gp,
+    fechaReferencia: fechaReferenciaISO
+  };
+  if (gp === "GP1" || gp === "GP2") {
+    return {
+      ...base,
+      modo: "minutosSemanales",
+      bancoMinutosSemana: calcularBancoMinutosSemanaState(state, fechaReferenciaISO)
+    };
+  }
+  return {
+    ...base,
+    modo: "horasTxt",
+    ...computeBancoSnapshotForBackup(state)
+  };
+}

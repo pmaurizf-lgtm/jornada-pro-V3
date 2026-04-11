@@ -2,7 +2,7 @@
 // CACHE CONFIG (offline-first en móvil)
 // ===============================
 
-const CACHE_NAME = "jornada-pro-v3";
+const CACHE_NAME = "jornada-pro-v4";
 
 const urlsToCache = [
   "./",
@@ -14,6 +14,8 @@ const urlsToCache = [
   "./core/state.js",
   "./core/calculations.js",
   "./core/bank.js",
+  "./core/vacaciones.js",
+  "./core/ld.js",
   "./core/holidays.js",
   "./core/validation.js",
   "./core/notifications.js",

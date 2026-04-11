@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     { titulo: "Calendario", texto: "Toca un día en el calendario para ver el detalle o editar. Los días con asterisco (*) indican jornada no completa (pase)." },
     { titulo: "Vacaciones y LD", texto: "Usa los botones Vacaciones y LD para marcar días. La primera vez en el año te pedirá el número de días LD disponibles." },
     { titulo: "Horas extra", texto: "Si superas la jornada nominal, el tiempo se suma a tu banco TxT o exceso de jornada según tu grupo profesional." },
-    { titulo: "Recordatorio", texto: "Haz backup con frecuencia desde el menú: Exportar backup guarda todos tus datos en un archivo." }
+    { titulo: "Recordatorio", texto: "Haz backup con frecuencia desde el menú: el archivo incluye registros, datos personales y todo lo necesario para reconstruir el banco de horas al restaurar." }
   ];
 
   let devDiaForzado = null;
@@ -3473,10 +3473,7 @@ if (btnBackup) {
       state.config.vacacionesDiasPrevio = Math.max(0, !isNaN(vp) ? vp : (state.config.vacacionesDiasPrevio || 0));
     }
 
-    const desde = exportDesde && exportDesde.value ? exportDesde.value : null;
-    const hasta = exportHasta && exportHasta.value ? exportHasta.value : null;
-    const options = (desde || hasta) ? { fromISO: desde || undefined, toISO: hasta || undefined } : undefined;
-    const json = exportBackup(state, options);
+    const json = exportBackup(state, { fechaReferenciaISO: getHoyISO() });
 
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);

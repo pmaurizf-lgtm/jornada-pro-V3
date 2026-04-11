@@ -66,4 +66,5 @@ export function validateState(state) {
   if (!state.extensionJornada || typeof state.extensionJornada !== "object") state.extensionJornada = null;
   if (typeof state.modoPlof !== "boolean") state.modoPlof = false;
   if (!state.plofAgenda || typeof state.plofAgenda !== "object") state.plofAgenda = {};
+  if (!state.agenda || typeof state.agenda !== "object") state.agenda = {};
 }
