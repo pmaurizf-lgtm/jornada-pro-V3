@@ -27,7 +27,7 @@ export function createInitialState() {
       notificationsEnabled: true,
       trabajoATurnos: false,
       turno: "06-14",
-      /** Modo Noruega (GP3/GP4): horario fijo y TxT automático en un rango de fechas. */
+      /** Trabajos en Noruega (GP3/GP4): horario fijo y TxT automático en un rango de fechas. */
       modoNoruega: false,
       modoNoruegaDesde: "",
       modoNoruegaHasta: "",

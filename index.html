@@ -14,10 +14,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">  
 
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="styles.css?v=4">
+<link rel="stylesheet" href="styles.css?v=7">
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=3"></script>
+<script type="module" src="app.js?v=4"></script>
 </head>
 
 <body>
@@ -480,10 +480,17 @@
       <summary class="config-summary">Configuración de Jornada</summary>
       <div class="config-details-body">
         <div class="config-block config-block-turnos">
-          <label class="config-row config-toggle-row">
-            <input type="checkbox" id="cfgTrabajoTurnos" class="config-checkbox">
-            <span class="config-label">Trabajo a turnos</span>
-          </label>
+          <div class="config-row config-row--switch">
+            <span class="config-label" id="labelCfgTrabajoTurnos">Trabajo a turnos</span>
+            <label class="config-switch">
+              <input type="checkbox" id="cfgTrabajoTurnos" class="config-switch-input" role="switch" aria-labelledby="labelCfgTrabajoTurnos">
+              <span class="config-switch-track" aria-hidden="true">
+                <span class="config-switch-text config-switch-text--on">Sí</span>
+                <span class="config-switch-text config-switch-text--off">No</span>
+                <span class="config-switch-thumb"></span>
+              </span>
+            </label>
+          </div>
           <div id="configTurnoWrap" class="config-turno-wrap" hidden>
             <label class="config-row">
               <span class="config-label">Turno</span>
@@ -496,19 +503,26 @@
           </div>
         </div>
         <div id="configModoNoruegaWrap" class="config-block config-block-noruega" hidden>
-          <label class="config-row config-toggle-row">
-            <input type="checkbox" id="cfgModoNoruega" class="config-checkbox">
-            <span class="config-label">Modo Noruega</span>
-          </label>
-          <p class="config-hint">Solo GP3/GP4. Lun–Vie 07:00–19:00 (4 h TxT + 21 min exceso/día); Sáb 08:00–14:00 (8 h TxT). No requiere iniciar jornada. Los días se pueden editar después en el calendario. La fecha de fin es opcional: si no la indicas, el modo sigue activo hasta que pongas una fecha de fin o desactives el modo.</p>
+          <div class="config-row config-row--switch">
+            <span class="config-label" id="labelCfgModoNoruega">Trabajos en Noruega</span>
+            <label class="config-switch">
+              <input type="checkbox" id="cfgModoNoruega" class="config-switch-input" role="switch" aria-labelledby="labelCfgModoNoruega">
+              <span class="config-switch-track" aria-hidden="true">
+                <span class="config-switch-text config-switch-text--on">Sí</span>
+                <span class="config-switch-text config-switch-text--off">No</span>
+                <span class="config-switch-thumb"></span>
+              </span>
+            </label>
+          </div>
+          <p class="config-hint">Solo GP3/GP4. Lun–Vie 07:00–19:00 (4 h TxT + 21 min exceso/día); Sáb 08:00–14:00 (8 h TxT). No requiere iniciar jornada. Los días se pueden editar después en el calendario. La fecha de fin es opcional: si no la indicas, la opción Trabajos en Noruega permanece activa hasta que pongas una fecha de fin o la desactives.</p>
           <div id="configModoNoruegaFechasWrap" class="config-noruega-fechas" hidden>
             <label class="config-row">
-              <span class="config-label">Inicio del modo</span>
-              <input type="date" id="cfgModoNoruegaDesde" class="config-input config-input-date" aria-label="Fecha inicio modo Noruega">
+              <span class="config-label">Inicio (Trabajos en Noruega)</span>
+              <input type="date" id="cfgModoNoruegaDesde" class="config-input config-input-date" aria-label="Fecha inicio Trabajos en Noruega">
             </label>
             <label class="config-row">
-              <span class="config-label">Fin del modo (opcional)</span>
-              <input type="date" id="cfgModoNoruegaHasta" class="config-input config-input-date" aria-label="Fecha fin modo Noruega (opcional)">
+              <span class="config-label">Fin (opcional)</span>
+              <input type="date" id="cfgModoNoruegaHasta" class="config-input config-input-date" aria-label="Fecha fin Trabajos en Noruega (opcional)">
             </label>
           </div>
         </div>
@@ -595,7 +609,7 @@
       <summary class="config-summary">Acerca de</summary>
       <div class="config-details-body">
         <div class="config-app-info">
-          <span class="config-app-name">Jornada Pro</span> <span id="configAppVersion" class="config-app-version config-version-tap">v1.2</span>
+          <span class="config-app-name">Jornada Pro</span> <span id="configAppVersion" class="config-app-version config-version-tap">v1.3</span>
           <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap">Autor</span>: Pablo Mouriz Fontao</div>
         </div>
         <div class="config-contacto">
@@ -606,7 +620,7 @@
     </details>
 
     <div class="config-app-info config-app-info-footer" aria-hidden="true">
-      <span class="config-app-name">Jornada Pro</span> <span id="configAppVersionFooter" class="config-app-version">v1.2</span>
+      <span class="config-app-name">Jornada Pro</span> <span id="configAppVersionFooter" class="config-app-version">v1.3</span>
     </div>
     <div id="configDevMenu" class="config-dev-menu" hidden>
       <p class="config-dev-title">Desarrollador</p>

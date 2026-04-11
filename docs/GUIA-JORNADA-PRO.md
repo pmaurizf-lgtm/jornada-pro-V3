@@ -1,7 +1,8 @@
 # Guía de uso – Jornada Pro
 
-**Jornada Pro** – Control de jornada laboral  
-**Autor:** Pablo Mouriz Fontao
+**Jornada Pro** v1.3 – Control de jornada laboral  
+**Autor:** Pablo Mouriz Fontao  
+**Versión de la guía:** 1.3 (abril 2026)
 
 ---
 
@@ -33,7 +34,7 @@ Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración
 
 ## 3. Pantalla principal
 
-- **Cabecera:** título de la app, logo y botón de menú (☰) para abrir **Configuración**.
+- **Cabecera:** título de la app, logo y botón de menú (☰) para abrir **Configuración**. La interfaz usa **tarjetas** con fondo en capas, cabecera y modales renovados (v1.3).
 - **Registro diario:** formulario con fecha, entrada, salida y acciones: **Iniciar jornada**, **Finalizar**, **Guardar**, **Vacaciones**, **LD** (Libre Disposición), **Disfr. TxT**, **Disfr. exceso** (solo GP3/GP4), **Licencias Retribuidas**, **Eliminar**.
 - **Salidas teórica y ajustada:** se calculan en función de la jornada configurada.
 - **Barra de progreso:** indica el avance del día respecto a la jornada nominal (o horas extra en modo extensión para GP3/GP4). Muestra las horas trabajadas, el porcentaje y el **tiempo que queda** hasta el fin de la jornada («Quedan Xh XXm»). El texto está adaptado para leerse bien tanto cuando la barra está poco llena como cuando está casi completa.
@@ -239,6 +240,7 @@ El calendario tiene **cuatro vistas** (pestañas): **Mes**, **Semana**, **Día**
   - **🎫:** día marcado como licencia retribuida (Licencias Retribuidas); el icono aparece centrado y destacado en la celda.
   - **🏖️:** día marcado como vacaciones.
   - **🕶️:** día de Libre Disposición.
+  - **🇳🇴:** día cubierto por **Trabajos en Noruega** (solo GP3/GP4 cuando ese modo está activo y el día entra en el periodo configurado). La leyenda del calendario incluye este icono.
 - **Festivos:** se muestran resaltados (nacional, Galicia, Ferrol). Pulsar en un festivo muestra su nombre.
 - Sábados y domingos tienen un estilo diferenciado.
 
@@ -321,7 +323,7 @@ El saldo inicial (horas extra previas, exceso previo, días de vacaciones previo
 
 ## 8. Configuración
 
-Se abre desde el **menú (☰)** de la cabecera. Está organizada en bloques desplegables:
+Se abre desde el **menú (☰)** de la cabecera. Está organizada en bloques desplegables. Donde aplique, **Trabajo a turnos** y **Trabajos en Noruega** usan **interruptores** tipo píldora con etiquetas **Sí** / **No**.
 
 ### 8.1 Datos personales
 
@@ -341,8 +343,9 @@ Se abre desde el **menú (☰)** de la cabecera. Está organizada en bloques des
 ### 8.3 Configuración de jornada
 
 - **Jornada (min):** duración nominal de la jornada en minutos (p. ej. 459 para 7h 39min).
-- **Trabajo a turnos:** activar si trabajas por turnos.
+- **Trabajo a turnos:** activar si trabajas por turnos (interruptor Sí/No).
 - **Turno:** elegir horario (06-14, 14-22, 22-06) cuando turnos está activo.
+- **Trabajos en Noruega** (solo **GP3/GP4**): modo para periodos de trabajo en Noruega. Al activarlo (interruptor Sí/No) indicas **fecha de inicio** y, opcionalmente, **fecha de fin**. La app rellena los días laborables del intervalo con el horario convenido (lunes a viernes y sábados según reglas), genera TxT y exceso como corresponda y **no exige** usar **«Iniciar jornada»** en esos días; puedes **editar cualquier día** en el calendario si hace falta. Si activas Trabajos en Noruega, el trabajo a turnos se desactiva (y al revés).
 - **Saldo previo (antes de usar la app):**
   - **Horas extra previas / Exceso de jornada previas:** (solo GP3/GP4) saldo que arrastras de antes de usar la app.
   - **Días de vacaciones previos:** corresponden al año anterior; se suman al total disponible de vacaciones.
@@ -352,10 +355,10 @@ Se abre desde el **menú (☰)** de la cabecera. Está organizada en bloques des
 ### 8.4 Copia de datos y seguridad
 
 - **Indicador de backup:** encima de los botones de exportación se muestra el **último backup** («Último backup: hoy» / «hace X días» o «Aún no has hecho ningún backup…»). La app también te recuerda periódicamente (p. ej. cada 7 días) que hagas una copia de seguridad.
-- **Rango (opcional):** puedes indicar fechas «Desde» y «Hasta» para limitar los datos exportados. Los botones **«Mes actual»** y **«Año actual»** rellenan ese rango y lanzan la exportación a Excel con un solo clic.
+- **Rango (opcional):** fechas «Desde» y «Hasta» con atajos **«Mes actual»** y **«Año actual»**. Este rango aplica a **Exportar Excel** e **Informe PDF (mes)** para limitar qué días entran en esos archivos.
 - **Exportar Excel:** descarga una hoja con los registros (fechas, tipo de día, entradas, salidas, generadas, exceso, negativas, disfrutadas, vacaciones, LD, etc.). Si has puesto rango, solo se exportan esos días.
-- **Backup:** descarga un archivo JSON con todos los datos (registros, configuración, banco, etc.). Si has puesto rango, el backup puede limitarse a ese intervalo. Tras descargar, se actualiza la fecha del «último backup».
-- **Informe PDF (mes):** genera un informe en PDF del mes para imprimir o guardar.
+- **Backup:** descarga un archivo **JSON** que incluye **siempre todo el estado** de la app (registros, configuración, datos personales, vacaciones/LD, agenda, etc.), para que al **restaurar** el banco de horas y el resto coincidan con lo que tenías. El rango de fechas **no** limita el contenido del backup. El JSON puede incluir un bloque **`backupMeta`** con un resumen del banco en la fecha de la copia (solo informativo; al restaurar no se guarda como dato persistente aparte). Tras descargar, se actualiza la fecha del «último backup».
+- **Informe PDF (mes):** genera un informe en PDF del mes para imprimir o guardar (respeta el rango si lo has definido para la exportación).
 - **Restaurar:** sube un archivo de backup (JSON) para recuperar un estado guardado. Si hay datos locales más recientes, la app te pregunta si quieres sobrescribir.
 - **Restaurar valores de fábrica:** borra todos los datos y deja la app como recién instalada. Se pide confirmación antes de ejecutar.
 - **Borrar todos los datos:** borra registros, configuración, banco y datos personales de forma permanente. Se pide **doble confirmación**: debes marcar la casilla «Entiendo que se borrará todo de forma permanente» y pulsar «Borrar todo». Tras confirmar, la app se reinicia con estado inicial.
@@ -365,7 +368,7 @@ Se abre desde el **menú (☰)** de la cabecera. Está organizada en bloques des
 ### 8.5 Guía e instalación
 
 - **Ver guía de la app:** abre esta guía en una nueva pestaña.
-- **Qué hay de nuevo:** abre un modal con el **changelog** (versiones y novedades de la aplicación).
+- **Qué hay de nuevo:** abre un modal con el **changelog** (versiones y novedades; incluye detalles de la v1.3, p. ej. Trabajos en Noruega, backup completo, interfaz).
 - **Añadir a pantalla de inicio (iOS):** abre un modal con las instrucciones para instalar la app en iPhone o iPad (Safari → Compartir → «Añadir a la pantalla de inicio»). Así tendrás el icono de Jornada Pro en la pantalla de inicio como una app.
 
 Al final del panel aparecen el nombre de la app, la versión y el autor (Acerca de).
@@ -450,7 +453,7 @@ En pantallas pequeñas (móvil) la aplicación adapta el diseño para un uso có
 | Ver agenda del año | Calendario → pestaña **Agenda** (lista de eventos del año agrupados por fecha) |
 | Borrar el día | Eliminar (con confirmación) |
 | Cambiar grupo, tema, notificaciones, jornada | Menú ☰ → Configuración |
-| Exportar datos | Configuración → Exportar Excel / Backup (puedes usar «Mes actual» o «Año actual» para el rango) |
+| Exportar datos | Configuración → **Exportar Excel** / **Informe PDF**: rango opcional («Mes actual» / «Año actual»). **Backup** JSON: copia completa siempre; el rango no acorta el backup |
 | Ver novedades | Configuración → Qué hay de nuevo |
 | Instalar en iPhone/iPad | Configuración → Añadir a pantalla de inicio (iOS) |
 | Borrar todo (doble confirmación) | Configuración → Borrar todos los datos |

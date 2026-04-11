@@ -23,7 +23,7 @@ import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.j
 
 import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
 
-const APP_VERSION = "1.2";
+const APP_VERSION = "1.3";
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -620,7 +620,7 @@ if (guardarConfig) {
     const noruegaOk = gpSel === "GP3" || gpSel === "GP4";
     if (cfgModoNoruega && cfgModoNoruega.checked && noruegaOk) {
       if (!cfgModoNoruegaDesde || !cfgModoNoruegaDesde.value) {
-        showToast("Indica la fecha de inicio del modo Noruega.", "error");
+        showToast("Indica la fecha de inicio de Trabajos en Noruega.", "error");
         return;
       }
       const hastaNor = cfgModoNoruegaHasta && cfgModoNoruegaHasta.value ? cfgModoNoruegaHasta.value : "";
@@ -3225,7 +3225,7 @@ function controlarNotificaciones() {
       if (btnIniciarJornada) {
         btnIniciarJornada.hidden = false;
         btnIniciarJornada.disabled = true;
-        btnIniciarJornada.textContent = "Modo Noruega (automático)";
+        btnIniciarJornada.textContent = "Trabajos en Noruega (automático)";
         btnIniciarJornada.classList.remove("btn-finalizar", "btn-continuar");
         btnIniciarJornada.classList.add("btn-iniciar");
       }
@@ -4002,7 +4002,7 @@ if(festivos && festivos[fechaISO]){
         }
         if (registro.modoNoruega) {
           legendActive.noruega = true;
-          saldoHtml += "<span class=\"cal-day-noruega-flag\" aria-label=\"Modo Noruega\">🇳🇴</span>";
+          saldoHtml += "<span class=\"cal-day-noruega-flag\" aria-label=\"Trabajos en Noruega\">🇳🇴</span>";
         }
         div.innerHTML += saldoHtml;
       }
@@ -4034,7 +4034,7 @@ if(festivos && festivos[fechaISO]){
     const items = [];
     if (legendActive.ld) items.push({ icon: "🕶️", text: "Libre disposición" });
     if (legendActive.vacaciones) items.push({ icon: "🏖️", text: "Vacaciones" });
-    if (legendActive.noruega) items.push({ icon: "🇳🇴", text: "Modo Noruega" });
+    if (legendActive.noruega) items.push({ icon: "🇳🇴", text: "Trabajos en Noruega" });
     if (legendActive.disfruteHorasExtra) items.push({ icon: "⏳", text: "Disfr. TxT" });
     if (legendActive.disfruteExceso) items.push({ icon: "🪫", text: "Disfr. exceso" });
     if (legendActive.licencia) items.push({ icon: "🎫", text: "Licencia retribuida" });

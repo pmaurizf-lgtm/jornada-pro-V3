@@ -431,6 +431,113 @@ body.dark .config-summary {
   cursor: pointer;
 }
 
+/* Interruptor tipo píldora (trabajo a turnos, Trabajos en Noruega) */
+.config-row--switch {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.config-row--switch .config-label {
+  flex: 1 1 auto;
+  margin-right: 0.5rem;
+}
+
+.config-switch {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.config-switch-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+
+.config-switch-track {
+  position: relative;
+  display: block;
+  width: 3.5rem;
+  height: 1.85rem;
+  border-radius: 999px;
+  background: #3d4248;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: background 0.22s ease;
+}
+
+.config-switch-input:checked + .config-switch-track {
+  background: #2fb8a8;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.config-switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 2;
+}
+
+.config-switch-input:checked + .config-switch-track .config-switch-thumb {
+  transform: translateX(1.52rem);
+}
+
+.config-switch-text {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  pointer-events: none;
+  z-index: 1;
+  line-height: 1;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+}
+
+.config-switch-text--on {
+  left: 7px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.config-switch-text--off {
+  right: 7px;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+.config-switch-input:checked + .config-switch-track .config-switch-text--on {
+  opacity: 1;
+}
+
+.config-switch-input:checked + .config-switch-track .config-switch-text--off {
+  opacity: 0;
+}
+
+.config-switch-input:focus-visible + .config-switch-track {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 3px;
+}
+
+body.dark .config-switch-track {
+  background: #2c2f36;
+}
+
+body.dark .config-switch-input:checked + .config-switch-track {
+  background: #1fa89a;
+}
+
 .config-turno-wrap {
   margin-top: 0.5rem;
   margin-left: 1.75rem;
