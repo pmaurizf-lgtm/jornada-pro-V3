@@ -367,6 +367,128 @@ body.dark .config-summary {
   margin-bottom: 0;
 }
 
+/* Líneas horizontales entre subsecciones dentro de cada <details> de configuración */
+.config-details-body > .config-block + .config-block {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  margin-top: 0.25rem;
+}
+
+body.dark .config-details-body > .config-block + .config-block {
+  border-top-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Trabajos en Noruega: separar interruptor + texto de fechas */
+.config-block-noruega .config-row--switch + .config-hint {
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.config-block-noruega .config-noruega-fechas {
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+body.dark .config-block-noruega .config-row--switch + .config-hint,
+body.dark .config-block-noruega .config-noruega-fechas {
+  border-top-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Saldo previo: grupos horas extra/exceso | vacaciones | LD | acciones */
+.config-iniciales #configSaldoHorasExtraWrap .config-row + .config-row {
+  border-top: 1px solid var(--border);
+  padding-top: 0.65rem;
+  margin-top: 0.35rem;
+}
+
+.config-iniciales #configSaldoHorasExtraWrap {
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.config-iniciales #configSaldoHorasExtraWrap[style*="display: none"] {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.config-iniciales #configSaldoHorasExtraWrap + label.config-row {
+  padding-top: 0.75rem;
+  margin-top: 0;
+}
+
+.config-iniciales #configSaldoHorasExtraWrap[style*="display: none"] + label.config-row {
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.config-iniciales p.config-hint-vacaciones + label.config-row {
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  margin-top: 0.65rem;
+}
+
+.config-iniciales #configResetSaldoWrap {
+  border-top: 1px solid var(--border);
+  padding-top: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+body.dark .config-iniciales #configSaldoHorasExtraWrap .config-row + .config-row,
+body.dark .config-iniciales #configSaldoHorasExtraWrap[style*="display: none"] + label.config-row,
+body.dark .config-iniciales p.config-hint-vacaciones + label.config-row,
+body.dark .config-iniciales #configResetSaldoWrap {
+  border-top-color: rgba(255, 255, 255, 0.14);
+}
+
+body.dark .config-iniciales #configSaldoHorasExtraWrap {
+  border-bottom-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Copia de datos: rango y botones */
+.config-details-body > p.config-hint + .config-export-range {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  margin-top: 0.75rem;
+}
+
+.config-details-body > .config-export-range + .config-actions {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  margin-top: 0.75rem;
+}
+
+body.dark .config-details-body > p.config-hint + .config-export-range,
+body.dark .config-details-body > .config-export-range + .config-actions {
+  border-top-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Seguridad: PIN y botón */
+.config-details-body > .config-toggle-row + .config-actions {
+  border-top: 1px solid var(--border);
+  padding-top: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+body.dark .config-details-body > .config-toggle-row + .config-actions {
+  border-top-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Acerca de: contacto */
+.config-details-about .config-app-info + .config-contacto {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  margin-top: 0.75rem;
+}
+
+body.dark .config-details-about .config-app-info + .config-contacto {
+  border-top-color: rgba(255, 255, 255, 0.14);
+}
+
 .config-input-full {
   max-width: none;
 }
