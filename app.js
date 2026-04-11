@@ -23,7 +23,7 @@ import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.j
 
 import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
 
-const APP_VERSION = "1.3.0";
+const APP_VERSION = "1.3.1";
 
 document.addEventListener("DOMContentLoaded", () => {
 
