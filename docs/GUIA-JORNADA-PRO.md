@@ -305,7 +305,7 @@ La sección de métricas tiene **dos pestañas**:
   - **Desplegable «Desglose mes»** (cerrado por defecto): selector de **Mes** (Enero a Diciembre) del **año en curso**. Al abrirlo: **TxT generado**, **Exceso de jornada**, **Horas TxT gastadas** y **Horas exceso jornada gastadas** correspondientes al mes elegido (mismo formato en tres filas).
   - Los saldos TxT y exceso se calculan por separado: las negativas al salir antes o fin de jornada se asignan a TxT o a exceso según lo que elijas en el modal «¿De qué saldo se descuenta?».
 
-El saldo inicial (horas extra previas, exceso previo, días de vacaciones previos y días de Libre disposición previos) se configura en **Configuración → Configuración de jornada**. El botón **«Resetear saldo previo»** pone a cero las horas extra previas, el exceso previo y los días LD previos del año en curso (solo GP3/GP4 para horas/exceso; LD aplica a todos los grupos).
+El saldo inicial (horas extra previas, exceso previo, días de vacaciones previos y días de Libre disposición previos) se configura en **Configuración → Configuración de jornada**. En **GP3/GP4**, las horas extra previas y el exceso de jornada previo deben reflejar el saldo que tenías en el **banco de horas de empresa** en el momento en que los introduces (según expediente o nómina), **independientemente** de cómo se repartan en el calendario las horas positivas o negativas; la app suma ese saldo al total calculado con los registros del calendario. El botón **«Resetear saldo previo»** pone a cero las horas extra previas, el exceso previo y los días LD previos del año en curso (solo GP3/GP4 para horas/exceso; LD aplica a todos los grupos).
 
 ### 6.2 Pestaña «Vacaciones/LD»
 
@@ -347,7 +347,7 @@ Se abre desde el **menú (☰)** de la cabecera. Está organizada en bloques des
 - **Turno:** elegir horario (06-14, 14-22, 22-06) cuando turnos está activo.
 - **Trabajos en Noruega** (solo **GP3/GP4**): modo para periodos de trabajo en Noruega. Al activarlo (interruptor Sí/No) indicas **fecha de inicio** y, opcionalmente, **fecha de fin**. La app rellena los días laborables del intervalo con el horario convenido (lunes a viernes y sábados según reglas), genera TxT y exceso como corresponda y **no exige** usar **«Iniciar jornada»** en esos días; puedes **editar cualquier día** en el calendario si hace falta. Si activas Trabajos en Noruega, el trabajo a turnos se desactiva (y al revés).
 - **Saldo previo (antes de usar la app):**
-  - **Horas extra previas / Exceso de jornada previas:** (solo GP3/GP4) saldo que arrastras de antes de usar la app.
+  - **Horas extra previas / Exceso de jornada previas:** (solo GP3/GP4) saldo del **banco de horas de empresa** en la fecha en que los configuras (repartido entre TxT y exceso según tu expediente). No depende del detalle de horas positivas o negativas ya registradas en el calendario; la app suma estos importes al movimiento obtenido del calendario.
   - **Días de vacaciones previos:** corresponden al año anterior; se suman al total disponible de vacaciones.
   - **Días de Libre disposición previos (año en curso):** días LD que tenías antes de usar la app para el año en curso. También puedes indicarlos en el modal que aparece al elegir el grupo profesional la primera vez, o al usar LD por primera vez en un año.
 - **Resetear saldo previo:** (solo GP3/GP4 para horas/exceso) pone a cero las horas extra previas, el exceso previo y los días de Libre disposición previos del año en curso.
