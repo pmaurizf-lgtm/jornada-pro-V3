@@ -576,7 +576,7 @@
           <div id="configResetSaldoWrap" class="config-row config-row-reset">
             <button type="button" id="resetSaldoPrevio" class="config-btn config-btn-reset">Resetear saldo previo</button>
           </div>
-          <p class="config-hint"><strong>Horas extra y exceso previos (GP3/GP4):</strong> corresponden al saldo del <strong>banco de horas de empresa</strong> en la fecha en que los configuras (expediente o nómina), repartido entre ambos conceptos. Es independiente de cómo se repartan en el calendario las horas positivas o negativas; la app <strong>suma</strong> estos importes al movimiento calculado con el calendario.</p>
+          <p class="config-hint"><strong>Banco de horas (GP3/GP4):</strong> En la pestaña del banco, <strong>Saldo previo TxT / exc. jornada (configurado)</strong> muestra <strong>solo</strong> lo que escribes aquí. Debajo, <strong>Total disponible (previo + calendario)</strong> suma el movimiento del calendario <strong>desde la fecha en que guardas</strong> este saldo (los días anteriores en el calendario no cuentan para el banco). Si cambias horas extra o exceso previo, la fecha de inicio se actualiza al día del guardado. <strong>GP1/GP2:</strong> misma regla para el total con calendario.</p>
           <p class="config-hint">Vacaciones y LD previos se suman al total disponible según las reglas de cada bloque (independiente del año en el desglose anual de horas).</p>
         </div>
       </div>
@@ -838,7 +838,15 @@
       <strong id="rTrabajadoMin">--</strong>
     </div>
     <div class="resumen-line">
-      <span class="resumen-label-bolsa">Bolsa de autorregulación <small class="bolsa-experimental">(implantación experimental)</small></span>
+      <span class="resumen-label-bolsa">Saldo previo configurado <small class="bolsa-experimental">(implantación experimental)</small></span>
+      <strong id="rBancoMinutosSoloPrevio">--</strong>
+    </div>
+    <div class="resumen-line">
+      <span>Total (previo + calendario)</span>
+      <strong id="rBancoMinutosTotal">--</strong>
+    </div>
+    <div class="resumen-line">
+      <span>Esta semana (calendario)</span>
       <strong id="rBancoMinutosSemana">--</strong>
     </div>
     <div class="resumen-line">
@@ -940,15 +948,39 @@
     <!-- Modo minutos semanal (GP1/GP2) -->
     <div id="bankPanelMinutosSemana" class="bank-panel-minutos" hidden>
       <div class="metric metric-total">
-        <span class="metric-label-bolsa">Bolsa de autorregulación <small class="bolsa-experimental">(implantación experimental)</small></span>
+        <span class="metric-label-bolsa">Saldo previo configurado <small class="bolsa-experimental">(implantación experimental)</small></span>
+        <strong id="bBancoMinutosSoloPrevio">0h</strong>
+      </div>
+      <div class="metric metric-total">
+        <span>Total (previo + calendario)</span>
+        <strong id="bBancoMinutosAcumulado">0h</strong>
+      </div>
+      <div class="metric metric-total">
+        <span>Esta semana (calendario)</span>
         <strong id="bBancoMinutosSemana">0h</strong>
       </div>
     </div>
     <!-- Modo horas TxT (GP3/GP4) -->
     <div id="bankPanelHorasTxT" class="bank-txt-wrap">
-      <!-- Totales siempre visibles -->
+      <!-- Totales siempre visibles: primero solo lo configurado; debajo el total con calendario -->
       <div class="metric metric-total">
-        <span>Total disponible TxT (Acumulado)</span>
+        <span>Saldo previo TxT (configurado)</span>
+        <div class="metric-value-rows">
+          <strong id="bSaldoPrevioTxT" class="metric-decimal"></strong>
+          <span id="bSaldoPrevioTxTHm" class="metric-hm"></span>
+          <small id="bSaldoPrevioTxTDias" class="metric-dias"></small>
+        </div>
+      </div>
+      <div class="metric metric-total">
+        <span>Saldo previo exc. jornada (configurado)</span>
+        <div class="metric-value-rows">
+          <strong id="bSaldoPrevioExceso" class="metric-decimal"></strong>
+          <span id="bSaldoPrevioExcesoHm" class="metric-hm"></span>
+          <small id="bSaldoPrevioExcesoDias" class="metric-dias"></small>
+        </div>
+      </div>
+      <div class="metric metric-total">
+        <span>Total disponible TxT (previo + calendario)</span>
         <div class="metric-value-rows">
           <strong id="bTotalDisponibleTxT" class="metric-decimal"></strong>
           <span id="bTotalDisponibleTxTHm" class="metric-hm"></span>
@@ -956,7 +988,7 @@
         </div>
       </div>
       <div class="metric metric-total">
-        <span>Total disponible exc. jornada (Acumulado)</span>
+        <span>Total disponible exc. jornada (previo + calendario)</span>
         <div class="metric-value-rows">
           <strong id="bTotalDisponibleExceso" class="metric-decimal"></strong>
           <span id="bTotalDisponibleExcesoHm" class="metric-hm"></span>

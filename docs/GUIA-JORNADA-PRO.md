@@ -41,10 +41,10 @@ Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración
 - **Feedback al guardar:** al guardar un día con el botón «Guardar» se muestra «Día guardado»; al finalizar la jornada con el deslizador se muestra «Datos actualizados».
 - **Resumen del día:**
   - **GP3/GP4:** horas trabajadas, extra, exceso jornada, negativa (en horas y minutos y en decimal).
-  - **GP1/GP2:** trabajado, Bolsa de autorregulación (esta semana), hoy (delta). La bolsa se indica en fase de «implantación experimental».
+  - **GP1/GP2:** trabajado, **saldo previo configurado** (solo minutos previos), **total (previo + calendario)**, **esta semana** (calendario), hoy (delta). La bolsa se indica en fase de «implantación experimental».
 - **Calendario:** cuatro vistas (Mes, Semana, Día, Agenda). Vista mensual con registros, saldos y días festivos; al seleccionar un día aparece el bloque «Agenda del día» para ver y añadir eventos o notas. Vista Semana: cuadrícula con días y franjas horarias; clic en un día o doble clic en una celda para añadir evento. Vista Día: franjas horarias; doble clic en una franja abre el modal con esa hora. Vista **Agenda**: lista de todos los eventos del año actual agrupados por fecha (estilo lista con punto rojo, hora y título). En escritorio, el calendario tiene el mismo ancho que el resto de tarjetas.
 - **Banco (pestañas):**
-  - **Horas TxT** (o **Bolsa de autorregulación** en GP1/GP2): en GP3/GP4 muestra **Total disponible TxT (acumulado)** y **Total disponible exceso de jornada (acumulado)**. Cada contador de horas se muestra en **tres filas** para evitar confusiones: **horas en decimal** (ej. 12,50h), **horas y minutos** (ej. 12h 30m) y **días** (1 día = 459 min). Lo mismo aplica a los desplegables **Desglose anual** (selector de año; TxT generado, exceso, horas TxT gastadas, horas exceso gastadas) y **Desglose mes** (selector de mes del año en curso; mismas métricas por mes). En GP1/GP2 solo la Bolsa de autorregulación de la semana actual (implantación experimental).
+  - **Horas TxT** (o **Bolsa de autorregulación** en GP1/GP2): en GP3/GP4 primero **Saldo previo TxT / exc. jornada (configurado)** (solo lo escrito en configuración), **después** **Total disponible (previo + calendario)** (saldo real con el calendario). Cada contador en **tres filas** (decimal, h+m, días; 1 día = 459 min). Desplegables **Desglose anual** y **Desglose mes** como antes. En GP1/GP2: **Saldo previo configurado**, **Total (previo + calendario)** y **Esta semana** (implantación experimental).
   - **Vacaciones/LD:** días de vacaciones disponibles (año en curso y anterior) y días de Libre Disposición del año en curso.
 - **Gráfico:** evolución del banco de horas en el año seleccionado (**solo GP3/GP4**).
 
@@ -234,7 +234,7 @@ El calendario tiene **cuatro vistas** (pestañas): **Mes**, **Semana**, **Día**
 - **Indicadores en las celdas:**
   - **Triángulo verde con ✓:** jornada completada (entrada y salida registradas).
   - **+X.Xh / −X.Xh:** (modo TxT, GP3/GP4) saldo del día (positivo o negativo respecto a la jornada).
-  - En **modo minutos semanal (GP1/GP2):** se muestra la Bolsa de autorregulación de la semana y el delta del día.
+  - En **modo minutos semanal (GP1/GP2):** saldo previo configurado, total (previo + calendario), bolsa de la semana y delta del día.
   - **Disfr. X.Xh:** horas disfrutadas ese día (GP3/GP4).
   - **🪫 (pila gastada):** día marcado como disfrute de exceso de jornada (Disfr. exceso); el icono aparece centrado y destacado en la celda.
   - **🎫:** día marcado como licencia retribuida (Licencias Retribuidas); el icono aparece centrado y destacado en la celda.
@@ -274,7 +274,7 @@ La sección de métricas tiene **dos pestañas**:
 
 ### 6.1 Pestaña «Horas TxT» (o «Bolsa de autorregulación» en GP1/GP2)
 
-- **Si tu grupo es GP1 o GP2:** se muestra la **Bolsa de autorregulación (esta semana)** (lunes a domingo), indicada en la aplicación como en fase de **implantación experimental**. No hay gráfico ni saldo anual de horas. Los minutos trabajados por encima de la jornada se suman a la bolsa; los trabajados por debajo se descuentan.
+- **Si tu grupo es GP1 o GP2:** primero **saldo previo configurado** (solo minutos de horas extra previas), luego **total (previo + calendario)** y **esta semana** (lunes a domingo, solo calendario), en fase de **implantación experimental**. No hay gráfico ni saldo anual de horas. Los minutos trabajados por encima de la jornada se suman a la bolsa; los trabajados por debajo se descuentan.
 
   **¿Qué significa Bolsa de autorregulación según el Convenio Intercentros 2022-2029?**
 
@@ -305,7 +305,7 @@ La sección de métricas tiene **dos pestañas**:
   - **Desplegable «Desglose mes»** (cerrado por defecto): selector de **Mes** (Enero a Diciembre) del **año en curso**. Al abrirlo: **TxT generado**, **Exceso de jornada**, **Horas TxT gastadas** y **Horas exceso jornada gastadas** correspondientes al mes elegido (mismo formato en tres filas).
   - Los saldos TxT y exceso se calculan por separado: las negativas al salir antes o fin de jornada se asignan a TxT o a exceso según lo que elijas en el modal «¿De qué saldo se descuenta?».
 
-El saldo inicial (horas extra previas, exceso previo, días de vacaciones previos y días de Libre disposición previos) se configura en **Configuración → Configuración de jornada**. En **GP3/GP4**, las horas extra previas y el exceso de jornada previo deben reflejar el saldo que tenías en el **banco de horas de empresa** en el momento en que los introduces (según expediente o nómina), **independientemente** de cómo se repartan en el calendario las horas positivas o negativas; la app suma ese saldo al total calculado con los registros del calendario. El botón **«Resetear saldo previo»** pone a cero las horas extra previas, el exceso previo y los días LD previos del año en curso (solo GP3/GP4 para horas/exceso; LD aplica a todos los grupos).
+El saldo inicial (horas extra previas, exceso previo, días de vacaciones previos y días de Libre disposición previos) se configura en **Configuración → Configuración de jornada**. En **GP3/GP4**, las horas extra previas y el exceso de jornada previo son el saldo que **computa** en el banco como punto de partida; **a partir de ahí**, todo lo que registres en el calendario **se imputa** a ese saldo (suma o resta según generadas, gastadas y negativas). Deben reflejar el **banco de horas de empresa** en el momento en que los configuras (expediente o nómina), repartido entre TxT y exceso. En **GP1/GP2**, el saldo previo en minutos (si aplica) entra en el **total acumulado** de bolsa junto con el calendario. El botón **«Resetear saldo previo»** pone a cero las horas extra previas, el exceso previo y los días LD previos del año en curso (solo GP3/GP4 para horas/exceso; LD aplica a todos los grupos).
 
 ### 6.2 Pestaña «Vacaciones/LD»
 
@@ -347,7 +347,7 @@ Se abre desde el **menú (☰)** de la cabecera. Está organizada en bloques des
 - **Turno:** elegir horario (06-14, 14-22, 22-06) cuando turnos está activo.
 - **Trabajos en Noruega** (solo **GP3/GP4**): modo para periodos de trabajo en Noruega. Al activarlo (interruptor Sí/No) indicas **fecha de inicio** y, opcionalmente, **fecha de fin**. La app rellena los días laborables del intervalo con el horario convenido (lunes a viernes y sábados según reglas), genera TxT y exceso como corresponda y **no exige** usar **«Iniciar jornada»** en esos días; puedes **editar cualquier día** en el calendario si hace falta. Si activas Trabajos en Noruega, el trabajo a turnos se desactiva (y al revés).
 - **Saldo previo (antes de usar la app):**
-  - **Horas extra previas / Exceso de jornada previas:** (solo GP3/GP4) saldo del **banco de horas de empresa** en la fecha en que los configuras (repartido entre TxT y exceso según tu expediente). No depende del detalle de horas positivas o negativas ya registradas en el calendario; la app suma estos importes al movimiento obtenido del calendario.
+  - **Horas extra previas / Exceso de jornada previas:** (solo GP3/GP4) es el saldo que **computa** en el banco como inicial; **a partir de la fecha en que guardas** la configuración, el calendario **imputa** movimientos sobre ese saldo. Los días anteriores **no** entran en el cálculo del banco (aunque sigan visibles en el calendario). Si cambias el valor de horas extra o exceso previo, la fecha de inicio pasa a ser el día del guardado. En GP1/GP2 aplica la misma lógica al total con calendario.
   - **Días de vacaciones previos:** corresponden al año anterior; se suman al total disponible de vacaciones.
   - **Días de Libre disposición previos (año en curso):** días LD que tenías antes de usar la app para el año en curso. También puedes indicarlos en el modal que aparece al elegir el grupo profesional la primera vez, o al usar LD por primera vez en un año.
 - **Resetear saldo previo:** (solo GP3/GP4 para horas/exceso) pone a cero las horas extra previas, el exceso previo y los días de Libre disposición previos del año en curso.

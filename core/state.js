@@ -33,6 +33,8 @@ export function createInitialState() {
       modoNoruegaHasta: "",
       horasExtraInicialMin: 0,
       excesoJornadaInicialMin: 0,
+      /** YYYY-MM-DD: el calendario solo imputa al banco desde esta fecha (tras guardar saldo previo). null = sin filtro (histórico completo). */
+      bancoCalendarioDesde: null,
       /** Saldo de días de vacaciones previo (año 2025) al usar la app. */
       vacacionesDiasPrevio: 0,
       /** Hora del recordatorio de fichar "HH:MM" o "" si no usar. */

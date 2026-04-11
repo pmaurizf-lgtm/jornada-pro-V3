@@ -2,7 +2,15 @@
  * Tests unitarios para core/bank.js
  * Ejecutar con: node tests/core/bank.test.mjs
  */
-import { calcularSaldoDia, MINUTOS_POR_DIA_JORNADA, calcularResumenPeriodo, calcularResumenAnual, calcularResumenTotal } from "../../core/bank.js";
+import {
+  calcularSaldoDia,
+  MINUTOS_POR_DIA_JORNADA,
+  calcularResumenPeriodo,
+  calcularResumenAnual,
+  calcularResumenTotal,
+  calcularBancoMinutosAcumuladoGP12,
+  registrosEfectivosParaBanco
+} from "../../core/bank.js";
 
 function assert(cond, msg) {
   if (!cond) throw new Error(msg || "Assertion failed");
@@ -31,5 +39,28 @@ assert(anual.saldo === 75, "resumen anual saldo 75");
 
 const total = calcularResumenTotal(registros);
 assert(total.saldo === 75, "resumen total saldo 75");
+
+const stateGp12 = {
+  config: { horasExtraInicialMin: 120 },
+  registros: {
+    "2025-01-15": { extraGeneradaMin: 30, negativaMin: 15 },
+    "2025-01-16": { extraGeneradaMin: 30, negativaMin: 0 }
+  }
+};
+assert(
+  calcularBancoMinutosAcumuladoGP12(stateGp12) === 120 + 30 - 15 + 30,
+  "GP12 acumulado = inicial + sum(extra-neg)"
+);
+
+const stateFiltrado = {
+  config: { horasExtraInicialMin: 0, bancoCalendarioDesde: "2025-02-01" },
+  registros: {
+    "2025-01-10": { extraGeneradaMin: 999, negativaMin: 0 },
+    "2025-02-05": { extraGeneradaMin: 10, negativaMin: 0 }
+  }
+};
+const rf = registrosEfectivosParaBanco(stateFiltrado);
+assert(Object.keys(rf).length === 1 && rf["2025-02-05"], "filtra registros anteriores a bancoCalendarioDesde");
+assert(calcularResumenTotal(rf).generadas === 10, "resumen solo post-desde");
 
 console.log("✓ bank.test.mjs: todos los tests pasaron");

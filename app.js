@@ -5,7 +5,14 @@
 import { loadState, saveState, exportBackup, importBackup } from "./core/storage.js";
 import { createInitialState } from "./core/state.js";
 import { calcularJornada, minutesToTime, timeToMinutes, extraEnBloques15, calcularTxTFinDeSemanaYFestivos } from "./core/calculations.js";
-import { calcularResumenAnual, calcularResumenMensual, calcularResumenTotal, MINUTOS_POR_DIA_JORNADA } from "./core/bank.js";
+import {
+  calcularResumenAnual,
+  calcularResumenMensual,
+  calcularResumenTotal,
+  MINUTOS_POR_DIA_JORNADA,
+  calcularBancoMinutosAcumuladoGP12,
+  registrosEfectivosParaBanco
+} from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
 import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
 import {
@@ -172,6 +179,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const selectBankYear = document.getElementById("selectBankYear");
   const selectBankMonth = document.getElementById("selectBankMonth");
+  const bSaldoPrevioTxT = document.getElementById("bSaldoPrevioTxT");
+  const bSaldoPrevioTxTHm = document.getElementById("bSaldoPrevioTxTHm");
+  const bSaldoPrevioTxTDias = document.getElementById("bSaldoPrevioTxTDias");
+  const bSaldoPrevioExceso = document.getElementById("bSaldoPrevioExceso");
+  const bSaldoPrevioExcesoHm = document.getElementById("bSaldoPrevioExcesoHm");
+  const bSaldoPrevioExcesoDias = document.getElementById("bSaldoPrevioExcesoDias");
   const bTotalDisponibleTxT = document.getElementById("bTotalDisponibleTxT");
   const bTotalDisponibleTxTHm = document.getElementById("bTotalDisponibleTxTHm");
   const bTotalDisponibleTxTDias = document.getElementById("bTotalDisponibleTxTDias");
@@ -236,6 +249,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const bankPanelHoras = document.getElementById("bankPanelHoras");
   const bankPanelHorasTxT = document.getElementById("bankPanelHorasTxT");
   const bankPanelMinutosSemana = document.getElementById("bankPanelMinutosSemana");
+  const bBancoMinutosSoloPrevio = document.getElementById("bBancoMinutosSoloPrevio");
+  const bBancoMinutosAcumulado = document.getElementById("bBancoMinutosAcumulado");
   const bBancoMinutosSemana = document.getElementById("bBancoMinutosSemana");
   const bankPanelVacaciones = document.getElementById("bankPanelVacaciones");
   const configSaldoHorasExtraWrap = document.getElementById("configSaldoHorasExtraWrap");
@@ -244,6 +259,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const resumenDiaHorasWrap = document.getElementById("resumenDiaHorasWrap");
   const resumenDiaMinutosWrap = document.getElementById("resumenDiaMinutosWrap");
   const rTrabajadoMin = document.getElementById("rTrabajadoMin");
+  const rBancoMinutosSoloPrevio = document.getElementById("rBancoMinutosSoloPrevio");
+  const rBancoMinutosTotal = document.getElementById("rBancoMinutosTotal");
   const rBancoMinutosSemana = document.getElementById("rBancoMinutosSemana");
   const rHoyDelta = document.getElementById("rHoyDelta");
   const bVacacionesTotal = document.getElementById("bVacacionesTotal");
@@ -699,7 +716,18 @@ function aplicarSimboloPlof(symbol) {
 if (guardarConfig) {
   guardarConfig.addEventListener("click", () => {
 
+    const prevH = state.config.horasExtraInicialMin || 0;
+    const prevE = state.config.excesoJornadaInicialMin || 0;
     if (!sincronizarConfiguracionDesdeFormulario()) return;
+    const newH = state.config.horasExtraInicialMin || 0;
+    const newE = state.config.excesoJornadaInicialMin || 0;
+    if (newH === 0 && newE === 0) {
+      state.config.bancoCalendarioDesde = null;
+    } else if (prevH !== newH || prevE !== newE) {
+      state.config.bancoCalendarioDesde = getHoyISO();
+    } else if (!state.config.bancoCalendarioDesde && (newH || newE)) {
+      state.config.bancoCalendarioDesde = getHoyISO();
+    }
 
     saveState(state);
 
@@ -725,6 +753,7 @@ if (guardarConfig) {
     btnResetSaldoPrevio.addEventListener("click", () => {
       state.config.horasExtraInicialMin = 0;
       state.config.excesoJornadaInicialMin = 0;
+      state.config.bancoCalendarioDesde = null;
       const anioCurso = new Date().getFullYear();
       state.ldDiasPorAnio = state.ldDiasPorAnio && typeof state.ldDiasPorAnio === "object" ? { ...state.ldDiasPorAnio, [anioCurso]: 0 } : {};
       saveState(state);
@@ -798,6 +827,16 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
       if (resumenDiaMinutosWrap) resumenDiaMinutosWrap.hidden = false;
       if (rTrabajadoMin) rTrabajadoMin.innerHTML = formatoResumenTiempo(registro.trabajadosMin || 0);
       var bancoSem = calcularBancoMinutosSemana(fecha.value);
+      var bancoTot = calcularBancoMinutosAcumuladoGP12(state);
+      var soloPrevioMin = state.config?.horasExtraInicialMin || 0;
+      if (rBancoMinutosSoloPrevio) {
+        rBancoMinutosSoloPrevio.innerText = (soloPrevioMin >= 0 ? "+" : "") + minutosAHorasMinutos(soloPrevioMin);
+        rBancoMinutosSoloPrevio.style.color = soloPrevioMin >= 0 ? "var(--positive)" : "var(--negative)";
+      }
+      if (rBancoMinutosTotal) {
+        rBancoMinutosTotal.innerText = (bancoTot >= 0 ? "+" : "") + minutosAHorasMinutos(bancoTot);
+        rBancoMinutosTotal.style.color = bancoTot >= 0 ? "var(--positive)" : "var(--negative)";
+      }
       if (rBancoMinutosSemana) {
         rBancoMinutosSemana.innerText = (bancoSem >= 0 ? "+" : "") + minutosAHorasMinutos(bancoSem);
         rBancoMinutosSemana.style.color = bancoSem >= 0 ? "var(--positive)" : "var(--negative)";
@@ -908,7 +947,7 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
   function calcularBancoMinutosSemana(fechaISO) {
     const [lunesStr, domingoStr] = getLunesDomingoSemana(fechaISO);
     let total = 0;
-    const regs = state.registros || {};
+    const regs = registrosEfectivosParaBanco(state);
     const [ly, lm, ld] = lunesStr.split("-").map(Number);
     const [dy, dm, dd] = domingoStr.split("-").map(Number);
     const start = new Date(ly, lm - 1, ld);
@@ -954,10 +993,27 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     aplicarModoGrupoProfesional();
     if (esModoMinutosSemanal()) {
       const hoy = getHoyISO();
-      const bancoMin = calcularBancoMinutosSemana(hoy);
+      const bancoSem = calcularBancoMinutosSemana(hoy);
+      const bancoTot = calcularBancoMinutosAcumuladoGP12(state);
+      const soloPrevioMin = state.config?.horasExtraInicialMin || 0;
+      const fmtSigned = (m) => ({
+        t: (m >= 0 ? "" : "\u2212") + minutosAHorasMinutos(m >= 0 ? m : -m),
+        pos: m >= 0
+      });
+      if (bBancoMinutosSoloPrevio) {
+        const fp = fmtSigned(soloPrevioMin);
+        bBancoMinutosSoloPrevio.innerText = fp.t;
+        bBancoMinutosSoloPrevio.style.color = fp.pos ? "var(--positive)" : "var(--negative)";
+      }
+      if (bBancoMinutosAcumulado) {
+        const ft = fmtSigned(bancoTot);
+        bBancoMinutosAcumulado.innerText = ft.t;
+        bBancoMinutosAcumulado.style.color = ft.pos ? "var(--positive)" : "var(--negative)";
+      }
       if (bBancoMinutosSemana) {
-        bBancoMinutosSemana.innerText = (bancoMin >= 0 ? "" : "\u2212") + minutosAHorasMinutos(bancoMin >= 0 ? bancoMin : -bancoMin);
-        bBancoMinutosSemana.style.color = bancoMin >= 0 ? "var(--positive)" : "var(--negative)";
+        const fs = fmtSigned(bancoSem);
+        bBancoMinutosSemana.innerText = fs.t;
+        bBancoMinutosSemana.style.color = fs.pos ? "var(--positive)" : "var(--negative)";
       }
       actualizarBancoVacaciones();
       return;
@@ -970,17 +1026,38 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
       bankYear = parseInt(selectBankYear.value, 10) || currentYear;
     }
 
-    const total = calcularResumenTotal(state.registros);
+    const regsBanco = registrosEfectivosParaBanco(state);
+    const desde = state.config.bancoCalendarioDesde;
+    const total = calcularResumenTotal(regsBanco);
     const deducciones = state.deduccionesPorAusencia || {};
-    const deduccionTotalMin = Object.values(deducciones).reduce((a, b) => a + b, 0);
-    const deduccionAnualMin = Object.entries(deducciones).filter(([f]) => f.startsWith(String(bankYear))).reduce((s, [, m]) => s + m, 0);
+    const deduccionTotalMin = Object.entries(deducciones)
+      .filter(([f]) => !desde || f >= desde)
+      .reduce((s, [, m]) => s + m, 0);
+    const deduccionAnualMin = Object.entries(deducciones)
+      .filter(([f]) => f.startsWith(String(bankYear)) && (!desde || f >= desde))
+      .reduce((s, [, m]) => s + m, 0);
 
     const inicialExtra = state.config.horasExtraInicialMin || 0;
     const inicialExceso = state.config.excesoJornadaInicialMin || 0;
+    const fmtPrevioTxT = formatoHorasConDias(inicialExtra);
+    if (bSaldoPrevioTxT) {
+      bSaldoPrevioTxT.innerText = fmtPrevioTxT.decimal;
+      bSaldoPrevioTxT.style.color = inicialExtra >= 0 ? "var(--positive)" : "var(--negative)";
+    }
+    if (bSaldoPrevioTxTHm) bSaldoPrevioTxTHm.textContent = fmtPrevioTxT.hm;
+    if (bSaldoPrevioTxTDias) bSaldoPrevioTxTDias.textContent = fmtPrevioTxT.dias;
+    const fmtPrevioExc = formatoHorasConDias(inicialExceso);
+    if (bSaldoPrevioExceso) {
+      bSaldoPrevioExceso.innerText = fmtPrevioExc.decimal;
+      bSaldoPrevioExceso.style.color = inicialExceso >= 0 ? "var(--positive)" : "var(--negative)";
+    }
+    if (bSaldoPrevioExcesoHm) bSaldoPrevioExcesoHm.textContent = fmtPrevioExc.hm;
+    if (bSaldoPrevioExcesoDias) bSaldoPrevioExcesoDias.textContent = fmtPrevioExc.dias;
+
     const saldoTxT = total.generadas - total.disfrutadas - (total.disfruteHorasExtraMin || 0) - total.negativasTxT + inicialExtra;
     const saldoExceso = total.exceso - (total.disfruteExcesoJornadaMin || 0) - total.negativasExceso + inicialExceso;
     const saldoTotalConInicial = saldoTxT + saldoExceso - deduccionTotalMin;
-    const anual = calcularResumenAnual(state.registros, bankYear);
+    const anual = calcularResumenAnual(regsBanco, bankYear);
     anual.saldo -= deduccionAnualMin;
     const gastadasTxTAnual = anual.disfrutadas + (anual.disfruteHorasExtraMin || 0) + anual.negativasTxT;
     const gastadasExcesoAnual = (anual.disfruteExcesoJornadaMin || 0) + anual.negativasExceso;
@@ -1034,7 +1111,7 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
       if (Number.isNaN(bankMonth) || bankMonth < 0 || bankMonth > 11) bankMonth = new Date().getMonth();
       selectBankMonth.value = String(bankMonth);
     }
-    const mensualCurso = calcularResumenMensual(state.registros, bankMonth, anioCurso);
+    const mensualCurso = calcularResumenMensual(regsBanco, bankMonth, anioCurso);
     const gastadasTxTMes = (mensualCurso.disfrutadas || 0) + (mensualCurso.disfruteHorasExtraMin || 0) + (mensualCurso.negativasTxT || 0);
     const gastadasExcesoMes = (mensualCurso.disfruteExcesoJornadaMin || 0) + (mensualCurso.negativasExceso || 0);
 

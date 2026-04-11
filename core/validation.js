@@ -48,6 +48,9 @@ export function validateState(state) {
   if (typeof state.config.excesoJornadaInicialMin !== "number" || state.config.excesoJornadaInicialMin < 0) {
     state.config.excesoJornadaInicialMin = 0;
   }
+  if (state.config.bancoCalendarioDesde != null && typeof state.config.bancoCalendarioDesde !== "string") {
+    state.config.bancoCalendarioDesde = null;
+  }
   if (typeof state.config.vacacionesDiasPrevio !== "number" || state.config.vacacionesDiasPrevio < 0) {
     state.config.vacacionesDiasPrevio = 0;
   }
