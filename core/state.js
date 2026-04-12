@@ -37,6 +37,13 @@ export function createInitialState() {
       regularizacionTxTMin: 0,
       /** Regularización exceso jornada (min): igual que regularizacionTxTMin para el bucket de exceso. */
       regularizacionExcesoMin: 0,
+      /**
+       * Si hay regularización TxT (>0) y esta fecha (YYYY-MM-DD), el total disponible TxT es
+       * regularización + neto calendario TxT solo en fechas >= corte (no suma saldo previo ni días anteriores).
+       */
+      regularizacionTxTCorteFecha: "",
+      /** Igual que regularizacionTxTCorteFecha para el bucket de exceso de jornada. */
+      regularizacionExcesoCorteFecha: "",
       /** Saldo de días de vacaciones previo (año 2025) al usar la app. */
       vacacionesDiasPrevio: 0,
       /** Hora del recordatorio de fichar "HH:MM" o "" si no usar. */

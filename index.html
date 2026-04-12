@@ -564,11 +564,11 @@
             </label>
             <label class="config-row">
               <span class="config-label">Regularización TxT (h)</span>
-              <input type="number" id="cfgRegularizacionTxT" class="config-input" step="0.25" placeholder="0" title="Horas reales disponibles de TxT en el momento de guardar; se suman al previo y al neto del calendario en el total.">
+              <input type="number" id="cfgRegularizacionTxT" class="config-input" step="0.25" placeholder="0" title="Al guardar, el total disponible TxT pasa a ser esta cantidad más solo el calendario desde esa fecha (no suma saldo previo ni días anteriores).">
             </label>
             <label class="config-row">
               <span class="config-label">Regularización exc. jornada (h)</span>
-              <input type="number" id="cfgRegularizacionExceso" class="config-input" step="0.25" placeholder="0" title="Horas reales disponibles de exceso de jornada al guardar; se suman al previo y al neto del calendario en el total.">
+              <input type="number" id="cfgRegularizacionExceso" class="config-input" step="0.25" placeholder="0" title="Al guardar, el total disponible de exceso pasa a ser esta cantidad más solo el calendario desde esa fecha.">
             </label>
           </div>
           <label class="config-row">
@@ -584,7 +584,7 @@
           <div id="configResetSaldoWrap" class="config-row config-row-reset">
             <button type="button" id="resetSaldoPrevio" class="config-btn config-btn-reset">Resetear saldo previo</button>
           </div>
-          <p class="config-hint"><strong>Horas extra / exceso previos:</strong> saldo antes de usar la app. <strong>Regularización TxT / exc.:</strong> las horas <strong>reales disponibles</strong> en el momento en que las guardas; se <strong>suman</strong> al previo y al neto del calendario en el total. Bajo cada total en Horas TxT solo se muestra esa cantidad como «Regularizado». Los desgloses anual y mensual muestran solo movimientos del calendario (balance). <strong>GP1/GP2:</strong> la regularización TxT suma en el total de bolsa.</p>
+          <p class="config-hint"><strong>Horas extra / exceso previos:</strong> saldo antes de usar la app (en GP3/GP4 no entran en el total disponible si tienes regularización guardada). <strong>Regularización TxT / exc.:</strong> al guardar configuración, el total disponible de cada línea queda como esa cantidad más el neto del calendario <strong>desde la fecha de ese guardado</strong> (días anteriores no cuentan para ese total). Bajo cada total solo se muestra «Regularizado». Los desgloses anual y mensual siguen siendo el balance completo del calendario. <strong>GP1/GP2:</strong> misma lógica de corte con la regularización TxT en la bolsa acumulada.</p>
           <p class="config-hint">Vacaciones y LD previos se suman al total disponible según las reglas de cada bloque.</p>
         </div>
       </div>

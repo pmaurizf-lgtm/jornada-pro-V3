@@ -8,9 +8,9 @@ import { calcularJornada, minutesToTime, timeToMinutes, extraEnBloques15, calcul
 import {
   calcularResumenAnual,
   calcularResumenMensual,
-  calcularResumenTotal,
   MINUTOS_POR_DIA_JORNADA,
-  calcularBancoMinutosAcumuladoGP12
+  calcularBancoMinutosAcumuladoGP12,
+  computeSaldosDisponiblesGP34
 } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
 import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
@@ -612,6 +612,11 @@ function aplicarSimboloPlof(symbol) {
 
   /** Incluye nombre, SAP, Noruega, LD, saldos previos, etc. */
   function sincronizarConfiguracionDesdeFormulario() {
+    const prevRegTxt = state.config.regularizacionTxTMin ?? 0;
+    const prevRegExc = state.config.regularizacionExcesoMin ?? 0;
+    const prevCorteTxt = state.config.regularizacionTxTCorteFecha || "";
+    const prevCorteExc = state.config.regularizacionExcesoCorteFecha || "";
+
     state.config.nombreCompleto = (cfgNombreCompleto && cfgNombreCompleto.value) ? cfgNombreCompleto.value.trim() : "";
     let sap = (cfgNumeroSAP && cfgNumeroSAP.value) ? String(cfgNumeroSAP.value).replace(/\D/g, "").slice(0, 8) : "";
     if (sap.length > 0 && sap.length !== 8) {
@@ -656,8 +661,21 @@ function aplicarSimboloPlof(symbol) {
     const parseDecimal = (v) => parseFloat(String(v || "").replace(",", ".")) || 0;
     state.config.horasExtraInicialMin = Math.round(parseDecimal(cfgHorasExtraPrevias?.value) * 60);
     state.config.excesoJornadaInicialMin = Math.round(parseDecimal(cfgExcesoJornadaPrevias?.value) * 60);
-    state.config.regularizacionTxTMin = Math.round(parseDecimal(cfgRegularizacionTxT?.value) * 60);
-    state.config.regularizacionExcesoMin = Math.round(parseDecimal(cfgRegularizacionExceso?.value) * 60);
+    const newRegTxt = Math.round(parseDecimal(cfgRegularizacionTxT?.value) * 60);
+    const newRegExc = Math.round(parseDecimal(cfgRegularizacionExceso?.value) * 60);
+    state.config.regularizacionTxTMin = newRegTxt;
+    state.config.regularizacionExcesoMin = newRegExc;
+    const hoyISO = getHoyISO();
+    if (newRegTxt === 0) {
+      state.config.regularizacionTxTCorteFecha = "";
+    } else if (newRegTxt !== prevRegTxt || !prevCorteTxt) {
+      state.config.regularizacionTxTCorteFecha = hoyISO;
+    }
+    if (newRegExc === 0) {
+      state.config.regularizacionExcesoCorteFecha = "";
+    } else if (newRegExc !== prevRegExc || !prevCorteExc) {
+      state.config.regularizacionExcesoCorteFecha = hoyISO;
+    }
     state.config.vacacionesDiasPrevio = Math.max(0, parseInt(cfgVacacionesDiasPrevio?.value, 10) || 0);
     state.config.recordatorioFicharHora = (cfgRecordatorioFichar && cfgRecordatorioFichar.value) ? cfgRecordatorioFichar.value : "";
     state.config.pinEnabled = cfgPinEnabled ? cfgPinEnabled.checked : false;
@@ -810,6 +828,8 @@ if (guardarConfig) {
       state.config.excesoJornadaInicialMin = 0;
       state.config.regularizacionTxTMin = 0;
       state.config.regularizacionExcesoMin = 0;
+      state.config.regularizacionTxTCorteFecha = "";
+      state.config.regularizacionExcesoCorteFecha = "";
       const anioCurso = new Date().getFullYear();
       state.ldDiasPorAnio = state.ldDiasPorAnio && typeof state.ldDiasPorAnio === "object" ? { ...state.ldDiasPorAnio, [anioCurso]: 0 } : {};
       saveState(state);
@@ -1073,22 +1093,13 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
       bankYear = parseInt(selectBankYear.value, 10) || currentYear;
     }
 
-    const total = calcularResumenTotal(state.registros);
     const deducciones = state.deduccionesPorAusencia || {};
     const deduccionAnualMin = Object.entries(deducciones).filter(([f]) => f.startsWith(String(bankYear))).reduce((s, [, m]) => s + m, 0);
 
-    const inicialExtra = state.config.horasExtraInicialMin || 0;
-    const inicialExceso = state.config.excesoJornadaInicialMin || 0;
     const regTxt = state.config.regularizacionTxTMin || 0;
     const regExc = state.config.regularizacionExcesoMin || 0;
 
-    const netoCalendarioTxT =
-      total.generadas - total.disfrutadas - (total.disfruteHorasExtraMin || 0) - total.negativasTxT;
-    const netoCalendarioExceso =
-      total.exceso - (total.disfruteExcesoJornadaMin || 0) - total.negativasExceso;
-
-    const saldoTxT = netoCalendarioTxT + inicialExtra + regTxt;
-    const saldoExceso = netoCalendarioExceso + inicialExceso + regExc;
+    const { saldoTxTMin: saldoTxT, saldoExcesoJornadaMin: saldoExceso } = computeSaldosDisponiblesGP34(state);
     const anual = calcularResumenAnual(state.registros, bankYear);
     anual.saldo -= deduccionAnualMin;
     const gastadasTxTAnual = anual.disfrutadas + (anual.disfruteHorasExtraMin || 0) + anual.negativasTxT;

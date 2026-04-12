@@ -50,6 +50,8 @@ export function validateState(state) {
   }
   if (typeof state.config.regularizacionTxTMin !== "number") state.config.regularizacionTxTMin = 0;
   if (typeof state.config.regularizacionExcesoMin !== "number") state.config.regularizacionExcesoMin = 0;
+  if (typeof state.config.regularizacionTxTCorteFecha !== "string") state.config.regularizacionTxTCorteFecha = "";
+  if (typeof state.config.regularizacionExcesoCorteFecha !== "string") state.config.regularizacionExcesoCorteFecha = "";
   if ("bancoCalendarioDesde" in state.config) delete state.config.bancoCalendarioDesde;
   if (typeof state.config.vacacionesDiasPrevio !== "number" || state.config.vacacionesDiasPrevio < 0) {
     state.config.vacacionesDiasPrevio = 0;

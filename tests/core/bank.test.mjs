@@ -8,8 +8,10 @@ import {
   calcularResumenPeriodo,
   calcularResumenAnual,
   calcularResumenTotal,
+  calcularResumenDesdeFecha,
   calcularBancoMinutosAcumuladoGP12,
-  computeBancoSnapshotForBackup
+  computeBancoSnapshotForBackup,
+  computeSaldosDisponiblesGP34
 } from "../../core/bank.js";
 
 function assert(cond, msg) {
@@ -71,5 +73,45 @@ assert(
 const snap = computeBancoSnapshotForBackup(stateReg);
 assert(snap.saldoTxTMin === 60 + 120 + 90, "snapshot TxT = inicial + calendario + regularización");
 assert(snap.saldoExcesoJornadaMin === 30, "snapshot exceso = inicial + regularización exc.");
+
+const resDesde = calcularResumenDesdeFecha(registros, "2025-01-16");
+assert(resDesde.generadas === 30, "resumen desde fecha: solo día >= corte");
+
+const stateCorte = {
+  config: {
+    horasExtraInicialMin: 6000,
+    excesoJornadaInicialMin: 3000,
+    regularizacionTxTMin: 90,
+    regularizacionExcesoMin: 30,
+    regularizacionTxTCorteFecha: "2025-06-01",
+    regularizacionExcesoCorteFecha: "2025-06-01"
+  },
+  registros: {
+    "2025-01-10": { extraGeneradaMin: 120, negativaMin: 0, excesoJornadaMin: 50, disfrutadasManualMin: 0 },
+    "2025-06-15": { extraGeneradaMin: 60, negativaMin: 0, excesoJornadaMin: 30, disfrutadasManualMin: 0 }
+  },
+  deduccionesPorAusencia: {}
+};
+const snapCorte = computeBancoSnapshotForBackup(stateCorte);
+assert(snapCorte.saldoTxTMin === 90 + 60, "con corte TxT: regularización + neto solo desde corte (ignora enero y saldo previo)");
+assert(snapCorte.saldoExcesoJornadaMin === 30 + 30, "con corte exceso: reg + neto exc. desde corte");
+const s34 = computeSaldosDisponiblesGP34(stateCorte);
+assert(s34.usarCorteTxT && s34.usarCorteExc, "modo corte activo cuando hay reg y fecha");
+
+const gp12Corte = {
+  config: {
+    horasExtraInicialMin: 999,
+    regularizacionTxTMin: 60,
+    regularizacionTxTCorteFecha: "2025-03-01"
+  },
+  registros: {
+    "2025-01-01": { extraGeneradaMin: 120, negativaMin: 0 },
+    "2025-04-01": { extraGeneradaMin: 30, negativaMin: 10 }
+  }
+};
+assert(
+  calcularBancoMinutosAcumuladoGP12(gp12Corte) === 60 + 20,
+  "GP12 con corte: reg + sum(extra-neg) desde corte, sin inicial"
+);
 
 console.log("✓ bank.test.mjs: todos los tests pasaron");

@@ -109,6 +109,59 @@ export function calcularResumenTotal(registros) {
   return calcularResumenPeriodo(registros, () => true);
 }
 
+/** Resumen solo de días con clave de registro >= desdeISO (YYYY-MM-DD), inclusive. */
+export function calcularResumenDesdeFecha(registros, desdeISO) {
+  if (!desdeISO || typeof desdeISO !== "string" || desdeISO.length < 10) {
+    return calcularResumenTotal(registros);
+  }
+  return calcularResumenPeriodo(registros, (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}` >= desdeISO;
+  });
+}
+
+/**
+ * GP3/GP4: saldos de total disponible coherentes con la UI del banco.
+ * Con regularización >0 y fecha de corte guardada: total = regularización + neto calendario desde el corte (sin saldo previo).
+ * Sin corte (datos antiguos) o regularización 0: total = neto calendario completo + saldo previo + regularización.
+ */
+export function computeSaldosDisponiblesGP34(state) {
+  const registros = state.registros || {};
+  const totalAll = calcularResumenTotal(registros);
+  const inicialExtra = state.config?.horasExtraInicialMin || 0;
+  const inicialExceso = state.config?.excesoJornadaInicialMin || 0;
+  const regTxt = state.config?.regularizacionTxTMin || 0;
+  const regExc = state.config?.regularizacionExcesoMin || 0;
+  const corteTxt = (state.config?.regularizacionTxTCorteFecha || "").trim();
+  const corteExc = (state.config?.regularizacionExcesoCorteFecha || "").trim();
+
+  const usarCorteTxT = regTxt !== 0 && corteTxt.length >= 10;
+  const usarCorteExc = regExc !== 0 && corteExc.length >= 10;
+
+  const totalTxT = usarCorteTxT ? calcularResumenDesdeFecha(registros, corteTxt) : totalAll;
+  const totalExc = usarCorteExc ? calcularResumenDesdeFecha(registros, corteExc) : totalAll;
+
+  const netoCalendarioTxT =
+    totalTxT.generadas -
+    totalTxT.disfrutadas -
+    (totalTxT.disfruteHorasExtraMin || 0) -
+    totalTxT.negativasTxT;
+  const netoCalendarioExceso =
+    totalExc.exceso - (totalExc.disfruteExcesoJornadaMin || 0) - totalExc.negativasExceso;
+
+  const saldoTxTMin = usarCorteTxT ? regTxt + netoCalendarioTxT : netoCalendarioTxT + inicialExtra + regTxt;
+  const saldoExcesoJornadaMin = usarCorteExc ? regExc + netoCalendarioExceso : netoCalendarioExceso + inicialExceso + regExc;
+
+  return {
+    saldoTxTMin,
+    saldoExcesoJornadaMin,
+    usarCorteTxT,
+    usarCorteExc
+  };
+}
+
 /** Lunes y domingo (ISO) de la semana que contiene fechaISO. */
 function getLunesDomingoSemana(fechaISO) {
   const [y, m, d] = fechaISO.split("-").map(Number);
@@ -150,13 +203,17 @@ export function calcularBancoMinutosSemanaState(state, fechaISO) {
 export function calcularBancoMinutosAcumuladoGP12(state) {
   const inicial = state.config?.horasExtraInicialMin || 0;
   const regAdj = state.config?.regularizacionTxTMin || 0;
+  const corteTxt = (state.config?.regularizacionTxTCorteFecha || "").trim();
+  const usarCorte = regAdj !== 0 && corteTxt.length >= 10;
   let sum = 0;
   const regs = state.registros || {};
   for (const iso of Object.keys(regs)) {
+    if (usarCorte && iso < corteTxt) continue;
     const r = regs[iso];
     if (!r || r.vacaciones || r.libreDisposicion || r.disfruteHorasExtra) continue;
     sum += (r.extraGeneradaMin || 0) - (r.negativaMin || 0);
   }
+  if (usarCorte) return regAdj + sum;
   return inicial + sum + regAdj;
 }
 
@@ -169,15 +226,7 @@ export function computeBancoSnapshotForBackup(state) {
   const inicialExceso = state.config?.excesoJornadaInicialMin || 0;
   const regTxt = state.config?.regularizacionTxTMin || 0;
   const regExc = state.config?.regularizacionExcesoMin || 0;
-  const netoCalendarioTxT =
-    total.generadas -
-    total.disfrutadas -
-    (total.disfruteHorasExtraMin || 0) -
-    total.negativasTxT;
-  const netoCalendarioExceso =
-    total.exceso - (total.disfruteExcesoJornadaMin || 0) - total.negativasExceso;
-  const saldoTxT = netoCalendarioTxT + inicialExtra + regTxt;
-  const saldoExceso = netoCalendarioExceso + inicialExceso + regExc;
+  const { saldoTxTMin: saldoTxT, saldoExcesoJornadaMin: saldoExceso } = computeSaldosDisponiblesGP34(state);
   const saldoCombinado = saldoTxT + saldoExceso - deduccionTotalMin;
   return {
     saldoTxTMin: saldoTxT,
