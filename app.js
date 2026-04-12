@@ -1103,11 +1103,9 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     if (bTotalDisponibleTxTHm) bTotalDisponibleTxTHm.textContent = fmtTxT.hm;
     if (bTotalDisponibleTxTDias) bTotalDisponibleTxTDias.textContent = fmtTxT.dias;
     if (bTotalDisponibleTxTComposicion) {
-      const fp = formatoHorasConDias(inicialExtra);
-      const fc = formatoHorasConDias(netoCalendarioTxT);
       const fr = formatoHorasConDias(regTxt);
       bTotalDisponibleTxTComposicion.textContent =
-        "Previo TxT " + fp.decimal + " + Neto calendario " + fc.decimal + " + Regularización " + fr.decimal;
+        "Regularizado TxT: " + fr.decimal + " (" + fr.hm + ", " + fr.dias + ")";
     }
     if (bTotalDisponibleExceso) {
       bTotalDisponibleExceso.innerText = fmtExceso.decimal;
@@ -1116,11 +1114,9 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     if (bTotalDisponibleExcesoHm) bTotalDisponibleExcesoHm.textContent = fmtExceso.hm;
     if (bTotalDisponibleExcesoDias) bTotalDisponibleExcesoDias.textContent = fmtExceso.dias;
     if (bTotalDisponibleExcesoComposicion) {
-      const fpe = formatoHorasConDias(inicialExceso);
-      const fce = formatoHorasConDias(netoCalendarioExceso);
       const fre = formatoHorasConDias(regExc);
       bTotalDisponibleExcesoComposicion.textContent =
-        "Previo exc. " + fpe.decimal + " + Neto calendario " + fce.decimal + " + Regularización " + fre.decimal;
+        "Regularizado exc. jornada: " + fre.decimal + " (" + fre.hm + ", " + fre.dias + ")";
     }
 
     const fmtGen = formatoHorasConDias(anual.generadas);
