@@ -169,15 +169,15 @@ export function computeBancoSnapshotForBackup(state) {
   const inicialExceso = state.config?.excesoJornadaInicialMin || 0;
   const regTxt = state.config?.regularizacionTxTMin || 0;
   const regExc = state.config?.regularizacionExcesoMin || 0;
-  const saldoTxT =
+  const netoCalendarioTxT =
     total.generadas -
     total.disfrutadas -
     (total.disfruteHorasExtraMin || 0) -
-    total.negativasTxT +
-    inicialExtra +
-    regTxt;
-  const saldoExceso =
-    total.exceso - (total.disfruteExcesoJornadaMin || 0) - total.negativasExceso + inicialExceso + regExc;
+    total.negativasTxT;
+  const netoCalendarioExceso =
+    total.exceso - (total.disfruteExcesoJornadaMin || 0) - total.negativasExceso;
+  const saldoTxT = netoCalendarioTxT + inicialExtra + regTxt;
+  const saldoExceso = netoCalendarioExceso + inicialExceso + regExc;
   const saldoCombinado = saldoTxT + saldoExceso - deduccionTotalMin;
   return {
     saldoTxTMin: saldoTxT,

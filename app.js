@@ -184,9 +184,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const bTotalDisponibleTxT = document.getElementById("bTotalDisponibleTxT");
   const bTotalDisponibleTxTHm = document.getElementById("bTotalDisponibleTxTHm");
   const bTotalDisponibleTxTDias = document.getElementById("bTotalDisponibleTxTDias");
+  const bTotalDisponibleTxTComposicion = document.getElementById("bTotalDisponibleTxTComposicion");
   const bTotalDisponibleExceso = document.getElementById("bTotalDisponibleExceso");
   const bTotalDisponibleExcesoHm = document.getElementById("bTotalDisponibleExcesoHm");
   const bTotalDisponibleExcesoDias = document.getElementById("bTotalDisponibleExcesoDias");
+  const bTotalDisponibleExcesoComposicion = document.getElementById("bTotalDisponibleExcesoComposicion");
   const bGeneradas = document.getElementById("bGeneradas");
   const bGeneradasHm = document.getElementById("bGeneradasHm");
   const bGeneradasDias = document.getElementById("bGeneradasDias");
@@ -1080,10 +1082,13 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     const regTxt = state.config.regularizacionTxTMin || 0;
     const regExc = state.config.regularizacionExcesoMin || 0;
 
-    const saldoTxT =
-      total.generadas - total.disfrutadas - (total.disfruteHorasExtraMin || 0) - total.negativasTxT + inicialExtra + regTxt;
-    const saldoExceso =
-      total.exceso - (total.disfruteExcesoJornadaMin || 0) - total.negativasExceso + inicialExceso + regExc;
+    const netoCalendarioTxT =
+      total.generadas - total.disfrutadas - (total.disfruteHorasExtraMin || 0) - total.negativasTxT;
+    const netoCalendarioExceso =
+      total.exceso - (total.disfruteExcesoJornadaMin || 0) - total.negativasExceso;
+
+    const saldoTxT = netoCalendarioTxT + inicialExtra + regTxt;
+    const saldoExceso = netoCalendarioExceso + inicialExceso + regExc;
     const anual = calcularResumenAnual(state.registros, bankYear);
     anual.saldo -= deduccionAnualMin;
     const gastadasTxTAnual = anual.disfrutadas + (anual.disfruteHorasExtraMin || 0) + anual.negativasTxT;
@@ -1097,12 +1102,26 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     }
     if (bTotalDisponibleTxTHm) bTotalDisponibleTxTHm.textContent = fmtTxT.hm;
     if (bTotalDisponibleTxTDias) bTotalDisponibleTxTDias.textContent = fmtTxT.dias;
+    if (bTotalDisponibleTxTComposicion) {
+      const fp = formatoHorasConDias(inicialExtra);
+      const fc = formatoHorasConDias(netoCalendarioTxT);
+      const fr = formatoHorasConDias(regTxt);
+      bTotalDisponibleTxTComposicion.textContent =
+        "Previo TxT " + fp.decimal + " + Neto calendario " + fc.decimal + " + Regularización " + fr.decimal;
+    }
     if (bTotalDisponibleExceso) {
       bTotalDisponibleExceso.innerText = fmtExceso.decimal;
       bTotalDisponibleExceso.style.color = saldoExceso >= 0 ? "var(--positive)" : "var(--negative)";
     }
     if (bTotalDisponibleExcesoHm) bTotalDisponibleExcesoHm.textContent = fmtExceso.hm;
     if (bTotalDisponibleExcesoDias) bTotalDisponibleExcesoDias.textContent = fmtExceso.dias;
+    if (bTotalDisponibleExcesoComposicion) {
+      const fpe = formatoHorasConDias(inicialExceso);
+      const fce = formatoHorasConDias(netoCalendarioExceso);
+      const fre = formatoHorasConDias(regExc);
+      bTotalDisponibleExcesoComposicion.textContent =
+        "Previo exc. " + fpe.decimal + " + Neto calendario " + fce.decimal + " + Regularización " + fre.decimal;
+    }
 
     const fmtGen = formatoHorasConDias(anual.generadas);
     if (bGeneradas) bGeneradas.innerText = fmtGen.decimal;

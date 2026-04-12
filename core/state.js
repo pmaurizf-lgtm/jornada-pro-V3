@@ -33,9 +33,9 @@ export function createInitialState() {
       modoNoruegaHasta: "",
       horasExtraInicialMin: 0,
       excesoJornadaInicialMin: 0,
-      /** Ajuste TxT (min): saldo real disponible al introducirlo; se suma al neto del calendario para el total. */
+      /** Regularización TxT (min): horas que se suman tal cual a saldo previo TxT + neto calendario TxT en el total. */
       regularizacionTxTMin: 0,
-      /** Ajuste exceso jornada (min), mismo criterio que regularizacionTxTMin. */
+      /** Regularización exceso jornada (min): igual que regularizacionTxTMin para el bucket de exceso. */
       regularizacionExcesoMin: 0,
       /** Saldo de días de vacaciones previo (año 2025) al usar la app. */
       vacacionesDiasPrevio: 0,

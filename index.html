@@ -564,11 +564,11 @@
             </label>
             <label class="config-row">
               <span class="config-label">Regularización TxT (h)</span>
-              <input type="number" id="cfgRegularizacionTxT" class="config-input" step="0.25" placeholder="0" title="Saldo neto real disponible de TxT el día en que lo guardes; se suma al movimiento del calendario para el total.">
+              <input type="number" id="cfgRegularizacionTxT" class="config-input" step="0.25" placeholder="0" title="Horas de regularización TxT (se suman tal cual al saldo previo y al neto del calendario en el total disponible).">
             </label>
             <label class="config-row">
               <span class="config-label">Regularización exc. jornada (h)</span>
-              <input type="number" id="cfgRegularizacionExceso" class="config-input" step="0.25" placeholder="0" title="Saldo neto real de exceso de jornada el día en que lo guardes.">
+              <input type="number" id="cfgRegularizacionExceso" class="config-input" step="0.25" placeholder="0" title="Horas de regularización de exceso de jornada (se suman tal cual al previo y al neto del calendario en el total).">
             </label>
           </div>
           <label class="config-row">
@@ -584,7 +584,7 @@
           <div id="configResetSaldoWrap" class="config-row config-row-reset">
             <button type="button" id="resetSaldoPrevio" class="config-btn config-btn-reset">Resetear saldo previo</button>
           </div>
-          <p class="config-hint"><strong>Horas extra / exceso previos:</strong> saldo antes de usar la app. <strong>Regularización:</strong> el saldo neto <strong>real</strong> disponible de TxT o de exceso el día en que lo guardas (en horas); a efectos de total en el banco se <strong>suma</strong> al neto generado y gastado del calendario. Los desgloses anual y mensual muestran solo movimientos del calendario (balance), sin mezclar saldo previo ni regularización. <strong>GP1/GP2:</strong> la regularización TxT suma en el total de bolsa.</p>
+          <p class="config-hint"><strong>Horas extra / exceso previos:</strong> saldo antes de usar la app. <strong>Regularización TxT / exc.:</strong> horas que se <strong>suman en bloque</strong> (tal como las escribes y guardas) al saldo previo y al neto del calendario para formar el total disponible; en la pestaña Horas TxT verás ese valor en la línea de desglose bajo el total. Los desgloses anual y mensual muestran solo movimientos del calendario (balance), sin mezclar saldo previo ni regularización. <strong>GP1/GP2:</strong> la regularización TxT suma en el total de bolsa.</p>
           <p class="config-hint">Vacaciones y LD previos se suman al total disponible según las reglas de cada bloque.</p>
         </div>
       </div>
@@ -968,6 +968,7 @@
           <strong id="bTotalDisponibleTxT" class="metric-decimal"></strong>
           <span id="bTotalDisponibleTxTHm" class="metric-hm"></span>
           <small id="bTotalDisponibleTxTDias" class="metric-dias"></small>
+          <span id="bTotalDisponibleTxTComposicion" class="metric-banco-composicion" aria-label="Desglose del total TxT"></span>
         </div>
       </div>
       <div class="metric metric-total">
@@ -976,6 +977,7 @@
           <strong id="bTotalDisponibleExceso" class="metric-decimal"></strong>
           <span id="bTotalDisponibleExcesoHm" class="metric-hm"></span>
           <small id="bTotalDisponibleExcesoDias" class="metric-dias"></small>
+          <span id="bTotalDisponibleExcesoComposicion" class="metric-banco-composicion" aria-label="Desglose del total exceso de jornada"></span>
         </div>
       </div>
 

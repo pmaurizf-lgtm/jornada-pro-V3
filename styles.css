@@ -1404,6 +1404,19 @@ body.dark .metric {
   opacity: 0.85;
 }
 
+.metric-banco-composicion {
+  display: block;
+  font-size: 0.78rem;
+  line-height: 1.38;
+  margin-top: 6px;
+  color: var(--text-muted, #64748b);
+  font-weight: 400;
+}
+
+body.dark .metric-banco-composicion {
+  color: var(--text-muted, #9ca3af);
+}
+
 .metric.saldo strong {
   font-size: 1.1rem;
 }
