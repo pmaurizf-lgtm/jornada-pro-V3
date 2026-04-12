@@ -29,21 +29,6 @@ export function calcularSaldoDia(registro) {
 /** Minutos por día de jornada para expresar saldo en días (459 = 7h 39min). */
 export const MINUTOS_POR_DIA_JORNADA = 459;
 
-/**
- * Registros que cuentan para el banco: si hay `config.bancoCalendarioDesde` (YYYY-MM-DD),
- * solo fechas >= ese día; si no, todo el histórico.
- */
-export function registrosEfectivosParaBanco(state) {
-  const desde = state.config?.bancoCalendarioDesde;
-  if (!desde || typeof desde !== "string") return state.registros || {};
-  const regs = state.registros || {};
-  const out = {};
-  for (const k of Object.keys(regs)) {
-    if (k >= desde) out[k] = regs[k];
-  }
-  return out;
-}
-
 export function calcularResumenPeriodo(registros, filtroFn) {
   let generadas = 0;
   let exceso = 0;
@@ -164,35 +149,35 @@ export function calcularBancoMinutosSemanaState(state, fechaISO) {
  */
 export function calcularBancoMinutosAcumuladoGP12(state) {
   const inicial = state.config?.horasExtraInicialMin || 0;
+  const regAdj = state.config?.regularizacionTxTMin || 0;
   let sum = 0;
-  const regs = registrosEfectivosParaBanco(state);
+  const regs = state.registros || {};
   for (const iso of Object.keys(regs)) {
     const r = regs[iso];
     if (!r || r.vacaciones || r.libreDisposicion || r.disfruteHorasExtra) continue;
     sum += (r.extraGeneradaMin || 0) - (r.negativaMin || 0);
   }
-  return inicial + sum;
+  return inicial + sum + regAdj;
 }
 
 /** Totales TxT / exceso coherentes con la pantalla del banco (GP3/GP4). */
 export function computeBancoSnapshotForBackup(state) {
-  const regs = registrosEfectivosParaBanco(state);
-  const total = calcularResumenTotal(regs);
+  const total = calcularResumenTotal(state.registros || {});
   const deducciones = state.deduccionesPorAusencia || {};
-  const desde = state.config?.bancoCalendarioDesde;
-  const deduccionTotalMin = Object.entries(deducciones)
-    .filter(([f]) => !desde || f >= desde)
-    .reduce((s, [, m]) => s + m, 0);
+  const deduccionTotalMin = Object.values(deducciones).reduce((a, b) => a + b, 0);
   const inicialExtra = state.config?.horasExtraInicialMin || 0;
   const inicialExceso = state.config?.excesoJornadaInicialMin || 0;
+  const regTxt = state.config?.regularizacionTxTMin || 0;
+  const regExc = state.config?.regularizacionExcesoMin || 0;
   const saldoTxT =
     total.generadas -
     total.disfrutadas -
     (total.disfruteHorasExtraMin || 0) -
     total.negativasTxT +
-    inicialExtra;
+    inicialExtra +
+    regTxt;
   const saldoExceso =
-    total.exceso - (total.disfruteExcesoJornadaMin || 0) - total.negativasExceso + inicialExceso;
+    total.exceso - (total.disfruteExcesoJornadaMin || 0) - total.negativasExceso + inicialExceso + regExc;
   const saldoCombinado = saldoTxT + saldoExceso - deduccionTotalMin;
   return {
     saldoTxTMin: saldoTxT,
@@ -201,6 +186,8 @@ export function computeBancoSnapshotForBackup(state) {
     deduccionTotalMin,
     inicialExtraMin: inicialExtra,
     inicialExcesoJornadaMin: inicialExceso,
+    regularizacionTxTMin: regTxt,
+    regularizacionExcesoMin: regExc,
     resumen: total
   };
 }
@@ -213,8 +200,7 @@ export function computeBackupBancoResumen(state, fechaReferenciaISO) {
   const gp = state.config?.grupoProfesional || "GP1";
   const base = {
     grupoProfesional: gp,
-    fechaReferencia: fechaReferenciaISO,
-    bancoCalendarioDesde: state.config?.bancoCalendarioDesde ?? null
+    fechaReferencia: fechaReferenciaISO
   };
   if (gp === "GP1" || gp === "GP2") {
     return {

@@ -1,5 +1,5 @@
 
-const CACHE="jornada-pro-v4-1-prod";
+const CACHE="jornada-pro-v1-4-0-prod";
 self.addEventListener("install",e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll([
     "./","index.html","styles.css","app.js"

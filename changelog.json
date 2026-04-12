@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.4",
+    "date": "2026-03",
+    "items": [
+      "Banco Horas TxT (GP3/GP4): totales «Total disponible TxT» y «Total disponible exceso de jornada» = saldo previo + movimientos del calendario + regularización (campos en Configuración). Desgloses anual y mensual solo con generado/gastado del calendario (sin mezclar previo ni regularización).",
+      "Nuevas casillas «Regularización TxT (h)» y «Regularización exc. jornada (h)» para cuadrar el saldo con empresa; eliminada la lógica anterior de fecha de inicio del banco en calendario (bancoCalendarioDesde).",
+      "GP1/GP2: el total de bolsa incluye horas extra previas, calendario y regularización TxT; «esta semana» sigue siendo solo calendario.",
+      "Primera vez: el modal de días LD ya no se abre dos veces al elegir grupo profesional.",
+      "Guía de uso actualizada (v1.4) alineada con el banco y la configuración."
+    ]
+  },
+  {
     "version": "1.3",
     "date": "2026-04",
     "items": [

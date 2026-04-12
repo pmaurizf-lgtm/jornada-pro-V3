@@ -9,7 +9,7 @@ import {
   calcularResumenAnual,
   calcularResumenTotal,
   calcularBancoMinutosAcumuladoGP12,
-  registrosEfectivosParaBanco
+  computeBancoSnapshotForBackup
 } from "../../core/bank.js";
 
 function assert(cond, msg) {
@@ -52,15 +52,24 @@ assert(
   "GP12 acumulado = inicial + sum(extra-neg)"
 );
 
-const stateFiltrado = {
-  config: { horasExtraInicialMin: 0, bancoCalendarioDesde: "2025-02-01" },
+const stateReg = {
+  config: {
+    horasExtraInicialMin: 60,
+    excesoJornadaInicialMin: 0,
+    regularizacionTxTMin: 90,
+    regularizacionExcesoMin: 30
+  },
   registros: {
-    "2025-01-10": { extraGeneradaMin: 999, negativaMin: 0 },
-    "2025-02-05": { extraGeneradaMin: 10, negativaMin: 0 }
-  }
+    "2025-01-10": { extraGeneradaMin: 120, negativaMin: 0, excesoJornadaMin: 0, disfrutadasManualMin: 0 }
+  },
+  deduccionesPorAusencia: {}
 };
-const rf = registrosEfectivosParaBanco(stateFiltrado);
-assert(Object.keys(rf).length === 1 && rf["2025-02-05"], "filtra registros anteriores a bancoCalendarioDesde");
-assert(calcularResumenTotal(rf).generadas === 10, "resumen solo post-desde");
+assert(
+  calcularBancoMinutosAcumuladoGP12(stateReg) === 60 + 120 + 90,
+  "GP12 acumulado incluye regularización TxT"
+);
+const snap = computeBancoSnapshotForBackup(stateReg);
+assert(snap.saldoTxTMin === 60 + 120 + 90, "snapshot TxT = inicial + calendario + regularización");
+assert(snap.saldoExcesoJornadaMin === 30, "snapshot exceso = inicial + regularización exc.");
 
 console.log("✓ bank.test.mjs: todos los tests pasaron");
