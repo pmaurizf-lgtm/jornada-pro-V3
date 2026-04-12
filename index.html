@@ -1140,7 +1140,7 @@
     return;
   }
 
-  const SW_URL = "./service-worker.js?v=6";
+  const SW_URL = "./service-worker.js?v=7";
   let pendingReload = false;
   var swReg = null;
   const banner = document.getElementById("swUpdateBanner");
@@ -1253,7 +1253,15 @@
       );
       return;
     }
-    finishOk("Ya tienes la última versión publicada.");
+    var verEjec =
+      typeof window !== "undefined" && window.JORNADA_PRO_APP_VERSION
+        ? " Versión en ejecución: v" + window.JORNADA_PRO_APP_VERSION + "."
+        : "";
+    finishOk(
+      "No hay otra versión del instalador web pendiente." +
+        verEjec +
+        " La copia automática previa a actualizar solo se genera al pulsar «Actualizar» en la barra inferior cuando haya novedad; si la app ya cargó archivos nuevos por la red, revisa Copia y seguridad → Backup."
+    );
   }
 
   navigator.serviceWorker

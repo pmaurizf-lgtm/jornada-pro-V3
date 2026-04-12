@@ -1,5 +1,14 @@
 [
   {
+    "version": "1.5.0",
+    "date": "2026-03",
+    "items": [
+      "Copia de seguridad automática al abrir la app si sube la versión instalada o si ya había datos locales sin la marca de versión (migración desde instalaciones anteriores a este control).",
+      "«Buscar actualizaciones» explica que comprueba el service worker: la copia previa a actualizar solo se genera al pulsar «Actualizar» en la barra inferior cuando hay worker nuevo; si la app ya cargó archivos por la red, conviene un backup manual.",
+      "Service worker: caché v7 y registro con `?v=7` para mejorar la detección de actualizaciones del SW."
+    ]
+  },
+  {
     "version": "1.4",
     "date": "2026-03",
     "items": [

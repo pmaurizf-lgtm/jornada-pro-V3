@@ -30,6 +30,9 @@ import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.j
 import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
 
 const APP_VERSION = "1.5.0";
+if (typeof window !== "undefined") {
+  window.JORNADA_PRO_APP_VERSION = APP_VERSION;
+}
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -697,6 +700,70 @@ function aplicarSimboloPlof(symbol) {
         reject(e);
       }
     });
+  }
+
+  /**
+   * Copia tras cambiar versión de la app (red o nueva instalación): no exige formulario válido;
+   * intenta volcar config del DOM y si falla exporta el estado en memoria.
+   */
+  function ejecutarBackupTrasCambioDeVersion() {
+    return new Promise((resolve, reject) => {
+      try {
+        try {
+          if (sincronizarConfiguracionDesdeFormulario()) saveState(state);
+        } catch (e) {
+          /* usar state cargado */
+        }
+        saveState(state);
+        sincronizarRegistrosModoNoruega();
+        const json = exportBackup(state, { fechaReferenciaISO: getHoyISO() });
+        descargarArchivoBackupJson(json, "backup-jornada-cambio-version-v" + APP_VERSION.replace(/\./g, "-"));
+        try {
+          localStorage.setItem("jornadaPro_lastBackup", new Date().toISOString());
+        } catch (e) {}
+        showToast("Copia descargada automáticamente (nueva versión v" + APP_VERSION + ").", "success");
+        setTimeout(() => resolve(), 700);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  /** Primera vez con datos sin marca de versión, o salto de versión (p. ej. 1.3.x → 1.4.0). */
+  function intentarBackupPorNuevaVersionApp() {
+    const SEEN_KEY = "jornadaPro_seenAppVersion";
+    let prev = null;
+    try {
+      prev = localStorage.getItem(SEEN_KEY);
+    } catch (e) {}
+    let hasLocalData = false;
+    try {
+      hasLocalData = !!localStorage.getItem("jornadaPro_v1");
+    } catch (e) {}
+    const subeVersion = prev != null && prev !== APP_VERSION;
+    const migracionSinMarca = prev == null && hasLocalData;
+    if (!subeVersion && !migracionSinMarca) {
+      try {
+        localStorage.setItem(SEEN_KEY, APP_VERSION);
+      } catch (e2) {}
+      return;
+    }
+    setTimeout(() => {
+      ejecutarBackupTrasCambioDeVersion()
+        .then(() => {
+          try {
+            localStorage.setItem(SEEN_KEY, APP_VERSION);
+          } catch (e3) {}
+        })
+        .catch(() => {
+          showToast(
+            "Nueva versión v" +
+              APP_VERSION +
+              ": no se pudo generar la copia automática. Ve a Copia y seguridad → Backup.",
+            "error"
+          );
+        });
+    }, 2800);
   }
 
   document.addEventListener("jornada-pro-pre-update-backup", (ev) => {
@@ -4683,6 +4750,8 @@ if(festivos && festivos[fechaISO]){
   } catch (e) {
     console.warn("Init LD modal:", e);
   }
+
+  intentarBackupPorNuevaVersionApp();
 
   function checkExtendPromptFromUrl() {
     if (esModoMinutosSemanal()) return;

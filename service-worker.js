@@ -2,7 +2,7 @@
 // CACHE CONFIG (offline-first en móvil)
 // ===============================
 
-const CACHE_NAME = "jornada-pro-v6";
+const CACHE_NAME = "jornada-pro-v7";
 
 const urlsToCache = [
   "./",
