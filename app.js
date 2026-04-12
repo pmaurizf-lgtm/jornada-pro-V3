@@ -29,7 +29,7 @@ import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.j
 
 import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
 
-const APP_VERSION = "1.5.3";
+const APP_VERSION = "1.5.4";
 if (typeof window !== "undefined") {
   window.JORNADA_PRO_APP_VERSION = APP_VERSION;
 }
