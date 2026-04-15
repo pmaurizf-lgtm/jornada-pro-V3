@@ -669,65 +669,69 @@
   <div id="configPanelBackdrop" class="config-panel-backdrop" aria-hidden="true"></div>
 </div>
 
-<!-- Resumen rápido del mes (portada) -->
-<div id="resumenPortada" class="resumen-portada card" hidden>
-  <div class="resumen-portada-bank" aria-label="Fecha y hora actuales">
-    <div class="resumen-portada-card resumen-portada-card-fecha">
-      <span class="resumen-portada-card-label">Hoy</span>
-      <span id="resumenPortadaFecha" class="resumen-portada-card-value">--</span>
-    </div>
-    <div class="resumen-portada-card resumen-portada-card-reloj">
-      <span class="resumen-portada-card-label">Hora</span>
-      <span id="resumenPortadaReloj" class="resumen-portada-card-value resumen-portada-reloj-value">--:--</span>
-    </div>
-  </div>
-  <div id="resumenPortadaJornadaEnCurso" class="resumen-portada-jornada-en-curso" hidden aria-live="polite">
-    <span class="resumen-jornada-icon" aria-hidden="true">●</span>
-    <span id="resumenPortadaJornadaTexto">Fichado desde 08:00</span>
-  </div>
-  <div id="resumenPortadaAccesosRapidos" class="resumen-portada-accesos-rapidos resumen-portada-accion-jornada" hidden data-jornada-control="boton">
-    <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar" aria-label="Iniciar jornada (fichar entrada)">Iniciar jornada</button>
-    <div id="finalizarJornadaWrap" class="finalizar-slider-wrap" hidden aria-hidden="true">
-      <div id="finalizarSliderTrack" class="finalizar-slider-track">
-        <span id="finalizarSliderText" class="finalizar-slider-text">Desliza para finalizar jornada</span>
-        <div id="finalizarSliderThumb" class="finalizar-slider-thumb" role="button" tabindex="0" aria-label="Deslizar para finalizar jornada"></div>
+<main id="appMain" class="app-main" aria-label="Pantallas de la aplicación">
+  <section id="screenQuick" class="app-screen app-screen--active" aria-label="Acceso rápido">
+    <!-- Resumen rápido del mes (portada) -->
+    <div id="resumenPortada" class="resumen-portada card" hidden>
+      <div class="resumen-portada-bank" aria-label="Fecha y hora actuales">
+        <div class="resumen-portada-card resumen-portada-card-fecha">
+          <span class="resumen-portada-card-label">Hoy</span>
+          <span id="resumenPortadaFecha" class="resumen-portada-card-value">--</span>
+        </div>
+        <div class="resumen-portada-card resumen-portada-card-reloj">
+          <span class="resumen-portada-card-label">Hora</span>
+          <span id="resumenPortadaReloj" class="resumen-portada-card-value resumen-portada-reloj-value">--:--</span>
+        </div>
+      </div>
+      <div id="resumenPortadaJornadaEnCurso" class="resumen-portada-jornada-en-curso" hidden aria-live="polite">
+        <span class="resumen-jornada-icon" aria-hidden="true">●</span>
+        <span id="resumenPortadaJornadaTexto">Fichado desde 08:00</span>
+      </div>
+      <div id="resumenPortadaAccesosRapidos" class="resumen-portada-accesos-rapidos resumen-portada-accion-jornada" hidden data-jornada-control="boton">
+        <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar" aria-label="Iniciar jornada (fichar entrada)">Iniciar jornada</button>
+        <div id="finalizarJornadaWrap" class="finalizar-slider-wrap" hidden aria-hidden="true">
+          <div id="finalizarSliderTrack" class="finalizar-slider-track">
+            <span id="finalizarSliderText" class="finalizar-slider-text">Desliza para finalizar jornada</span>
+            <div id="finalizarSliderThumb" class="finalizar-slider-thumb" role="button" tabindex="0" aria-label="Deslizar para finalizar jornada"></div>
+          </div>
+        </div>
+      </div>
+      <div class="resumen-portada-line" id="resumenPortadaSemanaWrap">
+        <span id="resumenPortadaSemanaLabel">Esta semana</span>
+        <strong id="resumenPortadaSemanaHoras">--</strong>
+      </div>
+      <div class="resumen-portada-line">
+        <span id="resumenPortadaMesLabel">Este mes</span>
+        <strong id="resumenPortadaHoras">--</strong>
+      </div>
+      <div class="resumen-portada-line resumen-portada-comparativa" id="resumenPortadaComparativaWrap">
+        <span id="resumenPortadaComparativaLabel">Mes pasado</span>
+        <strong id="resumenPortadaComparativaHoras">--</strong>
+      </div>
+      <div class="resumen-portada-line resumen-portada-dias" id="resumenPortadaDiasWrap">
+        <span id="resumenPortadaDiasLabel">Días</span>
+        <span id="resumenPortadaDiasValor">--</span>
+      </div>
+      <!-- Agenda de mañana (resumen rápido) -->
+      <div class="resumen-portada-line resumen-portada-agenda" id="resumenPortadaAgendaWrap">
+        <span>Mañana</span>
+        <span id="resumenPortadaAgendaTexto">Sin eventos en la agenda</span>
+      </div>
+      <div class="resumen-portada-line resumen-portada-festivo" id="resumenPortadaFestivoWrap" hidden>
+        <span>Próximo festivo</span>
+        <span id="resumenPortadaFestivo">--</span>
+      </div>
+      <!-- Progreso jornada (barra) justo debajo de Iniciar jornada -->
+      <div class="progress-wrapper">
+        <div id="barra"></div>
+        <div id="progresoInside" class="progress-text-inside"></div>
       </div>
     </div>
-  </div>
-  <div class="resumen-portada-line" id="resumenPortadaSemanaWrap">
-    <span id="resumenPortadaSemanaLabel">Esta semana</span>
-    <strong id="resumenPortadaSemanaHoras">--</strong>
-  </div>
-  <div class="resumen-portada-line">
-    <span id="resumenPortadaMesLabel">Este mes</span>
-    <strong id="resumenPortadaHoras">--</strong>
-  </div>
-  <div class="resumen-portada-line resumen-portada-comparativa" id="resumenPortadaComparativaWrap">
-    <span id="resumenPortadaComparativaLabel">Mes pasado</span>
-    <strong id="resumenPortadaComparativaHoras">--</strong>
-  </div>
-  <div class="resumen-portada-line resumen-portada-dias" id="resumenPortadaDiasWrap">
-    <span id="resumenPortadaDiasLabel">Días</span>
-    <span id="resumenPortadaDiasValor">--</span>
-  </div>
-  <!-- Agenda de mañana (resumen rápido) -->
-  <div class="resumen-portada-line resumen-portada-agenda" id="resumenPortadaAgendaWrap">
-    <span>Mañana</span>
-    <span id="resumenPortadaAgendaTexto">Sin eventos en la agenda</span>
-  </div>
-  <div class="resumen-portada-line resumen-portada-festivo" id="resumenPortadaFestivoWrap" hidden>
-    <span>Próximo festivo</span>
-    <span id="resumenPortadaFestivo">--</span>
-  </div>
-  <!-- Progreso jornada (barra) justo debajo de Iniciar jornada -->
-  <div class="progress-wrapper">
-    <div id="barra"></div>
-    <div id="progresoInside" class="progress-text-inside"></div>
-  </div>
-</div>
+  </section>
 
-<!-- REGISTRO DIARIO -->
-<section id="seccionRegistro" class="card registro">
+  <section id="screenRegistro" class="app-screen" aria-label="Registro diario" hidden>
+    <!-- REGISTRO DIARIO -->
+    <section id="seccionRegistro" class="card registro">
 
   <!-- FORMULARIO REGISTRO -->
   <div class="form-card registro-card">
@@ -860,10 +864,12 @@
   </div>
 </div>
   
-</section>
+    </section>
+  </section>
   
-<!-- GRID PRINCIPAL -->
-<section id="mainGrid" class="main-grid">
+  <section id="screenCalendario" class="app-screen" aria-label="Calendario y agenda" hidden>
+    <!-- GRID PRINCIPAL -->
+    <section id="mainGrid" class="main-grid">
 
   <!-- CALENDARIO -->
   <div class="card calendar-card">
@@ -938,10 +944,12 @@
     </div>
   </div>
 
-</section>
+    </section>
+  </section>
 
-<!-- MÉTRICAS BANCO (pestañas Horas TxT / Vacaciones) -->
-<section id="seccionMetrics" class="card metrics">
+  <section id="screenSaldos" class="app-screen" aria-label="Saldos de horas y vacaciones" hidden>
+    <!-- MÉTRICAS BANCO (pestañas Horas TxT / Vacaciones) -->
+    <section id="seccionMetrics" class="card metrics">
   <div class="bank-tabs" role="tablist">
     <button type="button" id="bankTabHoras" class="bank-tab bank-tab--active" role="tab" aria-selected="true">Horas TxT</button>
     <button type="button" id="bankTabVacaciones" class="bank-tab" role="tab" aria-selected="false">Vacaciones/LD</button>
@@ -1099,7 +1107,28 @@
     </div>
   </div>
 
-</section>
+    </section>
+  </section>
+</main>
+
+<nav id="bottomNav" class="bottom-nav" role="navigation" aria-label="Navegación inferior">
+  <button type="button" class="bottom-nav-btn bottom-nav-btn--active" data-screen="quick" aria-label="Acceso rápido" aria-current="page">
+    <span class="bottom-nav-icon" aria-hidden="true">🏠</span>
+    <span class="bottom-nav-label">Inicio</span>
+  </button>
+  <button type="button" class="bottom-nav-btn" data-screen="registro" aria-label="Registro diario">
+    <span class="bottom-nav-icon" aria-hidden="true">📝</span>
+    <span class="bottom-nav-label">Registro</span>
+  </button>
+  <button type="button" class="bottom-nav-btn" data-screen="calendario" aria-label="Calendario y agenda">
+    <span class="bottom-nav-icon" aria-hidden="true">📅</span>
+    <span class="bottom-nav-label">Calendario</span>
+  </button>
+  <button type="button" class="bottom-nav-btn" data-screen="saldos" aria-label="Saldos y vacaciones">
+    <span class="bottom-nav-icon" aria-hidden="true">💼</span>
+    <span class="bottom-nav-label">Saldos</span>
+  </button>
+</nav>
 
 <!-- Modal: solicitar días LD del año en curso -->
 <div id="modalLDAnio" class="modal-extender" role="dialog" aria-labelledby="modalLDAnioTitulo" aria-modal="true" hidden>

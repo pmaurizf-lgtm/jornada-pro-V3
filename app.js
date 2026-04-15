@@ -117,6 +117,72 @@ document.addEventListener("DOMContentLoaded", () => {
   const resumenPortadaJornadaTexto = document.getElementById("resumenPortadaJornadaTexto");
   const resumenBtnJornada = document.getElementById("resumenBtnJornada");
 
+  // ===============================
+  // NAVEGACIÓN INFERIOR (PANTALLAS)
+  // ===============================
+
+  const SCREEN_KEY = "jornadaPro_activeScreen";
+  const screenQuick = document.getElementById("screenQuick");
+  const screenRegistro = document.getElementById("screenRegistro");
+  const screenCalendario = document.getElementById("screenCalendario");
+  const screenSaldos = document.getElementById("screenSaldos");
+  const bottomNav = document.getElementById("bottomNav");
+  const bottomNavBtns = bottomNav ? Array.from(bottomNav.querySelectorAll(".bottom-nav-btn")) : [];
+
+  const screens = {
+    quick: screenQuick,
+    registro: screenRegistro,
+    calendario: screenCalendario,
+    saldos: screenSaldos
+  };
+
+  function setActiveScreen(name, opts) {
+    const persist = opts && Object.prototype.hasOwnProperty.call(opts, "persist") ? !!opts.persist : true;
+    const target = screens[name] ? name : "quick";
+
+    Object.entries(screens).forEach(([k, el]) => {
+      if (!el) return;
+      const active = k === target;
+      if (active) {
+        el.hidden = false;
+        el.classList.add("app-screen--active");
+      } else {
+        el.hidden = true;
+        el.classList.remove("app-screen--active");
+      }
+    });
+
+    bottomNavBtns.forEach((btn) => {
+      const k = btn.getAttribute("data-screen");
+      const active = k === target;
+      btn.classList.toggle("bottom-nav-btn--active", active);
+      btn.setAttribute("aria-current", active ? "page" : "false");
+    });
+
+    if (persist) {
+      try {
+        localStorage.setItem(SCREEN_KEY, target);
+      } catch (e) {}
+    }
+
+    // Re-renders bajo demanda al entrar en pantallas "pesadas"
+    if (target === "calendario") {
+      try { renderCalendario(); } catch (e) {}
+    }
+    if (target === "saldos") {
+      try { actualizarBanco(); } catch (e) {}
+    }
+  }
+
+  if (bottomNav) {
+    bottomNav.addEventListener("click", (ev) => {
+      const btn = ev.target && ev.target.closest ? ev.target.closest(".bottom-nav-btn") : null;
+      if (!btn) return;
+      const k = btn.getAttribute("data-screen");
+      setActiveScreen(k);
+    });
+  }
+
   function showToast(message, type) {
     if (!toastContainer) return;
     const toast = document.createElement("div");
@@ -4835,6 +4901,12 @@ if(festivos && festivos[fechaISO]){
   const configAppVersionFooter = document.getElementById("configAppVersionFooter");
   if (configAppVersion) configAppVersion.textContent = "v" + APP_VERSION;
   if (configAppVersionFooter) configAppVersionFooter.textContent = "v" + APP_VERSION;
+
+  // Restaurar pestaña activa (navegación inferior)
+  try {
+    const saved = localStorage.getItem(SCREEN_KEY);
+    if (saved) setActiveScreen(saved, { persist: false });
+  } catch (e) {}
 
   // Ocultar splash tras carga inicial; mostrar consejo del día una vez al día
   setTimeout(() => {
