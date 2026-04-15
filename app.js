@@ -8,6 +8,7 @@ import { calcularJornada, minutesToTime, timeToMinutes, extraEnBloques15, calcul
 import {
   calcularResumenAnual,
   calcularResumenMensual,
+  calcularResumenPeriodo,
   MINUTOS_POR_DIA_JORNADA,
   calcularBancoMinutosAcumuladoGP12,
   computeSaldosDisponiblesGP34
@@ -29,7 +30,7 @@ import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.j
 
 import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
 
-const APP_VERSION = "1.6.4";
+const APP_VERSION = "2.0.0";
 if (typeof window !== "undefined") {
   window.JORNADA_PRO_APP_VERSION = APP_VERSION;
 }
@@ -104,6 +105,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const resumenPortadaSemanaWrap = document.getElementById("resumenPortadaSemanaWrap");
   const resumenPortadaSemanaLabel = document.getElementById("resumenPortadaSemanaLabel");
   const resumenPortadaSemanaHoras = document.getElementById("resumenPortadaSemanaHoras");
+  const resumenPortadaGastadasSemanaWrap = document.getElementById("resumenPortadaGastadasSemanaWrap");
+  const resumenPortadaGastadasSemana = document.getElementById("resumenPortadaGastadasSemana");
+  const resumenPortadaGastadasMesWrap = document.getElementById("resumenPortadaGastadasMesWrap");
+  const resumenPortadaGastadasMesLabel = document.getElementById("resumenPortadaGastadasMesLabel");
+  const resumenPortadaGastadasMes = document.getElementById("resumenPortadaGastadasMes");
   const resumenPortadaComparativaWrap = document.getElementById("resumenPortadaComparativaWrap");
   const resumenPortadaComparativaLabel = document.getElementById("resumenPortadaComparativaLabel");
   const resumenPortadaComparativaHoras = document.getElementById("resumenPortadaComparativaHoras");
@@ -4379,6 +4385,40 @@ if(festivos && festivos[fechaISO]){
       const h = Math.floor(totalMin / 60);
       const m = totalMin % 60;
       resumenPortadaHoras.textContent = m > 0 ? `${h}h ${m}m` : `${h}h`;
+    }
+    function minutosGastadasTotales(res) {
+      if (!res) return 0;
+      const txT = (res.disfrutadas || 0) + (res.disfruteHorasExtraMin || 0) + (res.negativasTxT || 0);
+      const exc = (res.disfruteExcesoJornadaMin || 0) + (res.negativasExceso || 0);
+      return txT + exc;
+    }
+    function formatearHm(min) {
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      return m > 0 ? `${h}h ${m}m` : `${h}h`;
+    }
+    if (resumenPortadaGastadasSemanaWrap && resumenPortadaGastadasSemana) {
+      const [lunesStr, domingoStr] = getLunesDomingoSemana(hoyISO);
+      const resSemG = calcularResumenPeriodo(state.registros || {}, (d) => {
+        const y = d.getFullYear();
+        const mo = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        const iso = `${y}-${mo}-${day}`;
+        return iso >= lunesStr && iso <= domingoStr;
+      });
+      const gSem = minutosGastadasTotales(resSemG);
+      resumenPortadaGastadasSemana.textContent = formatearHm(gSem);
+      resumenPortadaGastadasSemanaWrap.hidden = false;
+    }
+    if (resumenPortadaGastadasMesWrap && resumenPortadaGastadasMes) {
+      const resMesG = calcularResumenMensual(state.registros || {}, currentMonth, currentYear);
+      const gMes = minutosGastadasTotales(resMesG);
+      resumenPortadaGastadasMes.textContent = formatearHm(gMes);
+      if (resumenPortadaGastadasMesLabel) {
+        const nombreMesG = new Date(currentYear, currentMonth).toLocaleString("es-ES", { month: "long" });
+        resumenPortadaGastadasMesLabel.textContent = "Gastadas (" + (nombreMesG.charAt(0).toUpperCase() + nombreMesG.slice(1)) + ")";
+      }
+      resumenPortadaGastadasMesWrap.hidden = false;
     }
     // Agenda de mañana en portada
     if (resumenPortadaAgendaWrap && resumenPortadaAgendaTexto) {

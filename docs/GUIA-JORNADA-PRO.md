@@ -1,8 +1,8 @@
 # Guía de uso – Jornada Pro
 
-**Jornada Pro** v1.4.0 – Control de jornada laboral  
+**Jornada Pro** v2.0.0 – Control de jornada laboral  
 **Autor:** Pablo Mouriz Fontao  
-**Versión de la guía:** 1.4 (marzo 2026; alineada con la app v1.4.0)
+**Versión de la guía:** 2.0 (abril 2026; alineada con la app v2.0.0)
 
 ---
 
@@ -34,10 +34,23 @@ Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración
 
 ## 3. Pantalla principal
 
-- **Cabecera:** título de la app, logo y botón de menú (☰) para abrir **Configuración**. La interfaz usa **tarjetas** con fondo en capas, cabecera y modales renovados (v1.4).
-- **Registro diario:** formulario con fecha, entrada, salida y acciones: **Iniciar jornada**, **Finalizar**, **Guardar**, **Vacaciones**, **LD** (Libre Disposición), **Disfr. TxT**, **Disfr. exceso** (solo GP3/GP4), **Licencias Retribuidas**, **Eliminar**.
-- **Salidas teórica y ajustada:** se calculan en función de la jornada configurada.
-- **Barra de progreso:** indica el avance del día respecto a la jornada nominal (o horas extra en modo extensión para GP3/GP4). Muestra las horas trabajadas, el porcentaje y el **tiempo que queda** hasta el fin de la jornada («Quedan Xh XXm»). El texto está adaptado para leerse bien tanto cuando la barra está poco llena como cuando está casi completa.
+### 3.1 Acceso rápido (portada, primera pestaña)
+
+- Tarjetas **Hoy** y **Hora** con la fecha completa y el reloj en tiempo real.
+- Si tienes jornada iniciada sin salida guardada, aparece el aviso **«Fichado desde …»** con la hora de entrada.
+- **Iniciar jornada** y, cuando corresponda, el **deslizador** «Desliza para finalizar jornada».
+- **Barra de progreso del día** justo **debajo** de esos controles: avance respecto a la jornada nominal (o horas extra en extensión en GP3/GP4), porcentaje y **tiempo restante** («Quedan Xh XXm»); el texto se adapta para leerse bien con la barra poco o muy llena.
+- Líneas de resumen: **Esta semana** y el **mes en curso** muestran las **horas trabajadas** según el calendario; **Gastadas (sem.)** y **Gastadas (mes)** muestran los **minutos consumidos del banco** en ese periodo (mismo criterio que en el panel Horas TxT: disfrutadas manuales, disfrute de horas extra, negativas e imputaciones a saldo TxT y a exceso de jornada, según corresponda en cada día).
+- Comparativa con el **mes anterior**, conteo de **días** (trabajados, vacaciones, LD, licencias).
+- **Mañana:** texto breve con la agenda del día siguiente (o aviso si no hay eventos).
+- **Próximo festivo** se muestra **al final** del bloque (fecha y nombre cuando está disponible).
+
+### 3.2 Registro, calendario y resto de pestañas
+
+- **Cabecera:** título de la app, logo y botón de menú (☰) para abrir **Configuración**. La interfaz usa **tarjetas** con fondo en capas, cabecera y modales renovados.
+- **Registro diario** (pestaña correspondiente): formulario con fecha, entrada, salida y acciones: **Iniciar jornada**, **Finalizar**, **Guardar**, **Vacaciones**, **LD** (Libre Disposición), **Disfr. TxT**, **Disfr. exceso** (solo GP3/GP4), **Licencias Retribuidas**, **Eliminar**.
+- **Salidas teórica y ajustada:** se calculan en función de la jornada configurada (en el registro van en la tercera fila del formulario, ver sección 4).
+- En la pestaña de registro, la **barra de progreso** del día cumple la misma función que en la portada (avance, porcentaje, tiempo restante u horas extra en extensión).
 - **Feedback al guardar:** al guardar un día con el botón «Guardar» se muestra «Día guardado»; al finalizar la jornada con el deslizador se muestra «Datos actualizados».
 - **Resumen del día:**
   - **GP3/GP4:** horas trabajadas, extra, exceso jornada, negativa (en horas y minutos y en decimal).
@@ -52,6 +65,12 @@ Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración
 ---
 
 ## 4. Registro diario
+
+El bloque de campos del registro va **centrado** en pantalla (ancho máximo razonable en móvil y escritorio). Los campos son algo **más bajos** en altura para aprovechar mejor el espacio. Disposición en **tres filas de dos columnas**:
+
+1. **Fecha** | **Hora de entrada**
+2. **Salir antes (minutos)** (solo GP3/GP4 cuando aplica) | **Hora de salida real**
+3. **Salida teórica** | **Salida ajustada** (dos cajas con el valor calculado)
 
 ### 4.1 Iniciar la jornada
 
@@ -378,7 +397,7 @@ Se abre desde el **menú (☰)** de la cabecera. Está organizada en bloques des
 ### 8.5 Guía e instalación
 
 - **Ver guía de la app:** abre esta guía en una nueva pestaña.
-- **Qué hay de nuevo:** abre un modal con el **changelog** (versiones y novedades; incluye v1.4 banco/regularización y versiones anteriores, p. ej. v1.3 Trabajos en Noruega, backup completo, interfaz).
+- **Qué hay de nuevo:** abre un modal con el **changelog** (versiones y novedades; incluye v2.0 portada y registro, y versiones anteriores, p. ej. v1.5 backup automático, v1.4 banco/regularización).
 - **Añadir a pantalla de inicio (iOS):** abre un modal con las instrucciones para instalar la app en iPhone o iPad (Safari → Compartir → «Añadir a la pantalla de inicio»).
 - **Añadir a pantalla de inicio (Android):** abre un modal con las instrucciones para instalar desde Chrome (menú ⋮ → «Instalar aplicación» / «Añadir a la pantalla de inicio», según la versión).
 

@@ -68,7 +68,7 @@
 <body>
 
   <h1>Guía de uso – Jornada Pro</h1>
-  <p class="meta"><strong>Jornada Pro</strong> v1.4.0 – Control de jornada laboral<br>Autor: Pablo Mouriz Fontao<br><strong>Versión de la guía:</strong> 1.4 (marzo 2026; app v1.4.0)</p>
+  <p class="meta"><strong>Jornada Pro</strong> v2.0.0 – Control de jornada laboral<br>Autor: Pablo Mouriz Fontao<br><strong>Versión de la guía:</strong> 2.0 (abril 2026; app v2.0.0)</p>
 
   <hr>
 
@@ -85,10 +85,22 @@
   </ul>
 
   <h2>3. Pantalla principal</h2>
+  <h3>3.1 Acceso rápido (portada, primera pestaña)</h3>
   <ul>
-    <li><strong>Cabecera:</strong> título, logo y menú (☰) para Configuración. Interfaz con tarjetas en capas y aspecto renovado (v1.4).</li>
+    <li>Tarjetas <strong>Hoy</strong> y <strong>Hora</strong> (fecha completa y reloj en vivo).</li>
+    <li>Si hay jornada iniciada sin salida: aviso <strong>«Fichado desde …»</strong>.</li>
+    <li><strong>Iniciar jornada</strong> y el <strong>deslizador</strong> para finalizar cuando corresponda.</li>
+    <li><strong>Barra de progreso</strong> del día <strong>justo debajo</strong> de esos controles (avance, «Quedan Xh XXm»; en GP3/GP4 en extensión, horas extra).</li>
+    <li><strong>Esta semana</strong> y <strong>mes en curso</strong>: horas <strong>trabajadas</strong> (calendario). <strong>Gastadas (sem.)</strong> y <strong>Gastadas (mes)</strong>: consumo del banco en ese periodo (mismo criterio que el panel Horas TxT: disfrutadas, disfrute HE, negativas e imputaciones a TxT y exceso).</li>
+    <li>Comparativa mes anterior, línea de <strong>días</strong> (trabajados, vac., LD, licencias).</li>
+    <li><strong>Mañana:</strong> resumen de la agenda del día siguiente.</li>
+    <li><strong>Próximo festivo</strong> al <strong>final</strong> del bloque.</li>
+  </ul>
+  <h3>3.2 Registro, calendario y demás pestañas</h3>
+  <ul>
+    <li><strong>Cabecera:</strong> título, logo y menú (☰) para Configuración. Interfaz con tarjetas en capas.</li>
     <li><strong>Registro diario:</strong> fecha, entrada, salida; acciones: Iniciar jornada, Finalizar, Guardar, Vacaciones, LD, Disfr. TxT, Disfr. exceso (solo GP3/GP4), Licencias Retribuidas, Eliminar.</li>
-    <li><strong>Salidas teórica y ajustada</strong> y <strong>barra de progreso</strong>: avance, porcentaje y tiempo que queda hasta el fin de jornada («Quedan Xh XXm»); en GP3/GP4 en extensión muestra horas extra. Texto legible con la barra poco o muy llena.</li>
+    <li><strong>Salidas teórica y ajustada</strong> calculadas según jornada (tercera fila del formulario, ver §4). <strong>Barra de progreso</strong> en la pestaña de registro con la misma función que en la portada.</li>
     <li><strong>Resumen del día:</strong> GP3/GP4 = trabajado, extra, exceso, negativa; GP1/GP2 = trabajado, <strong>Total bolsa</strong> (previo + calendario + regularización TxT), <strong>esta semana</strong> (solo calendario), hoy (delta).</li>
     <li><strong>Calendario:</strong> cuatro vistas (Mes, Semana, Día, Agenda); al seleccionar un día aparece «Agenda del día». Semana: cuadrícula día × hora; doble clic en celda para añadir evento. Día: doble clic en franja. Agenda: lista de eventos del año agrupados por fecha (punto rojo, hora, título). En escritorio, mismo ancho que el resto de tarjetas.</li>
     <li><strong>Banco:</strong> GP3/GP4 = pestaña «Horas TxT» con solo dos totales arriba (TxT y exceso acumulados; incluyen previo, calendario y regularización) y desgloses anual/mensual <strong>solo calendario</strong>. GP1/GP2 = «Bolsa de autorregulación» (total bolsa y semana). Pestaña «Vacaciones/LD».</li>
@@ -97,6 +109,7 @@
   </ul>
 
   <h2>4. Registro diario</h2>
+  <p>El formulario va <strong>centrado</strong> en pantalla, con campos un poco <strong>más bajos</strong>. Tres filas de dos columnas: <strong>Fecha</strong> | <strong>Hora de entrada</strong>; <strong>Salir antes</strong> (GP3/GP4) | <strong>Hora de salida real</strong>; <strong>Salida teórica</strong> | <strong>Salida ajustada</strong>.</p>
   <h3>4.1 Iniciar la jornada</h3>
   <p>Selecciona fecha, pulsa <strong>«Iniciar jornada»</strong> (se rellena la entrada). En GP3/GP4, si ya finalizaste y pasas del fin teórico, el botón pasa a <strong>«Extender jornada»</strong>; en GP1/GP2 no se ofrece extensión.</p>
   <h3>4.2 Finalizar la jornada</h3>
@@ -191,7 +204,7 @@
   <h3>8.4 Copia de datos y seguridad</h3>
   <p><strong>Último backup</strong> (hoy / hace X días). El <strong>rango de fechas</strong> (con atajos «Mes actual» y «Año actual») sirve para <strong>Exportar Excel</strong> e <strong>Informe PDF</strong>; el archivo <strong>Backup</strong> incluye <strong>siempre todos los datos</strong> (registros, configuración, datos personales, vacaciones/LD, agenda, etc.) para que al restaurar el banco de horas coincida con lo que tenías. El JSON de backup puede incluir un bloque <code>backupMeta</code> con el resumen del banco en la fecha de la copia (solo informativo; al restaurar no se guarda en memoria). <strong>Restaurar</strong> sube un JSON; si hay datos locales más recientes, la app pregunta antes de sobrescribir. <strong>Restaurar valores de fábrica</strong> y <strong>Borrar todos los datos</strong> (doble confirmación).</p>
   <h3>8.5 Guía e instalación</h3>
-  <p>Ver guía, <strong>Qué hay de nuevo</strong> (changelog, p. ej. v1.4 banco y versiones anteriores), <strong>Añadir a pantalla de inicio (iOS)</strong> y <strong>(Android)</strong> con instrucciones en modal. Pulsa <strong>«Guardar configuración»</strong> tras los cambios.</p>
+  <p>Ver guía, <strong>Qué hay de nuevo</strong> (changelog; incluye v2.0 y versiones anteriores), <strong>Añadir a pantalla de inicio (iOS)</strong> y <strong>(Android)</strong> con instrucciones en modal. Pulsa <strong>«Guardar configuración»</strong> tras los cambios.</p>
 
   <h2>9. Notificaciones y recordatorios</h2>
   <p>Aviso antes del fin teórico y al llegar al fin teórico (solo con la app abierta). <strong>Recordatorio entrada:</strong> si configuraste una hora de recordatorio para fichar y no has fichado entrada ese día, la app muestra «¿Has fichado la entrada hoy?» (una vez al día). <strong>Recordatorio salida:</strong> si has fichado entrada pero no salida y han pasado 9 o más horas, muestra «¿Has fichado la salida?» (una vez al día). <strong>Recordatorio backup:</strong> si hace más de 7 días del último backup, la app te lo recuerda.</p>

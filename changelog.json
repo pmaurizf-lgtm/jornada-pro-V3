@@ -1,5 +1,15 @@
 [
   {
+    "version": "2.0.0",
+    "date": "2026-04",
+    "items": [
+      "Acceso rápido (portada): la barra de progreso del día queda justo debajo de «Iniciar jornada» / deslizar para finalizar.",
+      "Portada: líneas «Gastadas (sem.)» y «Gastadas (mes)» con el mismo criterio que el banco (consumo de TxT y de exceso de jornada en el periodo). «Próximo festivo» al final del bloque de resumen.",
+      "Registro diario: formulario en tres filas de dos columnas (fecha | entrada; salir antes | salida real; salida teórica | salida ajustada), bloque centrado y campos más bajos para mejor uso del espacio.",
+      "Guía de uso actualizada (v2.0) alineada con la app."
+    ]
+  },
+  {
     "version": "1.5.0",
     "date": "2026-03",
     "items": [

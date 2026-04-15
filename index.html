@@ -639,7 +639,7 @@
       <summary class="config-summary">Acerca de</summary>
       <div class="config-details-body">
         <div class="config-app-info">
-          <span class="config-app-name">Jornada Pro</span> <span id="configAppVersion" class="config-app-version config-version-tap">v1.6.4</span>
+          <span class="config-app-name">Jornada Pro</span> <span id="configAppVersion" class="config-app-version config-version-tap">v2.0.0</span>
           <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap">Autor</span>: Pablo Mouriz Fontao</div>
         </div>
         <div class="config-contacto">
@@ -650,7 +650,7 @@
     </details>
 
     <div class="config-app-info config-app-info-footer" aria-hidden="true">
-      <span class="config-app-name">Jornada Pro</span> <span id="configAppVersionFooter" class="config-app-version">v1.6.4</span>
+      <span class="config-app-name">Jornada Pro</span> <span id="configAppVersionFooter" class="config-app-version">v2.0.0</span>
     </div>
     <div id="configDevMenu" class="config-dev-menu" hidden>
       <p class="config-dev-title">Desarrollador</p>
@@ -696,6 +696,11 @@
           </div>
         </div>
       </div>
+      <!-- Progreso jornada: justo debajo del botón / slider -->
+      <div class="progress-wrapper resumen-portada-progreso">
+        <div id="barra"></div>
+        <div id="progresoInside" class="progress-text-inside"></div>
+      </div>
       <div class="resumen-portada-line" id="resumenPortadaSemanaWrap">
         <span id="resumenPortadaSemanaLabel">Esta semana</span>
         <strong id="resumenPortadaSemanaHoras">--</strong>
@@ -703,6 +708,14 @@
       <div class="resumen-portada-line">
         <span id="resumenPortadaMesLabel">Este mes</span>
         <strong id="resumenPortadaHoras">--</strong>
+      </div>
+      <div class="resumen-portada-line" id="resumenPortadaGastadasSemanaWrap">
+        <span>Gastadas (sem.)</span>
+        <strong id="resumenPortadaGastadasSemana">--</strong>
+      </div>
+      <div class="resumen-portada-line" id="resumenPortadaGastadasMesWrap">
+        <span id="resumenPortadaGastadasMesLabel">Gastadas (mes)</span>
+        <strong id="resumenPortadaGastadasMes">--</strong>
       </div>
       <div class="resumen-portada-line resumen-portada-comparativa" id="resumenPortadaComparativaWrap">
         <span id="resumenPortadaComparativaLabel">Mes pasado</span>
@@ -721,11 +734,6 @@
         <span>Próximo festivo</span>
         <span id="resumenPortadaFestivo">--</span>
       </div>
-      <!-- Progreso jornada (barra) justo debajo de Iniciar jornada -->
-      <div class="progress-wrapper">
-        <div id="barra"></div>
-        <div id="progresoInside" class="progress-text-inside"></div>
-      </div>
     </div>
   </section>
 
@@ -738,8 +746,9 @@
 
     <h3 style="margin-top:0;">Registro Diario</h3>
 
-    <!-- FECHA + ENTRADA -->
-    <div class="grid-2">
+    <div class="registro-form-blocks">
+    <!-- Fila 1: fecha | entrada -->
+    <div class="grid-2 registro-grid-datos">
 
       <div class="floating-group">
         <input type="date" id="fecha" required>
@@ -753,20 +762,35 @@
 
     </div>
 
-    <!-- SALIDA + AJUSTE -->
-    <div class="grid-2">
-
-      <div class="floating-group">
-        <input type="time" id="salida">
-        <label for="salida">Hora de salida real</label>
-      </div>
+    <!-- Fila 2: salir antes | hora salida real -->
+    <div class="grid-2 registro-grid-salida">
 
       <div class="floating-group" id="wrapMinAntes">
         <input type="number" id="minAntes" min="0">
         <label for="minAntes">Salir antes (minutos)</label>
       </div>
 
+      <div class="floating-group">
+        <input type="time" id="salida">
+        <label for="salida">Hora de salida real</label>
+      </div>
+
     </div>
+
+    <!-- Fila 3: salida teórica | salida ajustada -->
+    <div class="salidas-card salidas-card--registro-grid">
+    <div class="salida-box">
+      <span class="salida-label">Salida teórica</span>
+      <strong id="salidaTeorica">--:--</strong>
+    </div>
+
+    <div class="salida-box">
+      <span class="salida-label">Salida ajustada</span>
+      <strong id="salidaAjustada">--:--</strong>
+    </div>
+    </div>
+    </div>
+
     <input type="hidden" id="disfrutadas" value="0">
 
     <!-- BOTONES -->
@@ -806,19 +830,6 @@
 
     </div>
 
-  </div>
-
-  <!-- SALIDAS VISUALES -->
-  <div class="salidas-card">
-    <div class="salida-box">
-      <span class="salida-label">Salida teórica</span>
-      <strong id="salidaTeorica">--:--</strong>
-    </div>
-
-    <div class="salida-box">
-      <span class="salida-label">Salida ajustada</span>
-      <strong id="salidaAjustada">--:--</strong>
-    </div>
   </div>
 
 <div id="resumenDia" class="resumen-dia">
