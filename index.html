@@ -981,25 +981,7 @@
     </div>
     <!-- Modo horas TxT (GP3/GP4) -->
     <div id="bankPanelHorasTxT" class="bank-txt-wrap">
-      <div class="metric metric-total">
-        <span>Total disponible TxT (Acumulado)</span>
-        <div class="metric-value-rows">
-          <strong id="bTotalDisponibleTxT" class="metric-decimal"></strong>
-          <span id="bTotalDisponibleTxTHm" class="metric-hm"></span>
-          <small id="bTotalDisponibleTxTDias" class="metric-dias"></small>
-          <span id="bTotalDisponibleTxTComposicion" class="metric-banco-composicion" aria-label="Horas regularizadas TxT"></span>
-        </div>
-      </div>
-      <div class="metric metric-total">
-        <span>Total disponible exc. jornada (Acumulado)</span>
-        <div class="metric-value-rows">
-          <strong id="bTotalDisponibleExceso" class="metric-decimal"></strong>
-          <span id="bTotalDisponibleExcesoHm" class="metric-hm"></span>
-          <small id="bTotalDisponibleExcesoDias" class="metric-dias"></small>
-          <span id="bTotalDisponibleExcesoComposicion" class="metric-banco-composicion" aria-label="Horas regularizadas exceso de jornada"></span>
-        </div>
-      </div>
-
+      <!-- Desgloses encima de los totales (mismo ancho y centrados vía CSS) -->
       <!-- Desglose anual (desplegable) -->
       <details class="bank-desplegable" id="bankDesgloseAnual">
         <summary class="bank-desplegable-summary">
@@ -1085,6 +1067,25 @@
           </div>
         </div>
       </details>
+
+      <div class="metric metric-total">
+        <span>Total disponible TxT (Acumulado)</span>
+        <div class="metric-value-rows">
+          <strong id="bTotalDisponibleTxT" class="metric-decimal"></strong>
+          <span id="bTotalDisponibleTxTHm" class="metric-hm"></span>
+          <small id="bTotalDisponibleTxTDias" class="metric-dias"></small>
+          <span id="bTotalDisponibleTxTComposicion" class="metric-banco-composicion" aria-label="Horas regularizadas TxT"></span>
+        </div>
+      </div>
+      <div class="metric metric-total">
+        <span>Total disponible exc. jornada (Acumulado)</span>
+        <div class="metric-value-rows">
+          <strong id="bTotalDisponibleExceso" class="metric-decimal"></strong>
+          <span id="bTotalDisponibleExcesoHm" class="metric-hm"></span>
+          <small id="bTotalDisponibleExcesoDias" class="metric-dias"></small>
+          <span id="bTotalDisponibleExcesoComposicion" class="metric-banco-composicion" aria-label="Horas regularizadas exceso de jornada"></span>
+        </div>
+      </div>
     </div>
   </div>
 

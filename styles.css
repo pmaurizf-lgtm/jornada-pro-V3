@@ -1315,15 +1315,18 @@ body.dark .bank-tab.bank-tab--active {
   padding: 20px 0 0 0;
 }
 
-/* Pestaña Horas TxT (GP3/GP4): métricas en fila horizontal */
+/* Pestaña Horas TxT (GP3/GP4): columna centrada; desgloses encima de totales */
 #bankPanelHoras #bankPanelHorasTxT {
   grid-column: 1 / -1;
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 12px 20px;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 14px;
   width: 100%;
+  max-width: min(560px, 100%);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Banco TxT: contenedor y desplegables */
@@ -1335,8 +1338,9 @@ body.dark .bank-tab.bank-tab--active {
 .bank-txt-wrap {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
   width: 100%;
+  align-items: center;
 }
 
 .bank-desplegable {
@@ -1406,13 +1410,14 @@ body.dark .bank-desplegable-content {
   border-top-color: rgba(255, 255, 255, 0.12);
 }
 
-/* Separación entre totales y desplegables, y entre los dos desplegables */
-#bankPanelHorasTxT .bank-desplegable:first-of-type {
-  margin-top: 14px;
-}
-
-#bankPanelHorasTxT .bank-desplegable + .bank-desplegable {
-  margin-top: 20px;
+/* Desgloses y totales: mismo ancho que el contenedor centrado */
+#screenSaldos #bankPanelHorasTxT .bank-desplegable,
+#screenSaldos #bankPanelHorasTxT .metric.metric-total {
+  width: 100%;
+  max-width: min(560px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
 }
 
 .bank-desplegable-content .metric + .metric {
@@ -1447,7 +1452,7 @@ body.dark .bank-ld-col .metric + .metric {
   margin-bottom: 0;
 }
 
-#bankPanelHoras #bankPanelHorasTxT .metric {
+#bankPanelHoras #bankPanelHorasTxT .metric:not(.metric-total) {
   flex: 1 1 auto;
   min-width: 90px;
 }
@@ -1548,6 +1553,17 @@ body.dark .bank-vacaciones-leyenda {
 
 body.dark .metric-total {
   background: rgba(34, 197, 94, 0.15);
+}
+
+/* Total exc. jornada: tono distinto al TxT (mismo tamaño / layout) */
+#screenSaldos #bankPanelHorasTxT .metric.metric-total + .metric.metric-total {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(251, 191, 36, 0.55);
+}
+
+body.dark #screenSaldos #bankPanelHorasTxT .metric.metric-total + .metric.metric-total {
+  background: rgba(245, 158, 11, 0.18);
+  border-color: rgba(251, 191, 36, 0.4);
 }
 
 .metric-total strong {
@@ -2638,54 +2654,54 @@ button:disabled {
   margin-top: 12px;
 }
 
-/* Registro: botones uniformes (píldora) + crystal, manteniendo color base */
+/* Registro: colores por función (como versiones antiguas), semitransparentes + cristal suave */
 #seccionRegistro .acciones-row button {
-  --btn-glass-bg: rgba(0, 122, 255, 0.82);
+  --btn-glass-bg: rgba(0, 122, 255, 0.42);
   border-radius: 999px;
   padding: 10px 16px;
   font-size: 0.95rem;
   font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.08) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 100%),
     var(--btn-glass-bg) !important;
   color: #ffffff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  backdrop-filter: blur(var(--glass-blur));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 #seccionRegistro #guardar {
-  --btn-glass-bg: rgba(0, 122, 255, 0.78);
+  --btn-glass-bg: rgba(0, 122, 255, 0.42);
 }
 
 #seccionRegistro #vacaciones {
-  --btn-glass-bg: rgba(34, 197, 94, 0.78);
+  --btn-glass-bg: rgba(34, 197, 94, 0.42);
 }
 
 #seccionRegistro .btn-danger {
-  --btn-glass-bg: rgba(255, 107, 107, 0.78);
+  --btn-glass-bg: rgba(239, 68, 68, 0.42);
 }
 
 #seccionRegistro .btn-ld {
-  --btn-glass-bg: rgba(217, 119, 6, 0.78);
+  --btn-glass-bg: rgba(234, 88, 12, 0.42);
 }
 
 #seccionRegistro .btn-disfrute-horas {
-  --btn-glass-bg: rgba(124, 58, 237, 0.78);
+  --btn-glass-bg: rgba(139, 92, 246, 0.42);
 }
 
 #seccionRegistro .btn-disfrute-exceso {
-  --btn-glass-bg: rgba(13, 148, 136, 0.78);
+  --btn-glass-bg: rgba(20, 184, 166, 0.42);
 }
 
 #seccionRegistro .btn-ext-manual {
-  --btn-glass-bg: rgba(29, 78, 216, 0.78);
+  --btn-glass-bg: rgba(59, 130, 246, 0.42);
 }
 
 #seccionRegistro .btn-licencias-retribuidas {
-  --btn-glass-bg: rgba(5, 150, 105, 0.78);
+  --btn-glass-bg: rgba(16, 185, 129, 0.42);
 }
 
 #seccionRegistro .acciones-row button:hover:not(:disabled) {
@@ -3385,7 +3401,7 @@ body.dark .progress-text-inside.light-text {
     padding: 16px 0 0 0;
   }
 
-  #bankPanelHoras #bankPanelHorasTxT .metric {
+  #bankPanelHoras #bankPanelHorasTxT .metric:not(.metric-total) {
     min-width: 80px;
   }
 
