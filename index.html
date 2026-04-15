@@ -584,7 +584,7 @@
           <div id="configResetSaldoWrap" class="config-row config-row-reset">
             <button type="button" id="resetSaldoPrevio" class="config-btn config-btn-reset">Resetear saldo previo</button>
           </div>
-          <p class="config-hint"><strong>Horas extra / exceso previos:</strong> saldo antes de usar la app (en GP3/GP4 no entran en el total disponible si tienes regularización guardada). <strong>Regularización TxT / exc.:</strong> al guardar configuración, el total disponible de cada línea queda como esa cantidad más el neto del calendario <strong>desde la fecha de ese guardado</strong> (días anteriores no cuentan para ese total). Bajo cada total solo se muestra «Regularizado». Los desgloses anual y mensual siguen siendo el balance completo del calendario. <strong>GP1/GP2:</strong> misma lógica de corte con la regularización TxT en la bolsa acumulada.</p>
+          <p class="config-hint"><strong>Horas extra / exceso previos:</strong> saldo antes de usar la app (en GP3/GP4 no entran en el total disponible si tienes regularización guardada). <strong>Regularización TxT / exc.:</strong> al guardar configuración, el total disponible de cada línea queda como esa cantidad más el neto del calendario <strong>desde la fecha de ese guardado</strong> (días anteriores no cuentan para ese total). Los desgloses anual y mensual siguen siendo el balance completo del calendario. <strong>GP1/GP2:</strong> misma lógica de corte con la regularización TxT en la bolsa acumulada.</p>
           <p class="config-hint">Vacaciones y LD previos se suman al total disponible según las reglas de cada bloque.</p>
         </div>
       </div>
@@ -1074,7 +1074,6 @@
           <strong id="bTotalDisponibleTxT" class="metric-decimal"></strong>
           <span id="bTotalDisponibleTxTHm" class="metric-hm"></span>
           <small id="bTotalDisponibleTxTDias" class="metric-dias"></small>
-          <span id="bTotalDisponibleTxTComposicion" class="metric-banco-composicion" aria-label="Horas regularizadas TxT"></span>
         </div>
       </div>
       <div class="metric metric-total">
@@ -1083,7 +1082,6 @@
           <strong id="bTotalDisponibleExceso" class="metric-decimal"></strong>
           <span id="bTotalDisponibleExcesoHm" class="metric-hm"></span>
           <small id="bTotalDisponibleExcesoDias" class="metric-dias"></small>
-          <span id="bTotalDisponibleExcesoComposicion" class="metric-banco-composicion" aria-label="Horas regularizadas exceso de jornada"></span>
         </div>
       </div>
     </div>

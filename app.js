@@ -256,11 +256,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const bTotalDisponibleTxT = document.getElementById("bTotalDisponibleTxT");
   const bTotalDisponibleTxTHm = document.getElementById("bTotalDisponibleTxTHm");
   const bTotalDisponibleTxTDias = document.getElementById("bTotalDisponibleTxTDias");
-  const bTotalDisponibleTxTComposicion = document.getElementById("bTotalDisponibleTxTComposicion");
   const bTotalDisponibleExceso = document.getElementById("bTotalDisponibleExceso");
   const bTotalDisponibleExcesoHm = document.getElementById("bTotalDisponibleExcesoHm");
   const bTotalDisponibleExcesoDias = document.getElementById("bTotalDisponibleExcesoDias");
-  const bTotalDisponibleExcesoComposicion = document.getElementById("bTotalDisponibleExcesoComposicion");
   const bGeneradas = document.getElementById("bGeneradas");
   const bGeneradasHm = document.getElementById("bGeneradasHm");
   const bGeneradasDias = document.getElementById("bGeneradasDias");
@@ -1168,9 +1166,6 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     const deducciones = state.deduccionesPorAusencia || {};
     const deduccionAnualMin = Object.entries(deducciones).filter(([f]) => f.startsWith(String(bankYear))).reduce((s, [, m]) => s + m, 0);
 
-    const regTxt = state.config.regularizacionTxTMin || 0;
-    const regExc = state.config.regularizacionExcesoMin || 0;
-
     const { saldoTxTMin: saldoTxT, saldoExcesoJornadaMin: saldoExceso } = computeSaldosDisponiblesGP34(state);
     const anual = calcularResumenAnual(state.registros, bankYear);
     anual.saldo -= deduccionAnualMin;
@@ -1185,22 +1180,12 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     }
     if (bTotalDisponibleTxTHm) bTotalDisponibleTxTHm.textContent = fmtTxT.hm;
     if (bTotalDisponibleTxTDias) bTotalDisponibleTxTDias.textContent = fmtTxT.dias;
-    if (bTotalDisponibleTxTComposicion) {
-      const fr = formatoHorasConDias(regTxt);
-      bTotalDisponibleTxTComposicion.textContent =
-        "Regularizado TxT: " + fr.decimal + " (" + fr.hm + ", " + fr.dias + ")";
-    }
     if (bTotalDisponibleExceso) {
       bTotalDisponibleExceso.innerText = fmtExceso.decimal;
       bTotalDisponibleExceso.style.color = saldoExceso >= 0 ? "var(--positive)" : "var(--negative)";
     }
     if (bTotalDisponibleExcesoHm) bTotalDisponibleExcesoHm.textContent = fmtExceso.hm;
     if (bTotalDisponibleExcesoDias) bTotalDisponibleExcesoDias.textContent = fmtExceso.dias;
-    if (bTotalDisponibleExcesoComposicion) {
-      const fre = formatoHorasConDias(regExc);
-      bTotalDisponibleExcesoComposicion.textContent =
-        "Regularizado exc. jornada: " + fre.decimal + " (" + fre.hm + ", " + fre.dias + ")";
-    }
 
     const fmtGen = formatoHorasConDias(anual.generadas);
     if (bGeneradas) bGeneradas.innerText = fmtGen.decimal;
