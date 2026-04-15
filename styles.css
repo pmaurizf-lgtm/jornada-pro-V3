@@ -3107,8 +3107,9 @@ body.dark .progress-text-inside.light-text {
 /* Vista móvil: alineación, proporciones y espaciado consistente */
 @media (max-width: 768px) {
   body {
-    padding-left: max(12px, var(--safe-left));
-    padding-right: max(12px, var(--safe-right));
+    /* Full-bleed real: sin márgenes laterales en móvil */
+    padding-left: 0;
+    padding-right: 0;
     overflow-x: hidden;
   }
 
@@ -3137,12 +3138,12 @@ body.dark .progress-text-inside.light-text {
     overflow-x: hidden;
   }
 
-  /* Barra superior: sin cortes, esquinas inferiores redondeadas */
+  /* Barra superior: sin cortes (sin redondeo en móvil) */
   header.header {
     padding: 12px max(12px, var(--safe-right)) 12px max(12px, var(--safe-left));
     padding-top: max(12px, var(--safe-top));
     gap: 12px;
-    border-radius: 0 0 16px 16px;
+    border-radius: 0;
     margin-left: 0;
     margin-right: 0;
   }
@@ -3645,9 +3646,18 @@ body.dark {
 }
 #screenRegistro .registro-card .grid-2.registro-grid-datos,
 #screenRegistro .registro-card .grid-2.registro-grid-salida {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
   margin-bottom: 10px;
+}
+#screenRegistro .registro-card .floating-group {
+  min-width: 0;
+}
+#screenRegistro .registro-card input[type="date"],
+#screenRegistro .registro-card input[type="time"],
+#screenRegistro .registro-card input[type="number"] {
+  width: 100%;
+  min-width: 0;
 }
 #screenRegistro .registro-card input {
   height: 40px;
@@ -3666,7 +3676,7 @@ body.dark {
 }
 #screenRegistro .salidas-card.salidas-card--registro-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
   margin-top: 0;
   margin-bottom: 10px;
