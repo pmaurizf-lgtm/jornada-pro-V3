@@ -83,8 +83,6 @@ body {
   color: var(--text-on-bg);
   transition: background 0.35s ease, color 0.35s ease;
   min-height: 100vh;
-  padding-left: var(--safe-left);
-  padding-right: var(--safe-right);
   padding-bottom: var(--safe-bottom);
   font-feature-settings: "kern" 1, "liga" 1;
   -webkit-font-smoothing: antialiased;
@@ -134,13 +132,15 @@ header.header {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 20px;
+  /* Full width + respeta notch/laterales */
+  padding: 16px max(20px, var(--safe-right)) 16px max(20px, var(--safe-left));
   padding-top: max(16px, var(--safe-top));
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
   background: var(--header-gradient);
   -webkit-backdrop-filter: blur(var(--glass-blur));
   backdrop-filter: blur(var(--glass-blur));
   box-shadow: 0 4px 28px rgba(0, 28, 70, 0.38);
+  border-radius: 0;
   position: sticky;
   top: 0;
   z-index: 50;
@@ -171,6 +171,9 @@ header.header {
   background: var(--card-bg);
   /* Evita que el contenido quede oculto tras la barra inferior */
   padding-bottom: calc(var(--bottom-nav-h) + var(--safe-bottom));
+  /* Full width + respeta notch/laterales */
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
 }
 
 /* En modo pantallas: las secciones principales ocupan todo el ancho/alto disponible */
@@ -230,7 +233,8 @@ header.header {
   bottom: 0;
   z-index: 60;
   height: calc(var(--bottom-nav-h) + var(--safe-bottom));
-  padding: 10px 10px calc(10px + var(--safe-bottom));
+  /* Full width + respeta notch/laterales */
+  padding: 10px max(10px, var(--safe-right)) calc(10px + var(--safe-bottom)) max(10px, var(--safe-left));
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
