@@ -3649,6 +3649,7 @@ body.dark {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
   margin-bottom: 10px;
+  align-items: stretch;
 }
 #screenRegistro .registro-card .floating-group {
   min-width: 0;
@@ -3659,34 +3660,57 @@ body.dark {
   width: 100%;
   min-width: 0;
 }
-#screenRegistro .registro-card input {
-  height: 56px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  text-align: center;
-}
-#screenRegistro .registro-card .floating-group input {
-  padding: 26px 12px 10px 12px;
-  border-radius: var(--radius-sm);
+/* Registro diario (móvil/ios): igualar "ventanas" a las de salida teórica/ajustada.
+   Los inputs date/time tienen estilos nativos; aquí los normalizamos a cajas tipo card. */
+#screenRegistro .registro-card .floating-group {
   background: rgba(255, 255, 255, 0.5);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-}
-#screenRegistro .registro-card .floating-group label {
-  top: 10px;
-  left: 12px;
-  right: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
   text-align: center;
+  box-shadow: var(--glass-shadow);
+}
+body.dark #screenRegistro .registro-card .floating-group {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+#screenRegistro .registro-card .floating-group label {
+  position: static;
+  display: block;
+  margin: 0 0 8px 0;
   font-size: 0.75rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   opacity: 0.75;
+  color: var(--text-muted);
 }
-#screenRegistro .registro-card .floating-group input:focus + label,
-#screenRegistro .registro-card .floating-group input:not(:placeholder-shown) + label,
-#screenRegistro .registro-card .floating-group input:valid + label {
-  top: 6px;
-  font-size: 0.72rem;
+
+#screenRegistro .registro-card .floating-group input {
+  position: static;
+  height: auto;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  width: 100%;
+  min-width: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text);
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* Evitar "píldoras" nativas en iOS para date/time/number */
+#screenRegistro .registro-card input[type="date"],
+#screenRegistro .registro-card input[type="time"],
+#screenRegistro .registro-card input[type="number"] {
+  -webkit-appearance: none;
+  appearance: none;
 }
 #screenRegistro .salidas-card.salidas-card--registro-grid {
   display: grid;
@@ -3703,9 +3727,7 @@ body.dark {
   font-size: 1.25rem;
 }
 
-body.dark #screenRegistro .registro-card .floating-group input {
-  background: rgba(255, 255, 255, 0.06);
-}
+/* (se elimina el override antiguo de fondo del input; ahora el fondo está en el contenedor) */
 
 /* Botones mejor alineados */
 .registro-card .acciones-row {
