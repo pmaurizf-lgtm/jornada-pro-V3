@@ -33,6 +33,7 @@
   --safe-left: env(safe-area-inset-left, 0);
   --safe-right: env(safe-area-inset-right, 0);
   --bottom-nav-h: 68px;
+  --header-h: 76px;
   --btn-iniciar-bg: #5df56b;
   --btn-iniciar-color: #ffffff;
   --btn-bg: #007aff;
@@ -87,6 +88,8 @@ body {
   padding-bottom: var(--safe-bottom);
   font-feature-settings: "kern" 1, "liga" 1;
   -webkit-font-smoothing: antialiased;
+  /* Evitar scroll global: el scroll es por pantalla */
+  overflow: hidden;
 }
 
 /* Enfoque accesible para elementos interactivos (especialmente útil en móvil con teclado externo) */
@@ -148,7 +151,10 @@ header.header {
 /* ============================= */
 
 .app-main {
-  padding: 16px 16px calc(var(--bottom-nav-h) + var(--safe-bottom) + 14px);
+  /* Pantallas a “full bleed”: que no parezcan tarjetas flotantes */
+  padding: 0 0 calc(var(--bottom-nav-h) + var(--safe-bottom));
+  height: calc(100dvh - var(--header-h) - var(--bottom-nav-h) - var(--safe-bottom));
+  overflow: hidden;
 }
 
 .app-screen[hidden] {
@@ -157,6 +163,43 @@ header.header {
 
 .app-screen {
   display: block;
+  padding: 0;
+  height: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* En modo pantallas: las secciones principales ocupan todo el ancho/alto disponible */
+#screenQuick #resumenPortada.card,
+#screenRegistro #seccionRegistro.card,
+#screenCalendario #mainGrid,
+#screenSaldos #seccionMetrics.card {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border-left: none;
+  border-right: none;
+}
+
+/* Quitar “efecto flotante” en pantallas completas */
+#screenQuick #resumenPortada.card,
+#screenRegistro #seccionRegistro.card,
+#screenSaldos #seccionMetrics.card {
+  box-shadow: none;
+}
+
+/* Alinear paddings internos para que respiren como pantalla nativa */
+#screenQuick #resumenPortada.card {
+  padding: 16px 16px 14px;
+}
+
+#screenRegistro #seccionRegistro.card,
+#screenSaldos #seccionMetrics.card {
+  padding: 16px;
+}
+
+/* Calendario: ya es un grid; le damos padding de pantalla */
+#screenCalendario #mainGrid {
+  padding: 10px 10px 14px;
 }
 
 .bottom-nav {
@@ -229,17 +272,36 @@ body.dark .bottom-nav-btn--active {
 /* ============================= */
 
 @media (max-width: 420px) {
-  .app-main {
-    padding: 10px 10px calc(var(--bottom-nav-h) + var(--safe-bottom) + 10px);
+  :root {
+    --header-h: 72px;
   }
-  .card {
-    padding: 14px;
-    margin: 10px;
-    margin-left: max(10px, var(--safe-left));
-    margin-right: max(10px, var(--safe-right));
+  .app-main {
+    padding: 0 0 calc(var(--bottom-nav-h) + var(--safe-bottom));
   }
   #seccionRegistro .registro-card h3 {
     font-size: 1.05rem;
+  }
+}
+
+/* Botonera más compacta en pantallas pequeñas */
+@media (max-width: 420px) {
+  .acciones-row {
+    gap: 0.45rem;
+  }
+  .acciones-row button {
+    padding: 0.45rem 0.6rem;
+    font-size: 0.86rem;
+    border-radius: 14px;
+  }
+  .btn-jornada {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.95rem;
+  }
+  .resumen-portada-line {
+    font-size: 0.9rem;
+  }
+  .resumen-portada-card-value {
+    font-size: 0.92rem;
   }
 }
 

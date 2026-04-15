@@ -1599,7 +1599,9 @@ function controlarNotificaciones() {
     const ahora = new Date();
     let ahoraMin = ahora.getHours() * 60 + ahora.getMinutes();
     const entradaMin = timeToMinutes(entrada.value);
-    if (ahoraMin < entradaMin) ahoraMin += 24 * 60;
+    // Si la entrada es posterior a la hora actual (p. ej. fichar antes de la hora nominal),
+    // no tiene sentido sugerir "extender jornada": evita falsos positivos al cruzar medianoche.
+    if (ahoraMin < entradaMin) return;
     const trabajado = ahoraMin - entradaMin;
     if (trabajado < jornadaRef) return;
     if (localStorage.getItem(EXTEND_PROMPT_KEY + "_" + hoy)) return;
@@ -2664,7 +2666,8 @@ function controlarNotificaciones() {
         modalIniciarOtroPeriodo.hidden = false;
         return;
       }
-      if (entrada) entrada.value = horaInicioJornada();
+      // Al iniciar jornada, fichar la hora real actual (evita bugs antes de las 06:00).
+      if (entrada) entrada.value = ahoraHoraISO();
       if (salida) salida.value = "";
       if (minAntes) minAntes.value = "0";
       if (disfrutadas) disfrutadas.value = "0";
