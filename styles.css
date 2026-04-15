@@ -202,6 +202,23 @@ header.header {
   padding: 10px 10px 14px;
 }
 
+/* Calendario: eliminar efecto "tarjeta flotante" interno */
+#screenCalendario .calendar-card.card,
+#screenCalendario #agendaDiaWrap.card,
+#screenCalendario #plofWrap .plof-agenda-block,
+#screenCalendario #plofWrap {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* El grid principal tenía márgenes laterales: en modo pantalla, a 0 */
+#screenCalendario #mainGrid.main-grid {
+  margin: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 .bottom-nav {
   position: fixed;
   left: 0;
@@ -291,7 +308,7 @@ body.dark .bottom-nav-btn--active {
   .acciones-row button {
     padding: 0.45rem 0.6rem;
     font-size: 0.86rem;
-    border-radius: 14px;
+    border-radius: 999px;
   }
   .btn-jornada {
     padding: 0.6rem 0.8rem;
@@ -2612,7 +2629,37 @@ button:disabled {
   margin-top: 12px;
 }
 
+/* Registro: botones uniformes (píldora) + crystal, manteniendo color base */
+#seccionRegistro .acciones-row button {
+  --btn-solid: var(--btn-bg, #007aff);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.08) 100%),
+    color-mix(in srgb, var(--btn-solid) 84%, transparent);
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+#seccionRegistro .acciones-row button:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 55, 120, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+#seccionRegistro .acciones-row button:active:not(:disabled) {
+  transform: translateY(0);
+  opacity: 0.92;
+}
+
 .btn-danger {
+  --btn-solid: var(--negative);
   background: var(--negative);
   color: #ffffff;
 }
@@ -2622,6 +2669,7 @@ button:disabled {
 }
 
 .btn-ld {
+  --btn-solid: #d97706;
   background: #d97706;
   color: #ffffff;
   padding: 10px 18px;
@@ -2649,6 +2697,7 @@ body.dark .btn-ld {
 }
 
 .btn-disfrute-horas {
+  --btn-solid: #7c3aed;
   background: #7c3aed;
   color: #ffffff;
   padding: 10px 18px;
@@ -2676,6 +2725,7 @@ body.dark .btn-disfrute-horas {
 }
 
 .btn-disfrute-exceso {
+  --btn-solid: #0d9488;
   background: #0d9488;
   color: #ffffff;
   padding: 10px 18px;
@@ -2704,6 +2754,7 @@ body.dark .btn-disfrute-exceso {
 
 /* Botón extensión manual (similar estilo destacado) */
 .btn-ext-manual {
+  --btn-solid: #1d4ed8;
   background: #1d4ed8;
   color: #ffffff;
   padding: 10px 14px;
@@ -2731,6 +2782,7 @@ body.dark .btn-ext-manual {
 
 /* Licencias Retribuidas: color que destaca */
 .btn-licencias-retribuidas {
+  --btn-solid: #059669;
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
   color: #ffffff;
   padding: 10px 14px;
