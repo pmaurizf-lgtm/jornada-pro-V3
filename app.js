@@ -612,8 +612,6 @@ if (cfgModoNoruega && configModoNoruegaFechasWrap) {
 
 // Aplicar tema al iniciar
 aplicarTheme(state.config.theme);
-// Programar modo vago al iniciar
-programarModoVago();
 if (state.modoPlof) applyModoPlofUI(true);
 
 function applyModoPlofUI(active) {
@@ -5185,6 +5183,8 @@ if(festivos && festivos[fechaISO]){
 
   // Ocultar splash tras carga inicial; mostrar consejo del día una vez al día
   setTimeout(() => {
+    // Programar modo vago una vez que todo está inicializado (evita TDZ)
+    try { programarModoVago(); } catch (e) {}
     hideSplash();
     try {
       setTimeout(mostrarSugerenciaDiaSiAplica, 300);
