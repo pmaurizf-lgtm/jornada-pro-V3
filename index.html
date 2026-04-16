@@ -1330,7 +1330,22 @@
   }
 
   navigator.serviceWorker
-    .register(SW_URL)
+    .getRegistrations()
+    .then(function (regs) {
+      // Limpieza: desregistrar service workers antiguos (p. ej. sw.js) que puedan estar sirviendo assets viejos
+      return Promise.all(
+        (regs || []).map(function (r) {
+          try {
+            var url = (r && r.active && r.active.scriptURL) || (r && r.installing && r.installing.scriptURL) || (r && r.waiting && r.waiting.scriptURL) || "";
+            if (url && url.indexOf("service-worker.js") === -1) {
+              return r.unregister().catch(function () {});
+            }
+          } catch (e) {}
+          return Promise.resolve();
+        })
+      );
+    })
+    .then(function () { return navigator.serviceWorker.register(SW_URL); })
     .then(function (reg) {
       swReg = reg;
       if (reg.waiting) handleWaitingWorker(reg);
