@@ -376,6 +376,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const pinOverlay = document.getElementById("pinOverlay");
   const pinInput = document.getElementById("pinInput");
   const pinUnlock = document.getElementById("pinUnlock");
+  const cfgModoVago = document.getElementById("cfgModoVago");
+  const cfgModoVagoEntrada = document.getElementById("cfgModoVagoEntrada");
+  const cfgModoVagoSalida = document.getElementById("cfgModoVagoSalida");
   const cfgTrabajoTurnos = document.getElementById("cfgTrabajoTurnos");
   const cfgTurno = document.getElementById("cfgTurno");
   const cfgHorasExtraPrevias = document.getElementById("cfgHorasExtraPrevias");
@@ -384,6 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cfgRegularizacionExceso = document.getElementById("cfgRegularizacionExceso");
   const cfgVacacionesDiasPrevio = document.getElementById("cfgVacacionesDiasPrevio");
   const btnResetSaldoPrevio = document.getElementById("resetSaldoPrevio");
+  const configModoVagoWrap = document.getElementById("configModoVagoWrap");
   const configTurnoWrap = document.getElementById("configTurnoWrap");
   const cfgModoNoruega = document.getElementById("cfgModoNoruega");
   const cfgModoNoruegaDesde = document.getElementById("cfgModoNoruegaDesde");
@@ -469,6 +473,10 @@ function aplicarEstadoConfigAUI() {
   if (cfgNotificaciones) cfgNotificaciones.checked = state.config.notificationsEnabled !== false;
   if (cfgRecordatorioFichar) cfgRecordatorioFichar.value = state.config.recordatorioFicharHora || "";
   if (cfgPinEnabled) cfgPinEnabled.checked = !!state.config.pinEnabled;
+  if (cfgModoVago) cfgModoVago.checked = state.config.modoVago === true;
+  if (cfgModoVagoEntrada) cfgModoVagoEntrada.value = state.config.modoVagoEntrada || "";
+  if (cfgModoVagoSalida) cfgModoVagoSalida.value = state.config.modoVagoSalida || "";
+  if (configModoVagoWrap) configModoVagoWrap.hidden = !(state.config.modoVago === true);
   if (cfgTrabajoTurnos) cfgTrabajoTurnos.checked = state.config.trabajoATurnos === true;
   if (cfgTurno) cfgTurno.value = state.config.turno || "06-14";
   if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = ((state.config.horasExtraInicialMin || 0) / 60).toFixed(2).replace(".", ",");
@@ -488,6 +496,13 @@ function aplicarEstadoConfigAUI() {
 }
 
 aplicarEstadoConfigAUI();
+
+// Toggle visibilidad Modo vago
+if (cfgModoVago && configModoVagoWrap) {
+  cfgModoVago.addEventListener("change", () => {
+    configModoVagoWrap.hidden = !cfgModoVago.checked;
+  });
+}
 
 // Toggle visibilidad selector turno
 if (cfgTrabajoTurnos && configTurnoWrap) {
@@ -597,6 +612,8 @@ if (cfgModoNoruega && configModoNoruegaFechasWrap) {
 
 // Aplicar tema al iniciar
 aplicarTheme(state.config.theme);
+// Programar modo vago al iniciar
+programarModoVago();
 if (state.modoPlof) applyModoPlofUI(true);
 
 function applyModoPlofUI(active) {
@@ -749,6 +766,16 @@ function aplicarSimboloPlof(symbol) {
     state.config.vacacionesDiasPrevio = Math.max(0, parseInt(cfgVacacionesDiasPrevio?.value, 10) || 0);
     state.config.recordatorioFicharHora = (cfgRecordatorioFichar && cfgRecordatorioFichar.value) ? cfgRecordatorioFichar.value : "";
     state.config.pinEnabled = cfgPinEnabled ? cfgPinEnabled.checked : false;
+    state.config.modoVago = !!(cfgModoVago && cfgModoVago.checked);
+    state.config.modoVagoEntrada = (cfgModoVagoEntrada && cfgModoVagoEntrada.value) ? cfgModoVagoEntrada.value : "";
+    state.config.modoVagoSalida = (cfgModoVagoSalida && cfgModoVagoSalida.value) ? cfgModoVagoSalida.value : "";
+    if (state.config.modoVago) {
+      const okTime = (t) => typeof t === "string" && /^\d{2}:\d{2}$/.test(t);
+      if (!okTime(state.config.modoVagoEntrada) || !okTime(state.config.modoVagoSalida)) {
+        showToast("Modo vago: indica hora de entrada y salida (HH:MM).", "error");
+        return false;
+      }
+    }
     if (state.vacacionesDiasPorAnio) {
       state.vacacionesDiasPorAnio = { ...state.vacacionesDiasPorAnio, "2025": state.config.vacacionesDiasPrevio };
     } else {
@@ -758,6 +785,160 @@ function aplicarSimboloPlof(symbol) {
     const ldPrev = Math.max(0, parseInt(cfgLDDiasPrevio?.value, 10) || 0);
     state.ldDiasPorAnio = state.ldDiasPorAnio && typeof state.ldDiasPorAnio === "object" ? { ...state.ldDiasPorAnio, [anioCurso]: ldPrev } : { [anioCurso]: ldPrev };
     return true;
+  }
+
+  // ===============================
+  // MODO VAGO (auto fichaje lun–vie)
+  // ===============================
+
+  let modoVagoTimeoutEntrada = null;
+  let modoVagoTimeoutSalida = null;
+  let modoVagoInterval = null;
+
+  function limpiarProgramacionModoVago() {
+    if (modoVagoTimeoutEntrada) { clearTimeout(modoVagoTimeoutEntrada); modoVagoTimeoutEntrada = null; }
+    if (modoVagoTimeoutSalida) { clearTimeout(modoVagoTimeoutSalida); modoVagoTimeoutSalida = null; }
+    if (modoVagoInterval) { clearInterval(modoVagoInterval); modoVagoInterval = null; }
+  }
+
+  function modoVagoActivoYValido() {
+    if (!state?.config?.modoVago) return false;
+    // Evitar choques con modos que ya auto-rellenan o alteran la lógica diaria
+    if (state.config.trabajoATurnos === true) return false;
+    if (state.config.modoNoruega === true) return false;
+    const e = (state.config.modoVagoEntrada || "").trim();
+    const s = (state.config.modoVagoSalida || "").trim();
+    if (!/^\d{2}:\d{2}$/.test(e) || !/^\d{2}:\d{2}$/.test(s)) return false;
+    return true;
+  }
+
+  function nextWeekdayDateTime(targetTimeStr, fromDate) {
+    const base = fromDate ? new Date(fromDate) : new Date();
+    const [hh, mm] = targetTimeStr.split(":").map(Number);
+    for (let i = 0; i < 8; i++) {
+      const d = new Date(base);
+      d.setDate(d.getDate() + i);
+      const dow = d.getDay();
+      if (dow === 0 || dow === 6) continue; // solo lun–vie
+      d.setHours(hh, mm, 0, 0);
+      if (d.getTime() > base.getTime() + 1000) return d;
+    }
+    return null;
+  }
+
+  function diaEsLaborableLunVie(iso) {
+    const d = new Date(iso + "T12:00:00");
+    const dow = d.getDay();
+    return dow >= 1 && dow <= 5;
+  }
+
+  function registroBloqueadoParaAuto(fechaISO) {
+    const r = state.registros?.[fechaISO];
+    if (!r) return false;
+    return !!(r.vacaciones || r.libreDisposicion || r.licenciaRetribuida || r.disfruteHorasExtra || r.disfruteExcesoJornada);
+  }
+
+  function guardarRegistroSilencioso(fechaISO, entradaStr, salidaStr) {
+    if (!fechaISO || !entradaStr) return;
+    if (registroBloqueadoParaAuto(fechaISO)) return;
+    const salidaParaGuardar = salidaStr || null;
+    const resultado = calcularJornada({
+      entrada: entradaStr,
+      salidaReal: salidaParaGuardar,
+      jornadaMin: state.config.jornadaMin,
+      minAntes: 0,
+      trabajoATurnos: false
+    });
+    const prevGuardar = state.registros[fechaISO];
+    let entradaParaGuardar = entradaStr;
+    let trabajadosParaGuardar = resultado.trabajadosMin || 0;
+    if (prevGuardar && prevGuardar.trabajadosMinAcumulado != null) {
+      entradaParaGuardar = prevGuardar.entradaPrimera != null ? prevGuardar.entradaPrimera : entradaStr;
+      trabajadosParaGuardar = (prevGuardar.trabajadosMinAcumulado || 0) + (resultado.trabajadosMin || 0);
+    }
+    const yaPaseSinJustificadoGuardar = prevGuardar && prevGuardar.paseSinJustificado === true;
+    const yaPaseJustificadoGuardar = prevGuardar && prevGuardar.paseJustificado === true;
+    let regGuardar = aplicarTxTSiFinDeSemanaOFestivo({
+      ...resultado,
+      entrada: entradaParaGuardar,
+      salidaReal: salidaParaGuardar,
+      trabajadosMin: trabajadosParaGuardar,
+      disfrutadasManualMin: 0,
+      vacaciones: false
+    }, fechaISO);
+    delete regGuardar.entradaPrimera;
+    delete regGuardar.trabajadosMinAcumulado;
+    regGuardar.ultimaModificacionISO = new Date().toISOString();
+    state.registros[fechaISO] = regGuardar;
+    if (yaPaseSinJustificadoGuardar) state.registros[fechaISO].paseSinJustificado = true;
+    if (yaPaseJustificadoGuardar) state.registros[fechaISO].paseJustificado = true;
+    saveState(state);
+    if (fechaISO === getHoyISO()) limpiarBorradorSesion();
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+    actualizarEstadoEliminar();
+    actualizarEstadoIniciarJornada();
+    actualizarResumenDia();
+    actualizarProgreso();
+    if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
+  }
+
+  function ejecutarModoVagoTick() {
+    if (!modoVagoActivoYValido()) return;
+    const hoy = getHoyISO();
+    if (!diaEsLaborableLunVie(hoy)) return;
+    if (registroBloqueadoParaAuto(hoy)) return;
+    const entradaCfg = state.config.modoVagoEntrada;
+    const salidaCfg = state.config.modoVagoSalida;
+    const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+    const entradaMin = timeToMinutes(entradaCfg);
+    const salidaMin = timeToMinutes(salidaCfg);
+    const regHoy = state.registros[hoy];
+    const yaFinalizado = !!(regHoy && regHoy.salidaReal != null);
+
+    // Auto-iniciar: si aún no hay entrada en UI y no hay registro con entrada
+    if (nowMin >= entradaMin && !yaFinalizado) {
+      const yaTieneEntradaRegistro = !!(regHoy && regHoy.entrada);
+      if (!yaTieneEntradaRegistro && entrada && !entrada.value) {
+        if (fecha) fecha.value = hoy;
+        entrada.value = entradaCfg;
+        if (salida) salida.value = "";
+        if (minAntes) minAntes.value = "0";
+        if (disfrutadas) disfrutadas.value = "0";
+        guardarBorradorSesion();
+        actualizarEstadoIniciarJornada();
+        recalcularEnVivo();
+        actualizarProgreso();
+        actualizarResumenDia();
+        if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
+      }
+    }
+
+    // Auto-finalizar: si ya pasó la hora de salida y no hay salida guardada
+    if (nowMin >= salidaMin && !yaFinalizado) {
+      const entradaParaCerrar = (entrada && entrada.value) ? entrada.value : (regHoy && regHoy.entrada) ? regHoy.entrada : entradaCfg;
+      guardarRegistroSilencioso(hoy, entradaParaCerrar, salidaCfg);
+    }
+  }
+
+  function programarModoVago() {
+    limpiarProgramacionModoVago();
+    if (!modoVagoActivoYValido()) return;
+    // Tick inmediato por si ya pasó la hora (o la app volvió de background)
+    ejecutarModoVagoTick();
+    // Fallback: re-evaluar cada minuto
+    modoVagoInterval = setInterval(ejecutarModoVagoTick, 60 * 1000);
+
+    const now = new Date();
+    const dEntrada = nextWeekdayDateTime(state.config.modoVagoEntrada, now);
+    const dSalida = nextWeekdayDateTime(state.config.modoVagoSalida, now);
+    if (dEntrada) {
+      modoVagoTimeoutEntrada = setTimeout(() => { ejecutarModoVagoTick(); programarModoVago(); }, Math.max(0, dEntrada.getTime() - now.getTime()));
+    }
+    if (dSalida) {
+      modoVagoTimeoutSalida = setTimeout(() => { ejecutarModoVagoTick(); programarModoVago(); }, Math.max(0, dSalida.getTime() - now.getTime()));
+    }
   }
 
   function descargarArchivoBackupJson(json, nombreBase) {
@@ -876,6 +1057,7 @@ if (guardarConfig) {
 
     sincronizarRegistrosModoNoruega();
     aplicarEstadoConfigAUI();
+    programarModoVago();
 
     aplicarTheme(state.config.theme);
     aplicarModoGrupoProfesional();

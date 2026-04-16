@@ -498,6 +498,30 @@
     <details class="config-details">
       <summary class="config-summary">Configuración de Jornada</summary>
       <div class="config-details-body">
+        <div class="config-block config-block-vago">
+          <div class="config-row config-row--switch">
+            <span class="config-label" id="labelCfgModoVago">Modo vago</span>
+            <label class="config-switch">
+              <input type="checkbox" id="cfgModoVago" class="config-switch-input" role="switch" aria-labelledby="labelCfgModoVago">
+              <span class="config-switch-track" aria-hidden="true">
+                <span class="config-switch-text config-switch-text--on">Sí</span>
+                <span class="config-switch-text config-switch-text--off">No</span>
+                <span class="config-switch-thumb"></span>
+              </span>
+            </label>
+          </div>
+          <p class="config-hint">Si lo activas, la app fichará automáticamente de lunes a viernes a la hora indicada (solo mientras la app esté abierta).</p>
+          <div id="configModoVagoWrap" class="config-noruega-fechas" hidden>
+            <label class="config-row">
+              <span class="config-label">Hora habitual de entrada</span>
+              <input type="time" id="cfgModoVagoEntrada" class="config-input" aria-label="Hora habitual de entrada (modo vago)">
+            </label>
+            <label class="config-row">
+              <span class="config-label">Hora habitual de salida</span>
+              <input type="time" id="cfgModoVagoSalida" class="config-input" aria-label="Hora habitual de salida (modo vago)">
+            </label>
+          </div>
+        </div>
         <div class="config-block config-block-turnos">
           <div class="config-row config-row--switch">
             <span class="config-label" id="labelCfgTrabajoTurnos">Trabajo a turnos</span>
