@@ -794,11 +794,24 @@ function aplicarSimboloPlof(symbol) {
   let modoVagoTimeoutEntrada = null;
   let modoVagoTimeoutSalida = null;
   let modoVagoInterval = null;
+  let modoVagoManualOverrideListenerSet = false;
 
   function limpiarProgramacionModoVago() {
     if (modoVagoTimeoutEntrada) { clearTimeout(modoVagoTimeoutEntrada); modoVagoTimeoutEntrada = null; }
     if (modoVagoTimeoutSalida) { clearTimeout(modoVagoTimeoutSalida); modoVagoTimeoutSalida = null; }
     if (modoVagoInterval) { clearInterval(modoVagoInterval); modoVagoInterval = null; }
+  }
+
+  function ensureModoVagoOverrides() {
+    if (!state.modoVagoOverrides || typeof state.modoVagoOverrides !== "object") state.modoVagoOverrides = {};
+  }
+
+  function setModoVagoOverride(fechaISO, enabled) {
+    if (!fechaISO) return;
+    ensureModoVagoOverrides();
+    if (enabled) state.modoVagoOverrides[fechaISO] = true;
+    else delete state.modoVagoOverrides[fechaISO];
+    saveState(state);
   }
 
   function modoVagoActivoYValido() {
@@ -840,6 +853,8 @@ function aplicarSimboloPlof(symbol) {
 
   function guardarRegistroSilencioso(fechaISO, entradaStr, salidaStr) {
     if (!fechaISO || !entradaStr) return;
+    // No sobrescribir nada existente: si el usuario ya tocó el día (o hay cualquier registro), no intervenir.
+    if (state.registros && state.registros[fechaISO]) return;
     if (registroBloqueadoParaAuto(fechaISO)) return;
     const salidaParaGuardar = salidaStr || null;
     const resultado = calcularJornada({
@@ -884,11 +899,44 @@ function aplicarSimboloPlof(symbol) {
     if (typeof actualizarResumenPortada === "function") actualizarResumenPortada();
   }
 
+  function addDaysISO(iso, deltaDays) {
+    const d = new Date(iso + "T12:00:00");
+    d.setDate(d.getDate() + deltaDays);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+
+  function rellenarDiasPendientesModoVago() {
+    if (!modoVagoActivoYValido()) return;
+    const hoy = getHoyISO();
+    const entradaCfg = state.config.modoVagoEntrada;
+    const salidaCfg = state.config.modoVagoSalida;
+    const ultimo = (state.config.modoVagoUltimoRellenoISO || "").trim();
+    // Si no hay último, al menos rellenamos desde el lunes de esta semana.
+    const [lunesSemana] = typeof getLunesDomingoSemana === "function" ? getLunesDomingoSemana(hoy) : [hoy];
+    let start = lunesSemana;
+    if (ultimo && /^\d{4}-\d{2}-\d{2}$/.test(ultimo)) {
+      start = addDaysISO(ultimo, 1);
+    }
+    // Rellenar desde start hasta ayer, solo lun–vie y si no hay registro.
+    let cur = start;
+    const ayer = addDaysISO(hoy, -1);
+    while (cur <= ayer) {
+      if (diaEsLaborableLunVie(cur) && !registroBloqueadoParaAuto(cur) && !(state.registros && state.registros[cur])) {
+        guardarRegistroSilencioso(cur, entradaCfg, salidaCfg);
+      }
+      cur = addDaysISO(cur, 1);
+    }
+    state.config.modoVagoUltimoRellenoISO = hoy;
+    saveState(state);
+  }
+
   function ejecutarModoVagoTick() {
     if (!modoVagoActivoYValido()) return;
     const hoy = getHoyISO();
     if (!diaEsLaborableLunVie(hoy)) return;
     if (registroBloqueadoParaAuto(hoy)) return;
+    ensureModoVagoOverrides();
+    if (state.modoVagoOverrides[hoy]) return;
     const entradaCfg = state.config.modoVagoEntrada;
     const salidaCfg = state.config.modoVagoSalida;
     const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
@@ -925,6 +973,23 @@ function aplicarSimboloPlof(symbol) {
   function programarModoVago() {
     limpiarProgramacionModoVago();
     if (!modoVagoActivoYValido()) return;
+    // Relleno retroactivo al abrir la app (si no se abrió antes en la semana)
+    rellenarDiasPendientesModoVago();
+    // Si el usuario toca botones/campos hoy, no pisar (override manual)
+    if (!modoVagoManualOverrideListenerSet) {
+      modoVagoManualOverrideListenerSet = true;
+      document.addEventListener("click", (ev) => {
+        const t = ev.target;
+        if (!(t instanceof Element)) return;
+        if (t.closest("#seccionRegistro .acciones-row button") || t.closest("#finalizarJornadaWrap") || t.closest("#iniciarJornada")) {
+          setModoVagoOverride(getHoyISO(), true);
+        }
+      }, true);
+      const markOverride = () => { try { setModoVagoOverride(getHoyISO(), true); } catch (_) {} };
+      if (entrada) entrada.addEventListener("change", markOverride);
+      if (salida) salida.addEventListener("change", markOverride);
+      if (minAntes) minAntes.addEventListener("change", markOverride);
+    }
     // Tick inmediato por si ya pasó la hora (o la app volvió de background)
     ejecutarModoVagoTick();
     // Fallback: re-evaluar cada minuto
