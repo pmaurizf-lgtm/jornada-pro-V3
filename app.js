@@ -30,7 +30,7 @@ import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.j
 
 import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
 
-const APP_VERSION = "2.0.1";
+const APP_VERSION = "2.0.2";
 if (typeof window !== "undefined") {
   window.JORNADA_PRO_APP_VERSION = APP_VERSION;
 }
@@ -460,6 +460,25 @@ document.addEventListener("DOMContentLoaded", () => {
 // CONFIGURACIÓN
 // ===============================
 
+function formatHorasSaldoUI(minutos) {
+  return ((Number(minutos) || 0) / 60).toFixed(2).replace(".", ",");
+}
+
+function parseSaldoHorasDesdeCampo(raw, prevMinutos, etiquetaError) {
+  const s = String(raw ?? "").trim().replace(/\s/g, "").replace(",", ".");
+  if (s === "") return { ok: true, minutos: prevMinutos };
+  const n = parseFloat(s);
+  if (!Number.isFinite(n)) {
+    showToast(etiquetaError + ": número no válido.", "error");
+    return { ok: false };
+  }
+  if (n < 0) {
+    showToast(etiquetaError + ": no puede ser negativo.", "error");
+    return { ok: false };
+  }
+  return { ok: true, minutos: Math.round(n * 60) };
+}
+
 function aplicarEstadoConfigAUI() {
   if (cfgNombreCompleto) cfgNombreCompleto.value = state.config.nombreCompleto || "";
   if (cfgNumeroSAP) cfgNumeroSAP.value = state.config.numeroSAP || "";
@@ -479,10 +498,10 @@ function aplicarEstadoConfigAUI() {
   if (configModoVagoWrap) configModoVagoWrap.hidden = !(state.config.modoVago === true);
   if (cfgTrabajoTurnos) cfgTrabajoTurnos.checked = state.config.trabajoATurnos === true;
   if (cfgTurno) cfgTurno.value = state.config.turno || "06-14";
-  if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = ((state.config.horasExtraInicialMin || 0) / 60).toFixed(2).replace(".", ",");
-  if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = ((state.config.excesoJornadaInicialMin || 0) / 60).toFixed(2).replace(".", ",");
-  if (cfgRegularizacionTxT) cfgRegularizacionTxT.value = ((state.config.regularizacionTxTMin || 0) / 60).toFixed(2).replace(".", ",");
-  if (cfgRegularizacionExceso) cfgRegularizacionExceso.value = ((state.config.regularizacionExcesoMin || 0) / 60).toFixed(2).replace(".", ",");
+  if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = formatHorasSaldoUI(state.config.horasExtraInicialMin);
+  if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = formatHorasSaldoUI(state.config.excesoJornadaInicialMin);
+  if (cfgRegularizacionTxT) cfgRegularizacionTxT.value = formatHorasSaldoUI(state.config.regularizacionTxTMin);
+  if (cfgRegularizacionExceso) cfgRegularizacionExceso.value = formatHorasSaldoUI(state.config.regularizacionExcesoMin);
   if (cfgVacacionesDiasPrevio) cfgVacacionesDiasPrevio.value = String(state.config.vacacionesDiasPrevio ?? 0);
   if (labelVacacionesDiasPrevio) labelVacacionesDiasPrevio.textContent = "Días de vacaciones previos (" + (new Date().getFullYear() - 1) + ")";
   const anioCurso = new Date().getFullYear();
@@ -697,6 +716,8 @@ function aplicarSimboloPlof(symbol) {
 
   /** Incluye nombre, SAP, Noruega, LD, saldos previos, etc. */
   function sincronizarConfiguracionDesdeFormulario() {
+    const prevHorasExtra = state.config.horasExtraInicialMin ?? 0;
+    const prevExcesoIni = state.config.excesoJornadaInicialMin ?? 0;
     const prevRegTxt = state.config.regularizacionTxTMin ?? 0;
     const prevRegExc = state.config.regularizacionExcesoMin ?? 0;
     const prevCorteTxt = state.config.regularizacionTxTCorteFecha || "";
@@ -743,11 +764,18 @@ function aplicarSimboloPlof(symbol) {
       if (cfgTrabajoTurnos) cfgTrabajoTurnos.checked = false;
       if (configTurnoWrap) configTurnoWrap.hidden = true;
     }
-    const parseDecimal = (v) => parseFloat(String(v || "").replace(",", ".")) || 0;
-    state.config.horasExtraInicialMin = Math.round(parseDecimal(cfgHorasExtraPrevias?.value) * 60);
-    state.config.excesoJornadaInicialMin = Math.round(parseDecimal(cfgExcesoJornadaPrevias?.value) * 60);
-    const newRegTxt = Math.round(parseDecimal(cfgRegularizacionTxT?.value) * 60);
-    const newRegExc = Math.round(parseDecimal(cfgRegularizacionExceso?.value) * 60);
+    const ph = parseSaldoHorasDesdeCampo(cfgHorasExtraPrevias?.value, prevHorasExtra, "Horas extra previas");
+    if (!ph.ok) return false;
+    state.config.horasExtraInicialMin = ph.minutos;
+    const pe = parseSaldoHorasDesdeCampo(cfgExcesoJornadaPrevias?.value, prevExcesoIni, "Exceso jornada previo");
+    if (!pe.ok) return false;
+    state.config.excesoJornadaInicialMin = pe.minutos;
+    const prt = parseSaldoHorasDesdeCampo(cfgRegularizacionTxT?.value, prevRegTxt, "Regularización TxT");
+    if (!prt.ok) return false;
+    const pre = parseSaldoHorasDesdeCampo(cfgRegularizacionExceso?.value, prevRegExc, "Regularización exc. jornada");
+    if (!pre.ok) return false;
+    const newRegTxt = prt.minutos;
+    const newRegExc = pre.minutos;
     state.config.regularizacionTxTMin = newRegTxt;
     state.config.regularizacionExcesoMin = newRegExc;
     const hoyISO = getHoyISO();

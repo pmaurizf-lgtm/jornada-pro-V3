@@ -1,5 +1,13 @@
 [
   {
+    "version": "2.0.2",
+    "date": "2026-04",
+    "items": [
+      "Saldo previo y regularización: campos de horas como texto con coma o punto decimal; al guardar, un campo vacío conserva el valor anterior; validación de números no válidos o negativos.",
+      "Service worker: caché v9 y parámetro ?v=9 en estilos, app y registro del worker para forzar la última versión en clientes en caché."
+    ]
+  },
+  {
     "version": "2.0.0",
     "date": "2026-04",
     "items": [
