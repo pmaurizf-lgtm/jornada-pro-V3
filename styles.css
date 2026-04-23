@@ -3253,6 +3253,137 @@ body.dark .progress-text-inside.light-text {
     margin-bottom: 8px;
   }
 
+/* ============================= */
+/* REGISTRO: EXTENSIÓN           */
+/* ============================= */
+
+.registro-extension.card {
+  margin-top: 14px;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+body.dark .registro-extension.card {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.registro-extension-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.registro-extension-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.registro-extension-estado {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.acciones-row--compact {
+  margin-top: 8px;
+}
+
+.registro-extension-hint {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+/* ============================= */
+/* CALENDARIO: FICHAJES DEL DÍA  */
+/* ============================= */
+
+.cal-fichajes-dia {
+  padding: 16px;
+}
+
+.cal-fichajes-titulo {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+
+.cal-fichajes-fecha {
+  margin: 0 0 12px;
+  opacity: 0.9;
+}
+
+.cal-fichajes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 12px;
+}
+
+.cal-fichaje-item {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+body.light .cal-fichaje-item {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.cal-fichaje-label {
+  display: block;
+  font-size: 0.82rem;
+  opacity: 0.85;
+  margin-bottom: 2px;
+}
+
+.cal-fichaje-value {
+  font-size: 1rem;
+}
+
+.cal-fichajes-extension {
+  margin-top: 12px;
+}
+
+.cal-fichajes-subtitulo {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+
+.cal-fichajes-ext-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.cal-fichajes-ext-lista li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+body.light .cal-fichajes-ext-lista li {
+  background: rgba(0, 0, 0, 0.035);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.cal-ext-tramo {
+  font-weight: 600;
+}
+
+.cal-ext-min {
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
   .salida-box {
     padding: 12px;
     min-height: 52px;

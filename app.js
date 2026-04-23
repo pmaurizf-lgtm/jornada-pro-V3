@@ -89,6 +89,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const salidaTeorica = document.getElementById("salidaTeorica");
   const salidaAjustada = document.getElementById("salidaAjustada");
+  const registroExtensionWrap = document.getElementById("registroExtensionWrap");
+  const registroExtensionEstado = document.getElementById("registroExtensionEstado");
+  const registroExtInicio = document.getElementById("registroExtInicio");
+  const registroExtFin = document.getElementById("registroExtFin");
+  const btnRegistroExtIniciarAhora = document.getElementById("btnRegistroExtIniciarAhora");
+  const btnRegistroExtMarcarInicio = document.getElementById("btnRegistroExtMarcarInicio");
+  const btnRegistroExtGuardarTramo = document.getElementById("btnRegistroExtGuardarTramo");
+  const btnRegistroExtFinalizar = document.getElementById("btnRegistroExtFinalizar");
 
   const barra = document.getElementById("barra");
   const progresoTxt = document.getElementById("progresoTxt");
@@ -97,6 +105,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const splashScreen = document.getElementById("splashScreen");
   const toastContainer = document.getElementById("toastContainer");
   const emptyStateCalendar = document.getElementById("emptyStateCalendar");
+  const calFichajesDiaWrap = document.getElementById("calFichajesDiaWrap");
+  const calFichajesDiaFecha = document.getElementById("calFichajesDiaFecha");
+  const calFichajesEntrada = document.getElementById("calFichajesEntrada");
+  const calFichajesSalida = document.getElementById("calFichajesSalida");
+  const calFichajesSalidaTeorica = document.getElementById("calFichajesSalidaTeorica");
+  const calFichajesSalidaAjustada = document.getElementById("calFichajesSalidaAjustada");
+  const calFichajesExtensionWrap = document.getElementById("calFichajesExtensionWrap");
+  const calFichajesExtensionLista = document.getElementById("calFichajesExtensionLista");
   const resumenPortada = document.getElementById("resumenPortada");
   const resumenPortadaFecha = document.getElementById("resumenPortadaFecha");
   const resumenPortadaReloj = document.getElementById("resumenPortadaReloj");
@@ -2833,19 +2849,24 @@ function controlarNotificaciones() {
     showToast("Datos actualizados", "success");
   }
 
-  function ejecutarFinalizarExtension() {
+  function ejecutarFinalizarExtension(finTime) {
     const hoy = getHoyISO();
     const ext = state.extensionJornada;
     if (!ext || ext.fecha !== hoy || !state.registros[hoy]) return;
 
-    const ahoraMin = new Date().getHours() * 60 + new Date().getMinutes();
+    const finStr = (typeof finTime === "string" && /^\d{2}:\d{2}$/.test(finTime)) ? finTime : ahoraHoraISO();
+    let finMin = timeToMinutes(finStr);
     const desdeMin = timeToMinutes(ext.desdeTime);
-    let extraMin = ahoraMin - desdeMin;
-    if (extraMin < 0) extraMin += 24 * 60;
+    if (finMin < desdeMin) finMin += 24 * 60;
+    let extraMin = finMin - desdeMin;
     extraMin = extraEnBloques15(extraMin);
 
     const reg = state.registros[hoy];
     reg.extraGeneradaMin = (reg.extraGeneradaMin || 0) + extraMin;
+    if (extraMin > 0) {
+      reg.extensionTramos = Array.isArray(reg.extensionTramos) ? reg.extensionTramos : [];
+      reg.extensionTramos.push({ inicio: ext.desdeTime, fin: finStr, minutos: extraMin });
+    }
     if (state.config.trabajoATurnos && extraMin > 0) {
       const EXCESO_JORNADA_TURNOS_MIN = 21;
       reg.excesoJornadaMin = (reg.excesoJornadaMin || 0) + Math.min(extraMin, EXCESO_JORNADA_TURNOS_MIN);
@@ -2860,6 +2881,66 @@ function controlarNotificaciones() {
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
     actualizarProgreso();
+  }
+
+  function guardarTramoExtensionManual(fechaISO, ini, fin) {
+    if (!fechaISO) return false;
+    if (!ini || !fin) { showToast("Extensión: indica inicio y fin.", "error"); return false; }
+    let iniMin = timeToMinutes(ini);
+    let finMin = timeToMinutes(fin);
+    if (!Number.isFinite(iniMin) || !Number.isFinite(finMin) || iniMin === 0 && ini !== "00:00" || finMin === 0 && fin !== "00:00") {
+      showToast("Extensión: horas no válidas.", "error");
+      return false;
+    }
+    if (finMin <= iniMin) finMin += 24 * 60;
+    let delta = finMin - iniMin;
+    delta = extraEnBloques15(delta);
+    if (delta <= 0) { showToast("Extensión: tramo demasiado corto (<15 min).", "error"); return false; }
+    const reg = state.registros[fechaISO] || { entrada: null, salidaReal: null, trabajadosMin: 0, salidaTeoricaMin: 0, salidaAjustadaMin: 0, extraGeneradaMin: 0, negativaMin: 0, excesoJornadaMin: 0, disfrutadasManualMin: 0, vacaciones: false };
+    reg.extraGeneradaMin = (reg.extraGeneradaMin || 0) + delta;
+    reg.extensionTramos = Array.isArray(reg.extensionTramos) ? reg.extensionTramos : [];
+    reg.extensionTramos.push({ inicio: ini, fin, minutos: delta });
+    state.registros[fechaISO] = reg;
+    saveState(state);
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+    actualizarEstadoEliminar();
+    actualizarEstadoIniciarJornada();
+    actualizarResumenDia();
+    actualizarProgreso();
+    renderFichajesDia(fechaISO);
+    showToast("Extensión guardada", "success");
+    return true;
+  }
+
+  function puedeIniciarExtensionHoy() {
+    if (esModoMinutosSemanal()) return false;
+    const hoy = getHoyISO();
+    const diaSel = (fecha && fecha.value) ? fecha.value : hoy;
+    if (diaSel !== hoy) return false;
+    const reg = state.registros && state.registros[hoy];
+    if (!reg || !reg.salidaReal) return false;
+    if (state.extensionJornada && state.extensionJornada.fecha === hoy) return false;
+    return true;
+  }
+
+  function iniciarExtensionHoy(desdeTime) {
+    const hoy = getHoyISO();
+    if (!puedeIniciarExtensionHoy()) {
+      showToast("Extensión: primero cierra la jornada de hoy.", "error");
+      return false;
+    }
+    const t = (typeof desdeTime === "string" && /^\d{2}:\d{2}$/.test(desdeTime)) ? desdeTime : ahoraHoraISO();
+    state.extensionJornada = { fecha: hoy, desdeTime: t };
+    saveState(state);
+    actualizarEstadoIniciarJornada();
+    actualizarProgreso();
+    actualizarResumenDia();
+    if (registroExtInicio) registroExtInicio.value = t;
+    if (registroExtFin) registroExtFin.value = "";
+    showToast("Extensión iniciada (" + t + ")", "success");
+    return true;
   }
 
   if (btnIniciarJornada) {
@@ -2968,6 +3049,38 @@ function controlarNotificaciones() {
         Notification.requestPermission().then(() => {});
       }
     };
+  }
+
+  // Registro: bloque Extensión (GP3/GP4)
+  if (btnRegistroExtIniciarAhora) {
+    btnRegistroExtIniciarAhora.addEventListener("click", () => {
+      iniciarExtensionHoy(ahoraHoraISO());
+    });
+  }
+  if (btnRegistroExtMarcarInicio) {
+    btnRegistroExtMarcarInicio.addEventListener("click", () => {
+      const t = registroExtInicio && registroExtInicio.value ? registroExtInicio.value : "";
+      if (!t) { showToast("Extensión: indica la hora de inicio.", "error"); return; }
+      iniciarExtensionHoy(t);
+    });
+  }
+  if (btnRegistroExtFinalizar) {
+    btnRegistroExtFinalizar.addEventListener("click", () => {
+      const hoy = getHoyISO();
+      if (!state.extensionJornada || state.extensionJornada.fecha !== hoy) { showToast("No hay una extensión en curso hoy.", "error"); return; }
+      const fin = registroExtFin && registroExtFin.value ? registroExtFin.value : null;
+      ejecutarFinalizarExtension(fin || undefined);
+      renderFichajesDia(hoy);
+      showToast("Extensión finalizada", "success");
+    });
+  }
+  if (btnRegistroExtGuardarTramo) {
+    btnRegistroExtGuardarTramo.addEventListener("click", () => {
+      const diaSel = (fecha && fecha.value) ? fecha.value : getHoyISO();
+      const ini = registroExtInicio && registroExtInicio.value ? registroExtInicio.value : "";
+      const fin = registroExtFin && registroExtFin.value ? registroExtFin.value : "";
+      guardarTramoExtensionManual(diaSel, ini, fin);
+    });
   }
 
   (function setupFinalizarSlider() {
@@ -3427,6 +3540,33 @@ function controlarNotificaciones() {
             descuentoDe: reg.descuentoDe
           };
         }
+      } else if (tipo === "inicioExt") {
+        // Permite iniciar la extensión manualmente (por si el usuario olvidó pulsar "Extender jornada" a la hora exacta).
+        // Solo tiene sentido en el día de hoy, con una jornada ya cerrada.
+        const hoy = getHoyISO();
+        if (f !== hoy) {
+          alert("El inicio de extensión solo se puede activar para el día de hoy.");
+          return;
+        }
+        if (!ini) {
+          alert("Indica la hora de inicio de la extensión.");
+          return;
+        }
+        if (!state.registros[hoy] || !state.registros[hoy].salidaReal) {
+          alert("Para iniciar una extensión debe existir una jornada cerrada hoy (con hora de salida).");
+          return;
+        }
+        state.extensionJornada = { fecha: hoy, desdeTime: ini };
+        saveState(state);
+        renderCalendario();
+        actualizarBanco();
+        actualizarGrafico();
+        actualizarEstadoEliminar();
+        actualizarEstadoIniciarJornada();
+        actualizarResumenDia();
+        actualizarProgreso();
+        cerrarModalExtManual();
+        return;
       } else {
         // Tramos: extensión o pase (justificado o sin justificar)
         let iniMin = timeToMinutes(ini);
@@ -3449,6 +3589,8 @@ function controlarNotificaciones() {
 
         if (tipo === "ext") {
           reg.extraGeneradaMin = (reg.extraGeneradaMin || 0) + delta;
+          reg.extensionTramos = Array.isArray(reg.extensionTramos) ? reg.extensionTramos : [];
+          reg.extensionTramos.push({ inicio: ini, fin, minutos: delta });
           if (state.config.trabajoATurnos && delta > 0) {
             const EXCESO_JORNADA_TURNOS_MIN = 21;
             reg.excesoJornadaMin = (reg.excesoJornadaMin || 0) + Math.min(delta, EXCESO_JORNADA_TURNOS_MIN);
@@ -3493,20 +3635,26 @@ function controlarNotificaciones() {
     if (reg && reg.vacaciones) devolverDiaVacacion(state, fechaElim);
     if (reg && reg.libreDisposicion) devolverDiaLD(state, fechaElim);
     delete state.registros[fechaElim];
+    if (state.extensionJornada && state.extensionJornada.fecha === fechaElim) state.extensionJornada = null;
     if (state.earlyExitState && state.earlyExitState.fecha === fechaElim) state.earlyExitState = null;
     if (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === fechaElim) state.paseJustificadoHasta = null;
+    if (state.deduccionesPorAusencia && state.deduccionesPorAusencia[fechaElim] !== undefined) delete state.deduccionesPorAusencia[fechaElim];
+    try { localStorage.removeItem(EXTEND_PROMPT_KEY + "_" + fechaElim); } catch (e) {}
     if (fechaElim === getHoyISO()) limpiarBorradorSesion();
     saveState(state);
     if (entrada) entrada.value = "";
     if (salida) salida.value = "";
     if (disfrutadas) disfrutadas.value = "0";
     if (minAntes) minAntes.value = "0";
+    if (registroExtInicio) registroExtInicio.value = "";
+    if (registroExtFin) registroExtFin.value = "";
     renderCalendario();
     actualizarBanco();
     actualizarGrafico();
     actualizarResumenDia();
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
+    renderFichajesDia(fechaElim);
   }
 
   function cerrarModalConfirmarEliminar() {
@@ -4574,6 +4722,26 @@ if(festivos && festivos[fechaISO]){
         return "<span class=\"cal-leyenda-item\">" + iconHtml + "<span class=\"cal-leyenda-texto\">" + it.text + "</span></span>";
       }).join("");
     }
+
+    // Bloque extensión (Registro): solo GP3/GP4 y útil en el día seleccionado.
+    try {
+      if (registroExtensionWrap) {
+        registroExtensionWrap.hidden = esModoMinutosSemanal();
+      }
+      if (!esModoMinutosSemanal() && registroExtensionEstado) {
+        const diaSel = (fecha && fecha.value) ? fecha.value : hoy;
+        const enExt = state.extensionJornada && state.extensionJornada.fecha === hoy;
+        const isHoySel = diaSel === hoy;
+        const regSel = state.registros && state.registros[diaSel];
+        const hasSalida = !!(regSel && regSel.salidaReal);
+        const desde = enExt ? (state.extensionJornada.desdeTime || "--") : "--";
+        registroExtensionEstado.textContent = enExt ? ("En extensión desde " + desde) : (isHoySel && hasSalida ? "Lista para extender" : "—");
+        if (btnRegistroExtFinalizar) btnRegistroExtFinalizar.disabled = !enExt;
+        if (btnRegistroExtIniciarAhora) btnRegistroExtIniciarAhora.disabled = !(isHoySel && hasSalida && !enExt);
+        if (btnRegistroExtMarcarInicio) btnRegistroExtMarcarInicio.disabled = !(isHoySel && hasSalida && !enExt);
+        if (btnRegistroExtGuardarTramo) btnRegistroExtGuardarTramo.disabled = !(regSel && (diaSel !== "")); // se valida al pulsar
+      }
+    } catch (e) {}
   }
 
   let tieneRegistrosMes = false;
@@ -4778,6 +4946,7 @@ if(festivos && festivos[fechaISO]){
     recalcularEnVivo();
     actualizarProgreso();
     actualizarResumenDia();
+    renderFichajesDia(fechaISO);
   }
 
   function seleccionarDia(fechaISO){
@@ -4787,10 +4956,41 @@ if(festivos && festivos[fechaISO]){
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
+    renderFichajesDia(fechaISO);
     renderAgendaDia(fechaISO);
     if (typeof renderCalendarioSemana === "function") renderCalendarioSemana();
     if (typeof renderCalendarioDia === "function") renderCalendarioDia();
     if (state.modoPlof) mostrarPlofAgenda(fechaISO);
+  }
+
+  function renderFichajesDia(fechaISO) {
+    if (!calFichajesDiaWrap) return;
+    if (!fechaISO) { calFichajesDiaWrap.hidden = true; return; }
+
+    const d = new Date(fechaISO + "T12:00:00");
+    if (calFichajesDiaFecha) calFichajesDiaFecha.textContent = d.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+    const r = (state.registros && state.registros[fechaISO]) || null;
+    const val = (x) => (x != null && String(x).trim() ? String(x) : "--");
+    if (calFichajesEntrada) calFichajesEntrada.textContent = val(r && r.entrada);
+    if (calFichajesSalida) calFichajesSalida.textContent = val(r && r.salidaReal);
+    if (calFichajesSalidaTeorica) calFichajesSalidaTeorica.textContent = r && r.salidaTeoricaMin != null ? minutesToTime(r.salidaTeoricaMin) : "--";
+    if (calFichajesSalidaAjustada) calFichajesSalidaAjustada.textContent = r && r.salidaAjustadaMin != null ? minutesToTime(r.salidaAjustadaMin) : "--";
+
+    const tramos = r && Array.isArray(r.extensionTramos) ? r.extensionTramos : [];
+    if (calFichajesExtensionLista) calFichajesExtensionLista.innerHTML = "";
+    if (calFichajesExtensionWrap) calFichajesExtensionWrap.hidden = tramos.length === 0;
+    if (calFichajesExtensionLista && tramos.length > 0) {
+      tramos.forEach((t) => {
+        const li = document.createElement("li");
+        const tramo = (t && t.inicio && t.fin) ? (t.inicio + "–" + t.fin) : "--";
+        const min = t && t.minutos != null ? Number(t.minutos) || 0 : 0;
+        li.innerHTML = "<span class=\"cal-ext-tramo\">" + tramo + "</span><span class=\"cal-ext-min\">+" + minutosAHorasMinutos(min) + "</span>";
+        calFichajesExtensionLista.appendChild(li);
+      });
+    }
+
+    calFichajesDiaWrap.hidden = false;
   }
 
   function renderAgendaDia(fechaISO) {

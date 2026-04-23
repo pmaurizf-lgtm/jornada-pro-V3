@@ -205,6 +205,7 @@
         <option value="fin">Ajustar fin de jornada</option>
         <option value="paseJust">Pase de salida justificado (tramo ausencia)</option>
         <option value="paseSin">Pase de salida sin justificar (tramo ausencia)</option>
+        <option value="inicioExt">Inicio extensión (solo hoy)</option>
         <option value="ext">Extensión de jornada (TxT)</option>
       </select>
     </div>
@@ -225,7 +226,7 @@
         <label for="extManualFin">Hora fin (si aplica)</label>
       </div>
     </div>
-    <p class="modal-extender-texto" style="font-size:0.8rem;">Ejemplos: inicio 07:00; fin 15:12; pase 10:00–11:20; extensión 15:00–16:34 (1,5 h TxT).</p>
+    <p class="modal-extender-texto" style="font-size:0.8rem;">Ejemplos: inicio 07:00; fin 15:12; pase 10:00–11:20; inicio extensión 14:30 (hoy); extensión 14:30–18:30 (4,00 h TxT).</p>
     <div class="modal-extender-botones">
       <button type="button" id="modalExtManualCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
       <button type="button" id="modalExtManualGuardar" class="modal-extender-btn modal-extender-si">Guardar cambios</button>
@@ -855,6 +856,31 @@
 
     </div>
 
+  <!-- EXTENSIÓN DE JORNADA (GP3/GP4) -->
+  <div id="registroExtensionWrap" class="registro-extension card" data-solo-gp34>
+    <div class="registro-extension-header">
+      <h3 class="registro-extension-title">Extensión de jornada</h3>
+      <span id="registroExtensionEstado" class="registro-extension-estado">--</span>
+    </div>
+    <div class="grid-2">
+      <div class="floating-group">
+        <input type="time" id="registroExtInicio">
+        <label for="registroExtInicio">Inicio extensión</label>
+      </div>
+      <div class="floating-group">
+        <input type="time" id="registroExtFin">
+        <label for="registroExtFin">Fin extensión</label>
+      </div>
+    </div>
+    <div class="acciones-row acciones-row--compact">
+      <button type="button" id="btnRegistroExtIniciarAhora" class="btn-ext-start">Iniciar ahora</button>
+      <button type="button" id="btnRegistroExtMarcarInicio" class="btn-ext-start-secondary">Marcar inicio</button>
+      <button type="button" id="btnRegistroExtGuardarTramo" class="btn-ext-save">Guardar tramo</button>
+      <button type="button" id="btnRegistroExtFinalizar" class="btn-ext-end">Finalizar</button>
+    </div>
+    <p class="registro-extension-hint">Si olvidaste pulsar «Extender jornada» a la hora exacta, usa <strong>Marcar inicio</strong> con la hora real (ej. 14:30) y luego <strong>Finalizar</strong> o <strong>Guardar tramo</strong>.</p>
+  </div>
+
   </div>
 
 <div id="resumenDia" class="resumen-dia">
@@ -966,6 +992,34 @@
       <button type="button" id="btnAgendaAnadir" class="config-btn agenda-dia-btn-anadir">Añadir evento o nota</button>
     </div>
 
+  </div>
+
+  <!-- FICHAJES DEL DÍA (visible al seleccionar una fecha) -->
+  <div id="calFichajesDiaWrap" class="card cal-fichajes-dia" hidden>
+    <h3 class="cal-fichajes-titulo">Fichajes del día</h3>
+    <p id="calFichajesDiaFecha" class="cal-fichajes-fecha">--</p>
+    <div class="cal-fichajes-grid">
+      <div class="cal-fichaje-item">
+        <span class="cal-fichaje-label">Entrada</span>
+        <strong id="calFichajesEntrada" class="cal-fichaje-value">--</strong>
+      </div>
+      <div class="cal-fichaje-item">
+        <span class="cal-fichaje-label">Salida</span>
+        <strong id="calFichajesSalida" class="cal-fichaje-value">--</strong>
+      </div>
+      <div class="cal-fichaje-item">
+        <span class="cal-fichaje-label">Salida teórica</span>
+        <strong id="calFichajesSalidaTeorica" class="cal-fichaje-value">--</strong>
+      </div>
+      <div class="cal-fichaje-item">
+        <span class="cal-fichaje-label">Salida ajustada</span>
+        <strong id="calFichajesSalidaAjustada" class="cal-fichaje-value">--</strong>
+      </div>
+    </div>
+    <div id="calFichajesExtensionWrap" class="cal-fichajes-extension" hidden>
+      <h4 class="cal-fichajes-subtitulo">Extensión</h4>
+      <ul id="calFichajesExtensionLista" class="cal-fichajes-ext-lista" aria-label="Tramos de extensión"></ul>
+    </div>
   </div>
 
   <!-- MODO PLOF: botones y agenda del día (oculto por defecto) -->
