@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plantilla pase justificado – Documentación (PDF)</title>
+  <style>
+    :root {
+      --text: #1a1a1a;
+      --muted: #555;
+      --border: #ddd;
+      --accent: #007aff;
+      --tip-bg: #e8f4fc;
+      --pre-bg: #f6f8fa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.55;
+      color: var(--text);
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+      background: #fff;
+    }
+    h1 {
+      font-size: 1.55rem;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+    }
+    h2 {
+      font-size: 1.22rem;
+      margin-top: 1.85rem;
+      margin-bottom: 0.6rem;
+      color: var(--accent);
+    }
+    p { margin: 0.65rem 0; }
+    ul, ol { margin: 0.65rem 0; padding-left: 1.45rem; }
+    li { margin: 0.3rem 0; }
+    strong { font-weight: 600; }
+    code {
+      font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+      font-size: 0.88em;
+      background: #eee;
+      padding: 0.12rem 0.35rem;
+      border-radius: 4px;
+    }
+    pre {
+      margin: 1rem 0;
+      padding: 1rem 1.1rem;
+      background: var(--pre-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      font-size: inherit;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.88rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.6rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f5f5f5; font-weight: 600; }
+    .meta { color: var(--muted); font-size: 0.94rem; margin-bottom: 1.25rem; }
+    .pdf-instructions {
+      background: var(--tip-bg);
+      border: 1px solid #b8d4e8;
+      border-radius: 8px;
+      padding: 1rem 1.15rem;
+      margin-bottom: 1.75rem;
+      font-size: 0.95rem;
+    }
+    .pdf-instructions h2 {
+      margin-top: 0;
+      font-size: 1.05rem;
+      color: var(--text);
+    }
+    .footer {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    @media print {
+      body { padding: 0.75rem; max-width: 100%; font-size: 11pt; }
+      .no-print { display: none !important; }
+      h2 { page-break-after: avoid; }
+      table { page-break-inside: avoid; }
+      pre { page-break-inside: avoid; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="pdf-instructions no-print">
+    <h2>Exportar como PDF</h2>
+    <p><strong>Chrome / Edge:</strong> Archivo → Imprimir → <strong>Guardar como PDF</strong>.</p>
+    <p><strong>Safari:</strong> Archivo → <strong>Exportar como PDF…</strong></p>
+    <p style="margin-bottom:0;"><strong>Firefox:</strong> Imprimir → impresora <strong>Guardar como PDF</strong>.</p>
+  </div>
+
+  <h1>Plantilla para formulario de pase de salida justificado</h1>
+  <p class="meta">Documentación del proyecto Jornada Pro · Referencia para editar <code>plantilla-pase-justificado.html</code> en la raíz del proyecto.</p>
+
+  <p>La app puede rellenar un formulario tipo con los datos personales y del día, y abrirlo para imprimir o guardar como PDF.</p>
+  <p>La plantilla por defecto (<code>plantilla-pase-justificado.html</code>) replica el <strong>Xustificante de ausencias</strong> (formato oficial en gallego: datos do traballador/a, hora de desprazamento, opcións LS3, e bloque para o facultativo). Si tienes el Word original, puedes usarlo como referencia; la app no rellena archivos .docx directamente (requeriría otro tipo de integración), pero el HTML incluido reproduce el mismo contenido y estructura para que al imprimir/guardar como PDF obtengas un documento equivalente.</p>
+
+  <h2>Formato del archivo</h2>
+  <ul>
+    <li><strong>Formato:</strong> archivo <strong>HTML</strong> (por ejemplo <code>plantilla-pase-justificado.html</code>).</li>
+    <li><strong>Ubicación:</strong> en la <strong>raíz del proyecto</strong> (misma carpeta que <code>index.html</code>), para que la app pueda cargarlo.</li>
+    <li><strong>Codificación:</strong> UTF-8.</li>
+  </ul>
+
+  <h2>Marcas (placeholders) que reemplaza la app</h2>
+  <p>Escribe en el HTML exactamente estas cadenas; la app las sustituye por los valores guardados o del día:</p>
+  <table>
+    <thead>
+      <tr><th>Marca</th><th>Descripción</th><th>Origen en la app</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>{{NOMBRE_COMPLETO}}</code></td><td>Nombre y apellidos</td><td>Config → Datos personales</td></tr>
+      <tr><td><code>{{NUMERO_SAP}}</code></td><td>Número SAP</td><td>Config → Datos personales</td></tr>
+      <tr><td><code>{{CENTRO_COSTE}}</code></td><td>Centro de coste</td><td>Config → Datos personales</td></tr>
+      <tr><td><code>{{GRUPO_PROFESIONAL}}</code></td><td>GP1, GP2, GP3 o GP4</td><td>Config → Datos personales</td></tr>
+      <tr><td><code>{{FECHA}}</code></td><td>Fecha del pase (ej. 15 de marzo de 2026)</td><td>Día actual / día del registro</td></tr>
+      <tr><td><code>{{DIA}}</code></td><td>Día del mes (número)</td><td>Para «Ferrol, a [día] de [mes] de [año]»</td></tr>
+      <tr><td><code>{{MES}}</code></td><td>Nombre del mes (en gallego)</td><td>Ej. Marzo</td></tr>
+      <tr><td><code>{{ANHO}}</code></td><td>Año (4 cifras)</td><td>Ej. 2026</td></tr>
+      <tr><td><code>{{HORA_ENTRADA}}</code></td><td>Hora de entrada del día</td><td>Registro del día</td></tr>
+      <tr><td><code>{{HORA_SALIDA}}</code></td><td>Hora de salida (pase)</td><td>Hora al solicitar el pase</td></tr>
+      <tr><td><code>{{FECHA_HORA_ACTUAL}}</code></td><td>Fecha y hora de la solicitud</td><td>Momento de pulsar «Generar PDF»</td></tr>
+    </tbody>
+  </table>
+  <p>Puedes usar cada marca tantas veces como necesites en el HTML.</p>
+
+  <h2>Cómo obtener el PDF</h2>
+  <ol>
+    <li>El usuario elige <strong>Pase de salida justificado</strong> en el modal.</li>
+    <li>Si elige <strong>Registrar y generar formulario PDF</strong>, la app carga la plantilla, reemplaza las marcas y abre una ventana de impresión (Imprimir → Guardar como PDF).</li>
+    <li>Si no existe <code>plantilla-pase-justificado.html</code> en la raíz, se usa una plantilla mínima incluida en la app.</li>
+  </ol>
+
+  <h2>Ejemplo mínimo de plantilla</h2>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Pase de salida justificado&lt;/title&gt;
+  &lt;style&gt;
+    body { font-family: sans-serif; padding: 2rem; max-width: 600px; margin: 0 auto; }
+    .campo { margin-bottom: 1rem; }
+    .etiqueta { font-weight: bold; display: block; margin-bottom: 0.25rem; }
+    .valor { border-bottom: 1px solid #333; padding: 0.25rem 0; }
+    @media print { body { padding: 1rem; } }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Pase de salida justificado&lt;/h1&gt;
+  &lt;div class="campo"&gt;
+    &lt;span class="etiqueta"&gt;Nombre:&lt;/span&gt;
+    &lt;span class="valor"&gt;{{NOMBRE_COMPLETO}}&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="campo"&gt;
+    &lt;span class="etiqueta"&gt;Nº SAP:&lt;/span&gt;
+    &lt;span class="valor"&gt;{{NUMERO_SAP}}&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="campo"&gt;
+    &lt;span class="etiqueta"&gt;Centro de coste:&lt;/span&gt;
+    &lt;span class="valor"&gt;{{CENTRO_COSTE}}&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="campo"&gt;
+    &lt;span class="etiqueta"&gt;Grupo profesional:&lt;/span&gt;
+    &lt;span class="valor"&gt;{{GRUPO_PROFESIONAL}}&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="campo"&gt;
+    &lt;span class="etiqueta"&gt;Fecha:&lt;/span&gt;
+    &lt;span class="valor"&gt;{{FECHA}}&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="campo"&gt;
+    &lt;span class="etiqueta"&gt;Hora entrada:&lt;/span&gt;
+    &lt;span class="valor"&gt;{{HORA_ENTRADA}}&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="campo"&gt;
+    &lt;span class="etiqueta"&gt;Hora salida (pase):&lt;/span&gt;
+    &lt;span class="valor"&gt;{{HORA_SALIDA}}&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;p&gt;&lt;small&gt;Solicitud generada: {{FECHA_HORA_ACTUAL}}&lt;/small&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+  <p>Guarda este contenido (o tu versión) como <strong>plantilla-pase-justificado.html</strong> en la raíz del proyecto y la app lo usará al generar el formulario.</p>
+
+  <h2>Personalización</h2>
+  <ul>
+    <li>Puedes cambiar el diseño, estilos y textos.</li>
+    <li>Puedes añadir más líneas (motivo, firma, etc.); para datos que no estén en la app, deja el espacio en blanco o un texto fijo para rellenar a mano después de imprimir.</li>
+    <li>No elimines las marcas <code>{{...}}</code> que quieras que la app rellene; si una marca no existe en la lista anterior, se dejará tal cual en el HTML.</li>
+  </ul>
+
+  <p class="footer"><em>Versión imprimible de la documentación. El archivo fuente en Markdown es <code>PLANTILLA-PASE-JUSTIFICADO.md</code>.</em></p>
+
+</body>
+</html>

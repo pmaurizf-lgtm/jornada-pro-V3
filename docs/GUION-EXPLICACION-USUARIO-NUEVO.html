@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guión didáctico – Jornada Pro (PDF)</title>
+  <style>
+    :root {
+      --text: #1a1a1a;
+      --muted: #555;
+      --border: #ddd;
+      --accent: #007aff;
+      --tip-bg: #e8f4fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.55;
+      color: var(--text);
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+      background: #fff;
+    }
+    h1 {
+      font-size: 1.65rem;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+    }
+    h2 {
+      font-size: 1.28rem;
+      margin-top: 2rem;
+      margin-bottom: 0.65rem;
+      color: var(--accent);
+    }
+    h3 { font-size: 1.08rem; margin-top: 1.35rem; margin-bottom: 0.45rem; }
+    p { margin: 0.65rem 0; }
+    ul, ol { margin: 0.65rem 0; padding-left: 1.45rem; }
+    li { margin: 0.3rem 0; }
+    strong { font-weight: 600; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 1.75rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f5f5f5; font-weight: 600; }
+    .meta { color: var(--muted); font-size: 0.94rem; margin-bottom: 1.25rem; }
+    blockquote {
+      margin: 0.75rem 0;
+      padding: 0.65rem 1rem;
+      border-left: 4px solid var(--accent);
+      background: #f9f9f9;
+      font-style: italic;
+    }
+    .pdf-instructions {
+      background: var(--tip-bg);
+      border: 1px solid #b8d4e8;
+      border-radius: 8px;
+      padding: 1rem 1.15rem;
+      margin-bottom: 1.75rem;
+      font-size: 0.95rem;
+    }
+    .pdf-instructions h2 {
+      margin-top: 0;
+      font-size: 1.05rem;
+      color: var(--text);
+    }
+    .pdf-instructions ol { margin: 0.5rem 0 0; }
+    .footer {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    @media print {
+      body { padding: 0.75rem; max-width: 100%; font-size: 11pt; }
+      .no-print { display: none !important; }
+      h2 { page-break-after: avoid; }
+      h3 { page-break-after: avoid; }
+      table { page-break-inside: avoid; }
+      ul, ol, blockquote { page-break-inside: avoid; }
+      a[href^="http"]::after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="pdf-instructions no-print">
+    <h2>Exportar este documento como PDF</h2>
+    <p><strong>Windows / Mac (Chrome o Edge):</strong> menú <strong>Archivo</strong> → <strong>Imprimir</strong> → destino <strong>Guardar como PDF</strong> → Guardar.</p>
+    <p><strong>Safari (Mac):</strong> <strong>Archivo</strong> → <strong>Exportar como PDF…</strong></p>
+    <p><strong>Firefox:</strong> <strong>Imprimir</strong> → impresora <strong>Guardar como PDF</strong>.</p>
+    <p style="margin-bottom:0;"><strong>Móvil:</strong> suele estar en el menú del navegador como «Imprimir» y luego «Guardar como PDF» o «Añadir a Drive» según el sistema.</p>
+  </div>
+
+  <h1>Guión didáctico: Jornada Pro para usuarios nuevos</h1>
+  <p class="meta"><strong>Jornada Pro</strong> · Guión para formación · <strong>Versión orientativa:</strong> app v2.0.x (2026) · Documento complementario a la Guía de uso técnica.</p>
+
+  <p><strong>Propósito:</strong> Este documento sirve para <strong>explicar la aplicación en voz alta</strong> (formación, charla, vídeo) o para <strong>seguirla en solitario</strong> como tutorial paso a paso. Está pensado para quien <strong>nunca ha abierto la app</strong> o solo la ha visto unos minutos.</p>
+  <p><strong>Qué es Jornada Pro (en una frase):</strong> Una herramienta para <strong>registrar tu jornada</strong> (entradas, salidas, vacaciones, permisos…) y <strong>ver tu banco de horas o bolsa de minutos</strong> según tu <strong>grupo profesional</strong>, con los datos guardados <strong>en tu propio dispositivo</strong>.</p>
+  <p><strong>Documentos relacionados:</strong> La <strong>Guía de uso</strong> (<code>GUIA-JORNADA-PRO.md</code>) detalla cada función con precisión técnica. Este guión prioriza <strong>orden pedagógico</strong>, <strong>ritmo</strong> y <strong>preguntas típicas</strong>.</p>
+
+  <hr>
+
+  <h2 id="como-usar">Cómo usar este guión</h2>
+  <table>
+    <thead>
+      <tr><th>Si eres…</th><th>Haz esto</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Formador / compañero que enseña</strong></td>
+        <td>Lee los apartados en orden. En cada <strong>«Pausa»</strong> haz una pregunta o deja que prueben. En <strong>«Demostración»</strong> comparte pantalla o mirad el móvil juntos.</td>
+      </tr>
+      <tr>
+        <td><strong>Usuario nuevo en solitario</strong></td>
+        <td>Instala o abre la app y <strong>repite cada paso</strong> sin saltar bloques. Reserva <strong>30–45 minutos</strong> la primera vez.</td>
+      </tr>
+      <tr>
+        <td><strong>Referencia rápida</strong></td>
+        <td>Usa el <strong>índice</strong> y la sección <strong>Errores comunes</strong> al final.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p><strong>Convenciones en el texto</strong></p>
+  <ul>
+    <li><strong>Decimos:</strong> frases listas para leer en voz alta al público.</li>
+    <li><strong>Tú haces:</strong> acciones concretas sobre el teléfono o el PC.</li>
+    <li><strong>Pausa:</strong> momento para preguntar o practicar.</li>
+    <li><strong>Importante:</strong> aviso que evita confusiones habituales.</li>
+  </ul>
+
+  <hr>
+
+  <h2 id="indice">Índice</h2>
+  <ol>
+    <li><a href="#s1">Mensaje de apertura (elevator pitch)</a></li>
+    <li><a href="#s2">Ideas previas que conviene dejar claras</a></li>
+    <li><a href="#s3">Primera apertura de la aplicación</a></li>
+    <li><a href="#s4">Las cuatro zonas principales (navegación inferior)</a></li>
+    <li><a href="#s5">Menú de configuración (☰): recorrido ordenado</a></li>
+    <li><a href="#s6">Tu primer día laborable guiado</a></li>
+    <li><a href="#s7">Qué cambia según tu grupo profesional (GP1–GP4)</a></li>
+    <li><a href="#s8">Segunda sesión: calendario y saldos</a></li>
+    <li><a href="#s9">Situaciones que aparecen con el tiempo</a></li>
+    <li><a href="#s10">Copia de seguridad y actualizaciones</a></li>
+    <li><a href="#s11">Errores comunes y cómo responder</a></li>
+    <li><a href="#s12">Glosario rápido</a></li>
+    <li><a href="#s13">Cierre del guión: qué recordar</a></li>
+  </ol>
+
+  <hr>
+
+  <h2 id="s1">1. Mensaje de apertura (elevator pitch)</h2>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Jornada Pro te ayuda a <strong>fichar</strong> tu día como en un reloj de trabajo: cuándo entras, cuándo sales, si te vas antes, si tienes vacaciones o un permiso. Todo eso se refleja en un <strong>calendario</strong> y, si te corresponde, en un <strong>banco de horas</strong> (o bolsa de minutos). Lo más importante: <strong>los datos son tuyos</strong> y se guardan <strong>en este dispositivo</strong>; por eso conviene hacer <strong>copias de seguridad</strong> de vez en cuando. La app está pensada para el entorno <strong>NAVANTIA Ferrol</strong>, con festivos locales y reglas según tu <strong>grupo profesional</strong>.»</blockquote>
+  <p><strong>Pausa:</strong> «¿Alguna vez habéis usado una app solo en el móvil sin cuenta en la nube? Aquí pasa algo parecido: la privacidad es local, pero la responsabilidad del backup también.»</p>
+
+  <hr>
+
+  <h2 id="s2">2. Ideas previas que conviene dejar claras</h2>
+  <h3>2.1 Dónde viven tus datos</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«La aplicación <strong>no sustituye</strong> al sistema oficial de fichaje de la empresa si tu centro exige otro registro obligatorio. Es una <strong>herramienta personal</strong> para llevar el control encima, cuadrar saldos y documentar ciertos trámites (por ejemplo, formularios de pase).»</blockquote>
+  <p><strong>Importante:</strong> Si la empresa exige otro fichaje, este es <strong>complementario</strong> para ti, no el único registro legal.</p>
+  <h3>2.2 Privacidad y dispositivo</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Los datos se guardan en <strong>este navegador</strong> o en <strong>esta instalación</strong> de la app. Si borras datos del sitio, cambias de móvil sin restaurar copia o reinstalas sin backup, <strong>puedes perder el historial</strong>. Por eso el menú incluye <strong>Backup</strong> y <strong>Restaurar</strong>.»</blockquote>
+  <h3>2.3 Conexión a Internet</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Una vez cargada, muchas cosas funcionan <strong>sin conexión</strong>, pero la <strong>primera carga</strong> y las <strong>actualizaciones</strong> necesitan red. Si algo no cuadra tras varios días sin abrir la app, prueba a actualizar la página o la app.»</blockquote>
+
+  <hr>
+
+  <h2 id="s3">3. Primera apertura de la aplicación</h2>
+  <h3>3.1 Pantalla de bienvenida (splash)</h3>
+  <p><strong>Tú haces:</strong> Abrir la app y esperar a que termine la animación de carga.</p>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Al arrancar veréis brevemente el nombre <strong>Jornada Pro</strong> y el logo. Es normal que tarde unos segundos: la app está preparando la interfaz y leyendo tus datos locales si ya los teníais.»</blockquote>
+  <h3>3.2 PIN (si está activado)</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Si en configuración activaste un <strong>PIN</strong>, aquí tendréis que escribirlo antes de ver la pantalla principal. Es opcional; sirve si compartís el dispositivo.»</blockquote>
+  <p><strong>Pausa:</strong> Si nadie configuró PIN, este paso no aparece; no lo menciones como obligatorio.</p>
+  <h3>3.3 Elección del grupo profesional (primera vez)</h3>
+  <p><strong>Tú haces:</strong> Si sale el modal, leer las cuatro opciones: GP1, GP2, GP3, GP4.</p>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«La primera vez la app pregunta por tu <strong>grupo profesional</strong>. No es un dato decorativo: cambia <strong>cómo se calculan</strong> las horas extra, el banco anual de TxT o la bolsa semanal. Elegid el que os corresponda según vuestra categoría; <strong>siempre podréis cambiarlo</strong> más tarde en Configuración, pero conviene acertar para no ver botones que no aplican a vuestro caso.»</blockquote>
+  <p><strong>Importante:</strong> Tras elegir GP, puede abrirse <strong>una sola vez</strong> el modal de <strong>días de Libre Disposición (LD)</strong> del año en curso: son los días que ya teníais antes de usar la app.</p>
+  <h3>3.4 Sugerencia del día (opcional)</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«A veces aparece una <strong>sugerencia</strong> corta del día: es un recordatorio aleatorio sobre backup, calendario o fichaje. Podéis cerrarla con «Entendido».»</blockquote>
+
+  <hr>
+
+  <h2 id="s4">4. Las cuatro zonas principales (navegación inferior)</h2>
+  <p><strong>Tú haces:</strong> Señalar la barra inferior con cuatro iconos.</p>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>
+    «Fijaos en la barra de abajo: son las <strong>cuatro puertas</strong> de la app.
+    <ol style="margin:0.5rem 0 0; padding-left:1.25rem;">
+      <li><strong>Inicio</strong> (casa): <strong>Acceso rápido</strong> — resumen de hoy, botón para iniciar jornada y la barra de progreso del día.</li>
+      <li><strong>Registro</strong> (nota): aquí está el <strong>formulario del día</strong> — fecha, entrada, salida y todos los botones de acciones (vacaciones, LD, guardar…).</li>
+      <li><strong>Calendario</strong> (agenda): ves el <strong>mes</strong>, la <strong>semana</strong>, el <strong>día</strong> o la lista <strong>Agenda</strong> del año; desde aquí también podéis tocar un día para cargarlo en el registro.</li>
+      <li><strong>Saldos</strong> (maletín): <strong>banco de horas</strong> o bolsa, <strong>vacaciones y LD</strong>, y en GP3/GP4 el <strong>gráfico</strong> anual.</li>
+    </ol>
+    Arriba a la derecha, el menú <strong>☰</strong> abre <strong>Configuración</strong>: datos personales, jornada, backup, tema, notificaciones, etc.»
+  </blockquote>
+  <p><strong>Demostración:</strong> Pulsa cada pestaña una vez y nombra en voz alta qué aparece.</p>
+  <p><strong>Pausa:</strong> «¿Localizáis Inicio y Registro? Son las dos que más usaréis al principio.»</p>
+
+  <hr>
+
+  <h2 id="s5">5. Menú de configuración (☰): recorrido ordenado</h2>
+  <p><strong>Objetivo pedagógico:</strong> Configurar <strong>antes</strong> de fichar mal el primer día.</p>
+  <h3>5.1 Abrir y guardar</h3>
+  <p><strong>Tú haces:</strong> Pulsar ☰ y desplazarte por los bloques.</p>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«El menú está organizado en <strong>secciones plegables</strong>. No hace falta leerlo todo el primer día, pero sí <strong>revisar datos personales y jornada</strong> y pulsar <strong>Guardar configuración</strong> cuando terminéis los cambios. Si solo miráis y cerráis sin guardar, algunos ajustes no se aplican.»</blockquote>
+  <h3>5.2 Datos personales</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Aquí van <strong>nombre</strong>, <strong>SAP</strong> (ocho cifras si lo usáis), <strong>centro de coste</strong> y <strong>grupo profesional</strong>. El grupo puede cambiarse; al cambiarlo, la pantalla de <strong>Saldos</strong> y algunos botones se adaptan.»</blockquote>
+  <h3>5.3 Jornada y avisos</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«La <strong>duración de la jornada en minutos</strong> define cuándo la app considera que habéis cumplido la jornada nominal y calcula la <strong>salida teórica</strong>. El <strong>aviso</strong> puede recordaros que fichéis; las <strong>notificaciones</strong> dependen del permiso del navegador o del sistema.»</blockquote>
+  <h3>5.4 Modo vago (opcional)</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«<strong>Modo vago</strong> es un asistente para quien quiere que ciertos días laborables se <strong>rellenen automáticamente</strong> con horarios de entrada y salida que configuráis. Es opcional; si lo activáis, debéis indicar <strong>hora de entrada y salida</strong> válidas y guardar. Si tocáis solo modo vago y guardáis, el resto de campos de saldo que dejéis vacíos <strong>mantienen el valor anterior</strong> gracias a cómo está hecho el guardado (no os borra regularizaciones por accidente).»</blockquote>
+  <h3>5.5 Trabajo a turnos y Noruega</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Si marcáis <strong>Trabajo a turnos</strong>, elegís el <strong>turno</strong> (por ejemplo mañana o tarde) y la app ajusta la entrada sugerida.<br><br>
+  <strong>Trabajos en Noruega</strong> solo aplica a <strong>GP3 y GP4</strong>: son reglas automáticas de ciertos horarios en periodos que definís con fecha de inicio y opcionalmente fin. Si no trabajáis en ese régimen, no lo activéis.»</blockquote>
+  <h3>5.6 Saldo previo y regularización</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Si ya teníais <strong>horas extra</strong> o <strong>exceso</strong> antes de usar la app, podéis anotarlos aquí en <strong>horas</strong> (coma o punto: <strong>1,5</strong> o <strong>1.5</strong>).<br><br>
+  Las casillas de <strong>regularización TxT</strong> y <strong>regularización de exceso</strong> sirven para <strong>cuadrar</strong> el total con lo que marca empresa o RR.HH.: al guardar, la app usa una <strong>fecha de corte</strong> y el total disponible queda alineado con esa regularización más lo que venga del calendario <strong>desde esa fecha</strong>. Hay una pista en pantalla que lo explica.<br><br>
+  Si <strong>no sabéis</strong> qué poner, podéis dejarlas a cero o pedir ayuda a administración antes de regularizar; <strong>no inventéis</strong> cifras si no las tenéis claras.»</blockquote>
+  <h3>5.7 Copia de datos y seguridad</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Aquí están <strong>Exportar Excel</strong>, <strong>Informe PDF</strong>, <strong>Backup</strong> (descarga un JSON con todo) y <strong>Restaurar</strong>. El <strong>rango de fechas</strong> suele ser solo para Excel/PDF, no para el backup completo.<br><br>
+  <strong>Recomendación:</strong> después de varios días de uso, haced un <strong>backup</strong> y guardad el archivo en un sitio seguro (correo a vosotros mismos, carpeta en la nube personal).»</blockquote>
+  <h3>5.8 Apariencia y otros</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Podéis cambiar <strong>tema claro/oscuro</strong>, <strong>tamaño de texto</strong> y revisar la <strong>versión</strong> de la app en el pie del menú. Si pincháis la versión varias veces puede aparecer menú de desarrollo; no hace falta tocarlo en uso normal.»</blockquote>
+  <p><strong>Pausa:</strong> Guardar configuración de prueba con un valor mínimo (por ejemplo nombre) para que vean el mensaje de confirmación.</p>
+
+  <hr>
+
+  <h2 id="s6">6. Tu primer día laborable guiado</h2>
+  <p><strong>Escenario:</strong> Hoy trabajas; quieres registrar entrada y salida como la mayoría de los usuarios.</p>
+  <h3>Opción A — Desde Inicio (recomendado para empezar)</h3>
+  <ol>
+    <li><strong>Tú haces:</strong> Pestaña <strong>Inicio</strong>.</li>
+    <li><strong>Decimos:</strong> «Aquí veis la <strong>fecha</strong>, la <strong>hora</strong> en vivo y si ya habéis fichado. El botón grande es <strong>Iniciar jornada</strong>.»</li>
+    <li><strong>Tú haces:</strong> Pulsar <strong>Iniciar jornada</strong>.</li>
+    <li><strong>Decimos:</strong> «La app rellena la <strong>hora de entrada</strong> con la hora actual (o la del turno si aplica). Podéis corregirla si el reloj del móvil va mal o fichasteis un minuto después.»</li>
+    <li><strong>Tú haces:</strong> Ir a <strong>Registro</strong> y mostrar que la fecha y la entrada están enlazadas con el día en curso.</li>
+    <li><strong>Decimos:</strong> «Cuando terminéis la jornada, podéis <strong>finalizar</strong> con el <strong>deslizador</strong> rojo que pide deslizar hasta el final: es una forma de evitar pulsaciones accidentales. La app pondrá la <strong>salida</strong> y cerrará el día.»</li>
+  </ol>
+  <h3>Opción B — Solo desde Registro</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Si preferís no usar el botón de Inicio, podéis <strong>Iniciar jornada</strong> desde Registro o escribir entrada y salida a mano y pulsar <strong>Guardar</strong>. Es útil si estáis cargando <strong>días pasados</strong>.»</blockquote>
+  <h3>Qué mirar después de cerrar el día</h3>
+  <p><strong>Tú haces:</strong> Abrir <strong>Calendario</strong> → vista Mes y señalar el día.</p>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«El día debería mostrar que está <strong>completado</strong> (por ejemplo un indicador verde). Si algo no cuadra, volved al <strong>Registro</strong>, seleccionad esa fecha y revisad entrada y salida.»</blockquote>
+  <p><strong>Pausa:</strong> Que cada uno localice su día en el calendario.</p>
+
+  <hr>
+
+  <h2 id="s7">7. Qué cambia según tu grupo profesional (GP1–GP4)</h2>
+  <p><strong>Decimos (tabla mental para la charla):</strong></p>
+  <table>
+    <thead>
+      <tr><th>Grupo</th><th>Idea sencilla</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>GP1 / GP2</strong></td>
+        <td>Pensad en una <strong>bolsa de minutos</strong> a nivel semanal (de lunes a domingo). No veréis el mismo panel anual de TxT que otros colectivos. La <strong>regularización TxT</strong> en configuración también puede influir en cómo veis el total de bolsa.</td>
+      </tr>
+      <tr>
+        <td><strong>GP3 / GP4</strong></td>
+        <td>Pensad en <strong>Horas TxT</strong> y <strong>exceso de jornada</strong> con reglas anuales, <strong>gráfico</strong>, <strong>disfrute de TxT</strong>, <strong>disfrute de exceso</strong> y preguntas como «¿quieres <strong>extender</strong> la jornada?» cuando pasáis del horario teórico.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p><strong>Importante:</strong> El texto del convenio que aparece en la guía técnica aclara que la bolsa GP1/GP2 es <strong>piloto</strong> y está sujeta a acuerdos; la app es una ayuda para visualizarlo, no la fuente jurídica única.</p>
+  <p><strong>Pausa:</strong> «¿Sabéis ya si sois GP3 o GP4? Si no, confirmarlo con RR.HH. antes de fiaros del banco anual al céntimo.»</p>
+
+  <hr>
+
+  <h2 id="s8">8. Segunda sesión: calendario y saldos</h2>
+  <p><strong>Cuándo usar este bloque:</strong> Después de 2–5 días de uso real o en una segunda reunión de formación.</p>
+  <h3>8.1 Calendario en cuatro vistas</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«En <strong>Mes</strong> tenéis una visión global; al tocar un día se cargan sus datos abajo en Registro y aparece la <strong>Agenda del día</strong>.<br><br>
+  En <strong>Semana</strong> veis una cuadrícula por horas: útil si anotáis reuniones.<br><br>
+  En <strong>Día</strong> veis solo un día en franjas.<br><br>
+  En <strong>Agenda</strong> tenéis una <strong>lista de todo el año</strong> con eventos por fecha — ideal para buscar «¿cuándo era esa visita médica?».»</blockquote>
+  <p><strong>Demostración:</strong> Añadir un evento de prueba desde «Añadir evento o nota» y mostrar cómo aparece en Mes y en Agenda.</p>
+  <h3>8.2 Saldos</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«En <strong>Saldos</strong>, la primera pestaña muestra los <strong>totales disponibles</strong> (según GP). En TxT hay <strong>desgloses anual y mensual</strong> que explican solo movimientos del calendario en ese periodo; los totales grandes pueden incluir también saldo previo y regularización — leed las etiquetas en pantalla.<br><br>
+  La pestaña <strong>Vacaciones / LD</strong> muestra días disponibles según cómo hayáis configurado los previos y lo que hayáis consumido.»</blockquote>
+
+  <hr>
+
+  <h2 id="s9">9. Situaciones que aparecen con el tiempo</h2>
+  <h3>9.1 Sales antes de cumplir la jornada (pase de salida)</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Si la <strong>salida</strong> es anterior a la <strong>salida teórica</strong>, la app pregunta si es <strong>pase justificado</strong>, <strong>sin justificar</strong> u otro fin de jornada según caso. Los <strong>sin justificar</strong> pueden <strong>descontar</strong> tiempo del <strong>TxT</strong> o del <strong>exceso</strong> en GP3/GP4; la app os lo pregunta.<br><br>
+  Si elegís <strong>justificado</strong> y queréis <strong>PDF</strong>, seguiréis unos pasos: hora en el formulario, motivo, firma opcional y descarga del PDF.»</blockquote>
+  <h3>9.2 Vacaciones y LD</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Con el día seleccionado, <strong>Vacaciones</strong> marca el día como vacaciones; <strong>LD</strong> consume un día del cupo de <strong>Libre Disposición</strong> del año. Si es la primera vez en el año, la app puede pediros cuántos días LD tenéis.»</blockquote>
+  <h3>9.3 Disfrute de banco (solo GP3/GP4)</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«<strong>Disfr. TxT</strong> y <strong>Disfr. exceso</strong> marcan un día en que no trabajáis pero <strong>consumís</strong> saldo del banco correspondiente; el calendario usa iconos distintos para reconocerlos.»</blockquote>
+  <h3>9.4 Licencias retribuidas</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«El botón verde abre un <strong>asistente</strong> con tipos de licencia. Algunos tipos preguntan <strong>desplazamiento</strong> o <strong>número de días</strong>. Los días se aplican desde la <strong>fecha seleccionada</strong> en el calendario. Si os equivocáis, podéis <strong>eliminar</strong> el día y volver a intentarlo con cuidado.»</blockquote>
+  <h3>9.5 Extender jornada (GP3/GP4)</h3>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Si seguís trabajando después de la jornada nominal, la app puede preguntar si <strong>extendéis</strong> la jornada; si decís que sí, el tiempo extra se trata como <strong>horas extra</strong> hasta que volváis a finalizar.»</blockquote>
+
+  <hr>
+
+  <h2 id="s10">10. Copia de seguridad y actualizaciones</h2>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«Haced <strong>Backup</strong> antes de cambiar de móvil, borrar datos del navegador o cuando lleveis <strong>muchas semanas</strong> sin exportar.<br><br>
+  Si la app avisa de <strong>nueva versión</strong> (service worker), conviene hacer backup <strong>antes</strong> de pulsar actualizar por si acaso.<br><br>
+  En la barra inferior puede aparecer mensaje de actualización cuando haya código nuevo en el servidor.»</blockquote>
+
+  <hr>
+
+  <h2 id="s11">11. Errores comunes y cómo responder</h2>
+  <table>
+    <thead>
+      <tr><th>Situación</th><th>Qué decir</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>«No veo el gráfico»</td>
+        <td>Es <strong>solo GP3/GP4</strong>; en GP1/GP2 no está.</td>
+      </tr>
+      <tr>
+        <td>«Mis horas regularizadas bajaron al guardar»</td>
+        <td>Aseguraos de usar <strong>coma o punto</strong> bien en saldos; <strong>no dejéis</strong> campos en blanco si queréis <strong>cambiar</strong> el valor — en blanco la app <strong>conserva</strong> lo anterior. Si duda, abrid configuración y revisad los cuatro campos de horas antes de guardar.</td>
+      </tr>
+      <tr>
+        <td>«Perdí todo al cambiar de teléfono»</td>
+        <td>Sin <strong>restaurar un archivo de backup</strong>, los datos no viajan solos.</td>
+      </tr>
+      <tr>
+        <td>«El festivo no coincide»</td>
+        <td>Los festivos vienen de tablas locales; si hay error administrativo, el día podéis <strong>ajustarlo</strong> manualmente en registro.</td>
+      </tr>
+      <tr>
+        <td>«Dos fichajes el mismo día»</td>
+        <td>Si cerraste y volviste a trabajar, la app puede preguntar si es <strong>segundo periodo</strong>; leed el modal con calma.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2 id="s12">12. Glosario rápido</h2>
+  <table>
+    <thead>
+      <tr><th>Término</th><th>Significado breve</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>TxT</strong></td><td>Tiempo por tiempo: banco de horas que en muchos casos compensa con descanso.</td></tr>
+      <tr><td><strong>Exceso de jornada</strong></td><td>Otro saldo regulado aparte del TxT en GP3/GP4.</td></tr>
+      <tr><td><strong>Salida teórica / ajustada</strong></td><td>Horas calculadas según entrada + jornada nominal (y reglas del día).</td></tr>
+      <tr><td><strong>Regularización</strong></td><td>Cantidad para <strong>alinear</strong> el total de la app con el de empresa desde una fecha de guardado.</td></tr>
+      <tr><td><strong>LD</strong></td><td>Libre Disposición: días de calendario con cupo anual.</td></tr>
+      <tr><td><strong>Bolsa (GP1/GP2)</strong></td><td>Acumulación semanal en modo piloto; ver convenio y guía técnica.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2 id="s13">13. Cierre del guión: qué recordar</h2>
+  <p><strong>Decimos:</strong></p>
+  <blockquote>«En resumen: <strong>elegid bien el grupo profesional</strong>, <strong>configurad la jornada</strong>, <strong>fichad entrada y salida</strong> desde Inicio o Registro, <strong>revisad el calendario</strong> al final de la semana y <strong>haced backup</strong> cuando os acordéis. El menú ☰ tiene las instrucciones largas en la <strong>Guía</strong> si las necesitáis.<br><br>
+  La app está hecha para <strong>acompañaros</strong> en el día a día, no para sustituir el criterio de administración ni el registro oficial de la empresa. Cualquier duda numérica grave, contrastarla con <strong>RR.HH.</strong> o el comité.»</blockquote>
+  <p><strong>Pausa final:</strong> Preguntas abiertas y, si es posible, <strong>5 minutos</strong> de práctica guiada: iniciar y finalizar un día de prueba en el calendario de «ayer» o un día ficticio que luego borren con <strong>Eliminar</strong>.</p>
+
+  <p class="footer"><em>Fin del guión. Para detalle normativo y de pantalla, combinad este documento con <code>GUIA-JORNADA-PRO.md</code>. Para obtener PDF: imprimir esta página desde el navegador y elegir «Guardar como PDF».</em></p>
+
+</body>
+</html>

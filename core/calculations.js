@@ -41,11 +41,30 @@ export function calcularJornada({
   salidaReal,
   jornadaMin,
   minAntes = 0,
-  trabajoATurnos = false
+  trabajoATurnos = false,
+  /**
+   * Horario flexible (si no es turnos): la salida teórica se calcula con la entrada
+   * limitada al rango [flexEntradaDesde, flexEntradaHasta].
+   *
+   * Ejemplo típico: 06:00–08:00 (entrada). Con jornada 459 min:
+   * - Si entras 06:00 -> salida teórica 13:39
+   * - Si entras 08:00 -> salida teórica 15:39
+   * - Si entras 09:15 -> salida teórica 15:39 (se considera fuera de flex)
+   */
+  horarioFlexible = true,
+  flexEntradaDesde = "06:00",
+  flexEntradaHasta = "08:00"
 }) {
 
   const entradaMin = timeToMinutes(entrada);
   const jornadaEfectiva = trabajoATurnos ? JORNADA_TURNOS_MIN : jornadaMin;
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+  const flexActiva = !trabajoATurnos && horarioFlexible === true;
+  const flexDesdeMin = timeToMinutes(flexEntradaDesde);
+  const flexHastaMin = timeToMinutes(flexEntradaHasta);
+  const entradaBaseTeoricaMin = flexActiva ? clamp(entradaMin, flexDesdeMin, flexHastaMin) : entradaMin;
+  const salidaTeoricaMin = entradaBaseTeoricaMin + jornadaEfectiva;
 
   let salidaMin;
 
@@ -57,7 +76,8 @@ export function calcularJornada({
     }
 
   } else {
-    salidaMin = entradaMin + jornadaEfectiva;
+    // Si no hay salida real aún, la UI usa la salida teórica.
+    salidaMin = salidaTeoricaMin;
   }
 
   salidaMin -= minAntes;
@@ -71,7 +91,7 @@ export function calcularJornada({
 
     return {
       trabajadosMin: trabajados,
-      salidaTeoricaMin: entradaMin + jornadaEfectiva,
+      salidaTeoricaMin,
       salidaAjustadaMin: salidaMin,
       extraGeneradaMin,
       negativaMin,
@@ -83,7 +103,7 @@ export function calcularJornada({
 
   return {
     trabajadosMin: trabajados,
-    salidaTeoricaMin: entradaMin + jornadaMin,
+    salidaTeoricaMin,
     salidaAjustadaMin: salidaMin,
     extraGeneradaMin: extraEnBloques15(diferencia > 0 ? diferencia : 0),
     negativaMin: diferencia < 0 ? Math.abs(diferencia) : 0,

@@ -1,5 +1,7 @@
 # Plantilla para formulario de pase de salida justificado
 
+**Versión imprimible / PDF:** Abre en el navegador [`PLANTILLA-PASE-JUSTIFICADO.html`](./PLANTILLA-PASE-JUSTIFICADO.html) y usa **Imprimir → Guardar como PDF**.
+
 La app puede rellenar un formulario tipo con los datos personales y del día, y abrirlo para imprimir o guardar como PDF.
 
 La plantilla por defecto (`plantilla-pase-justificado.html`) replica el **Xustificante de ausencias** (formato oficial en gallego: datos do traballador/a, hora de desprazamento, opcións LS3, e bloque para o facultativo). Si tienes el Word original, puedes usarlo como referencia; la app no rellena archivos .docx directamente (requeriría otro tipo de integración), pero el HTML incluido reproduce el mismo contenido y estructura para que al imprimir/guardar como PDF obtengas un documento equivalente.

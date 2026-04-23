@@ -2330,6 +2330,21 @@ function controlarNotificaciones() {
     const salidaVal = pendingDescuento.salidaValue || ahoraHoraISO();
     const fechaClave = pendingDescuento.fechaClave || (fecha && fecha.value) || hoyISO();
     const shortfallMin = pendingDescuento.shortfallMin || 0;
+    if (pendingDescuento.accion === "edicionManual") {
+      if (state.registros && state.registros[fechaClave]) {
+        state.registros[fechaClave].descuentoDe = descuentoDe === "excesoJornada" ? "excesoJornada" : "TxT";
+        saveState(state);
+        renderCalendario();
+        actualizarBanco();
+        actualizarGrafico();
+        actualizarResumenDia();
+        actualizarEstadoEliminar();
+        actualizarEstadoIniciarJornada();
+      }
+      pendingDescuento = null;
+      if (modalDescuentoDe) modalDescuentoDe.hidden = true;
+      return;
+    }
     if (fecha && fecha.value !== fechaClave) fecha.value = fechaClave;
     if (salida) salida.value = salidaVal;
     ejecutarFinalizarJornada(undefined, descuentoDe);
@@ -2604,7 +2619,11 @@ function controlarNotificaciones() {
   function calcularFinTeorico() {
     if (!entrada || !entrada.value) return { time: "00:00", nextDay: false };
     const entMin = timeToMinutes(entrada.value);
-    const total = entMin + jornadaRefMin();
+    const flexActiva = !state.config.trabajoATurnos;
+    const flexDesdeMin = 6 * 60;
+    const flexHastaMin = 8 * 60;
+    const entBase = flexActiva ? Math.max(flexDesdeMin, Math.min(flexHastaMin, entMin)) : entMin;
+    const total = entBase + jornadaRefMin();
     const nextDay = total >= 24 * 60;
     const minEnDia = total % (24 * 60);
     const h = Math.floor(minEnDia / 60);
@@ -3404,7 +3423,8 @@ function controlarNotificaciones() {
             licenciaRetribuida: reg.licenciaRetribuida,
             licenciaRetribuidaTipo: reg.licenciaRetribuidaTipo,
             paseSinJustificado: reg.paseSinJustificado,
-            paseJustificado: reg.paseJustificado
+            paseJustificado: reg.paseJustificado,
+            descuentoDe: reg.descuentoDe
           };
         }
       } else {
@@ -3454,6 +3474,14 @@ function controlarNotificaciones() {
       actualizarResumenDia();
       actualizarProgreso();
       cerrarModalExtManual();
+      // Si es un día laborable GP3/GP4 con déficit (negativa), pedir de qué saldo se descuenta
+      // para que el desglose TxT/exceso sea coherente con la intención del usuario.
+      try {
+        if (!esModoMinutosSemanal() && !state.config.trabajoATurnos && reg && (reg.negativaMin || 0) > 0 && !reg.descuentoDe && !esDiaNoLaborable(f)) {
+          pendingDescuento = { accion: "edicionManual", fechaClave: f };
+          if (modalDescuentoDe) modalDescuentoDe.hidden = false;
+        }
+      } catch (e) {}
     });
   }
 
