@@ -109,8 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const calFichajesDiaFecha = document.getElementById("calFichajesDiaFecha");
   const calFichajesEntrada = document.getElementById("calFichajesEntrada");
   const calFichajesSalida = document.getElementById("calFichajesSalida");
-  const calFichajesSalidaTeorica = document.getElementById("calFichajesSalidaTeorica");
-  const calFichajesSalidaAjustada = document.getElementById("calFichajesSalidaAjustada");
   const calFichajesExtensionHorasWrap = document.getElementById("calFichajesExtensionHorasWrap");
   const calFichajesExtInicio = document.getElementById("calFichajesExtInicio");
   const calFichajesExtFin = document.getElementById("calFichajesExtFin");
@@ -4985,9 +4983,6 @@ if(festivos && festivos[fechaISO]){
     const val = (x) => (x != null && String(x).trim() ? String(x) : "--");
     if (calFichajesEntrada) calFichajesEntrada.textContent = val(r && r.entrada);
     if (calFichajesSalida) calFichajesSalida.textContent = val(r && r.salidaReal);
-    if (calFichajesSalidaTeorica) calFichajesSalidaTeorica.textContent = r && r.salidaTeoricaMin != null ? minutesToTime(r.salidaTeoricaMin) : "--";
-    if (calFichajesSalidaAjustada) calFichajesSalidaAjustada.textContent = r && r.salidaAjustadaMin != null ? minutesToTime(r.salidaAjustadaMin) : "--";
-
     const tramos = r && Array.isArray(r.extensionTramos) ? r.extensionTramos : [];
     // Inicio/fin de extensión: mostrar solo si hay al menos un tramo, o si es hoy y hay extensión en curso
     const hoy = getHoyISO();
