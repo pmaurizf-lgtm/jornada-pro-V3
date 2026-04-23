@@ -3319,6 +3319,14 @@ body.dark .registro-extension.card {
   gap: 10px 12px;
 }
 
+.cal-fichajes-grid--ext {
+  margin-top: 8px;
+}
+
+.cal-fichajes-extension-horas {
+  margin-top: 12px;
+}
+
 .cal-fichaje-item {
   background: rgba(255, 255, 255, 0.10);
   border: 1px solid rgba(255, 255, 255, 0.12);

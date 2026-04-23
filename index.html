@@ -984,14 +984,6 @@
       <div id="calendarAgendaLista" class="calendar-agenda-lista" aria-label="Agenda del año"></div>
     </div>
 
-    <!-- Agenda del día (visible al seleccionar una fecha en Mes o Semana) -->
-    <div id="agendaDiaWrap" class="card agenda-dia-wrap" hidden>
-      <h3 class="agenda-dia-titulo">Agenda del día</h3>
-      <p id="agendaDiaFechaLabel" class="agenda-dia-fecha-label"></p>
-      <ul id="agendaDiaLista" class="agenda-dia-lista" aria-label="Eventos del día"></ul>
-      <button type="button" id="btnAgendaAnadir" class="config-btn agenda-dia-btn-anadir">Añadir evento o nota</button>
-    </div>
-
   </div>
 
   <!-- FICHAJES DEL DÍA (visible al seleccionar una fecha) -->
@@ -1016,10 +1008,31 @@
         <strong id="calFichajesSalidaAjustada" class="cal-fichaje-value">--</strong>
       </div>
     </div>
+    <div id="calFichajesExtensionHorasWrap" class="cal-fichajes-extension-horas" hidden>
+      <h4 class="cal-fichajes-subtitulo">Extensión (fichaje)</h4>
+      <div class="cal-fichajes-grid cal-fichajes-grid--ext">
+        <div class="cal-fichaje-item">
+          <span class="cal-fichaje-label">Inicio extensión</span>
+          <strong id="calFichajesExtInicio" class="cal-fichaje-value">--</strong>
+        </div>
+        <div class="cal-fichaje-item">
+          <span class="cal-fichaje-label">Fin extensión</span>
+          <strong id="calFichajesExtFin" class="cal-fichaje-value">--</strong>
+        </div>
+      </div>
+    </div>
     <div id="calFichajesExtensionWrap" class="cal-fichajes-extension" hidden>
       <h4 class="cal-fichajes-subtitulo">Extensión</h4>
       <ul id="calFichajesExtensionLista" class="cal-fichajes-ext-lista" aria-label="Tramos de extensión"></ul>
     </div>
+  </div>
+
+  <!-- Agenda del día (visible al seleccionar una fecha en Mes o Semana) -->
+  <div id="agendaDiaWrap" class="card agenda-dia-wrap" hidden>
+    <h3 class="agenda-dia-titulo">Agenda del día</h3>
+    <p id="agendaDiaFechaLabel" class="agenda-dia-fecha-label"></p>
+    <ul id="agendaDiaLista" class="agenda-dia-lista" aria-label="Eventos del día"></ul>
+    <button type="button" id="btnAgendaAnadir" class="config-btn agenda-dia-btn-anadir">Añadir evento o nota</button>
   </div>
 
   <!-- MODO PLOF: botones y agenda del día (oculto por defecto) -->

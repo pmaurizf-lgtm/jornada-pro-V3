@@ -111,6 +111,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const calFichajesSalida = document.getElementById("calFichajesSalida");
   const calFichajesSalidaTeorica = document.getElementById("calFichajesSalidaTeorica");
   const calFichajesSalidaAjustada = document.getElementById("calFichajesSalidaAjustada");
+  const calFichajesExtensionHorasWrap = document.getElementById("calFichajesExtensionHorasWrap");
+  const calFichajesExtInicio = document.getElementById("calFichajesExtInicio");
+  const calFichajesExtFin = document.getElementById("calFichajesExtFin");
   const calFichajesExtensionWrap = document.getElementById("calFichajesExtensionWrap");
   const calFichajesExtensionLista = document.getElementById("calFichajesExtensionLista");
   const resumenPortada = document.getElementById("resumenPortada");
@@ -4656,8 +4659,10 @@ if(festivos && festivos[fechaISO]){
 
         if (registro.entrada && registro.salidaReal != null) {
           var esPaseSinJustificar = registro.paseSinJustificado === true || (state.earlyExitState && state.earlyExitState.fecha === fechaISO);
-          var esPaseJustificado = registro.paseJustificado === true;
-          if (esPaseSinJustificar || esPaseJustificado) {
+          var esPaseJustificado = registro.paseJustificado === true || (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === fechaISO);
+          // Si hay déficit de jornada (negativa o deducción) el día no está completo: marcar como asterisco (esquina naranja).
+          var esIncompleto = (registro.negativaMin || 0) > 0 || (deduccionDia || 0) > 0;
+          if (esPaseSinJustificar || esPaseJustificado || esIncompleto) {
             legendActive.paseSinJustificar = true;
             saldoHtml += "<span class=\"cal-day-especial\" aria-hidden=\"true\"><span class=\"cal-day-especial-symbol\">*</span></span>";
           } else {
@@ -4674,6 +4679,12 @@ if(festivos && festivos[fechaISO]){
         }
         div.innerHTML += saldoHtml;
       }
+    } else if (
+      (state.earlyExitState && state.earlyExitState.fecha === fechaISO) ||
+      (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === fechaISO)
+    ) {
+      legendActive.paseSinJustificar = true;
+      div.innerHTML += "<span class=\"cal-day-especial\" aria-hidden=\"true\"><span class=\"cal-day-especial-symbol\">*</span></span>";
     } else if (deduccionDia > 0) {
       var decimalH = (deduccionDia / 60).toFixed(2).replace(".", ",");
       var hm = "\u2212" + minutosAHorasMinutos(-deduccionDia);
@@ -4978,6 +4989,16 @@ if(festivos && festivos[fechaISO]){
     if (calFichajesSalidaAjustada) calFichajesSalidaAjustada.textContent = r && r.salidaAjustadaMin != null ? minutesToTime(r.salidaAjustadaMin) : "--";
 
     const tramos = r && Array.isArray(r.extensionTramos) ? r.extensionTramos : [];
+    // Inicio/fin de extensión: mostrar solo si hay al menos un tramo, o si es hoy y hay extensión en curso
+    const hoy = getHoyISO();
+    const enCurso = state.extensionJornada && state.extensionJornada.fecha === hoy && fechaISO === hoy;
+    const extIni = tramos.length > 0 && tramos[0] && tramos[0].inicio ? tramos[0].inicio : (enCurso ? (state.extensionJornada.desdeTime || "") : "");
+    const extFin = tramos.length > 0 && tramos[tramos.length - 1] && tramos[tramos.length - 1].fin ? tramos[tramos.length - 1].fin : "";
+    const mostrarExtHoras = !!(extIni || extFin);
+    if (calFichajesExtensionHorasWrap) calFichajesExtensionHorasWrap.hidden = !mostrarExtHoras;
+    if (calFichajesExtInicio) calFichajesExtInicio.textContent = extIni ? extIni : "--";
+    if (calFichajesExtFin) calFichajesExtFin.textContent = extFin ? extFin : (enCurso ? "En curso" : "--");
+
     if (calFichajesExtensionLista) calFichajesExtensionLista.innerHTML = "";
     if (calFichajesExtensionWrap) calFichajesExtensionWrap.hidden = tramos.length === 0;
     if (calFichajesExtensionLista && tramos.length > 0) {
