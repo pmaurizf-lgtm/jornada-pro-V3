@@ -3278,6 +3278,11 @@ body.dark .progress-text-inside.light-text {
     max-width: 50%;
   }
 
+  #seccionRegistro .acciones-row button#eliminar {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
   .salidas-card {
     flex-direction: column;
     gap: 12px;
@@ -3602,6 +3607,11 @@ body.light .cal-fichajes-ext-lista li {
     flex: 1 1 calc(50% - 4px);
     min-width: 0;
     max-width: calc(50% - 4px);
+  }
+
+  #seccionRegistro .acciones-row button#eliminar {
+    flex: 1 1 100%;
+    max-width: 100%;
   }
 
   .cal-day,
