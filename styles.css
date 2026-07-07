@@ -2697,6 +2697,10 @@ button:disabled {
   --btn-glass-bg: rgba(20, 184, 166, 0.42);
 }
 
+#seccionRegistro .acciones-row button.btn-noruega {
+  --btn-glass-bg: rgba(37, 99, 235, 0.42);
+}
+
 #seccionRegistro .acciones-row button#btnLicenciasRetribuidas {
   --btn-glass-bg: rgba(16, 185, 129, 0.42);
 }
@@ -2807,6 +2811,34 @@ body.dark .btn-disfrute-horas {
 
 body.dark .btn-disfrute-exceso {
   background: #14b8a6;
+  color: #ffffff;
+}
+
+.btn-noruega {
+  --btn-solid: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+  padding: 10px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-noruega:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-noruega:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+body.dark .btn-noruega {
+  background: #3b82f6;
   color: #ffffff;
 }
 

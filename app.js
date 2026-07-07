@@ -367,6 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnVacaciones = document.getElementById("vacaciones");
   const btnLD = document.getElementById("ld");
   const btnDisfruteHorasExtra = document.getElementById("disfruteHorasExtra");
+  const btnTrabajosNoruega = document.getElementById("btnTrabajosNoruega");
   const btnIniciarJornada = document.getElementById("iniciarJornada");
   const btnExcel = document.getElementById("excel");
   const btnBackup = document.getElementById("backup");
@@ -579,6 +580,60 @@ if (cfgTrabajoTurnos && configTurnoWrap) {
     }
   }
 
+  /** Lun–vie y sáb (no domingo ni festivo): registro con horario y TxT de Trabajos en Noruega. */
+  function crearRegistroDiaNoruega(fechaISO, opts) {
+    if (!fechaISO) return null;
+    const manual = opts && opts.manual === true;
+    const auto = opts && opts.auto === true;
+    const cur = new Date(fechaISO + "T12:00:00");
+    const dow = cur.getDay();
+    const fest = obtenerFestivos(cur.getFullYear());
+    if (dow === 0 || (fest && fest[fechaISO])) return null;
+    const prevReg = state.registros[fechaISO];
+    const disfrutadasManualMin = prevReg?.disfrutadasManualMin || 0;
+    const base = {
+      negativaMin: 0,
+      salidaTeoricaMin: 0,
+      salidaAjustadaMin: 0,
+      disfrutadasManualMin,
+      vacaciones: false,
+      modoNoruega: true,
+      ultimaModificacionISO: new Date().toISOString()
+    };
+    if (manual) base.noruegaManual = true;
+    if (auto) base.noruegaAuto = true;
+    if (dow >= 1 && dow <= 5) {
+      return {
+        ...base,
+        entrada: "07:00",
+        salidaReal: "19:00",
+        trabajadosMin: 720,
+        extraGeneradaMin: 240,
+        excesoJornadaMin: 21
+      };
+    }
+    if (dow === 6) {
+      return {
+        ...base,
+        entrada: "08:00",
+        salidaReal: "14:00",
+        trabajadosMin: 360,
+        extraGeneradaMin: 480,
+        excesoJornadaMin: 0
+      };
+    }
+    return null;
+  }
+
+  function esDiaInvalidoParaNoruega(fechaISO) {
+    if (!fechaISO) return true;
+    const cur = new Date(fechaISO + "T12:00:00");
+    const dow = cur.getDay();
+    if (dow === 0) return true;
+    const fest = obtenerFestivos(cur.getFullYear());
+    return !!(fest && fest[fechaISO]);
+  }
+
   function sincronizarRegistrosModoNoruega() {
     desactivarModoNoruegaSiFechaFinPasada();
     if (!modoNoruegaPeriodoValido() || !esGpTxT()) return;
@@ -602,39 +657,8 @@ if (cfgTrabajoTurnos && configTurnoWrap) {
       if (reg && reg.noruegaManual) { cur.setDate(cur.getDate() + 1); continue; }
       if (reg && (reg.vacaciones || reg.libreDisposicion || reg.disfruteHorasExtra || reg.disfruteExcesoJornada || reg.licenciaRetribuida)) { cur.setDate(cur.getDate() + 1); continue; }
       if (reg && (reg.paseJustificado || reg.paseSinJustificado)) { cur.setDate(cur.getDate() + 1); continue; }
-      if (dow >= 1 && dow <= 5) {
-        state.registros[iso] = {
-          entrada: "07:00",
-          salidaReal: "19:00",
-          trabajadosMin: 720,
-          extraGeneradaMin: 240,
-          excesoJornadaMin: 21,
-          negativaMin: 0,
-          salidaTeoricaMin: 0,
-          salidaAjustadaMin: 0,
-          disfrutadasManualMin: reg?.disfrutadasManualMin || 0,
-          vacaciones: false,
-          modoNoruega: true,
-          noruegaAuto: true,
-          ultimaModificacionISO: new Date().toISOString()
-        };
-      } else if (dow === 6) {
-        state.registros[iso] = {
-          entrada: "08:00",
-          salidaReal: "14:00",
-          trabajadosMin: 360,
-          extraGeneradaMin: 480,
-          excesoJornadaMin: 0,
-          negativaMin: 0,
-          salidaTeoricaMin: 0,
-          salidaAjustadaMin: 0,
-          disfrutadasManualMin: reg?.disfrutadasManualMin || 0,
-          vacaciones: false,
-          modoNoruega: true,
-          noruegaAuto: true,
-          ultimaModificacionISO: new Date().toISOString()
-        };
-      }
+      const regNoruega = crearRegistroDiaNoruega(iso, { auto: true });
+      if (regNoruega) state.registros[iso] = regNoruega;
       cur.setDate(cur.getDate() + 1);
     }
     saveState(state);
@@ -1406,6 +1430,7 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     if (wrapMinAntes) wrapMinAntes.style.display = modoMin ? "none" : "";
     if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.style.display = modoMin ? "none" : "";
     if (btnDisfruteExcesoJornada) btnDisfruteExcesoJornada.style.display = modoMin ? "none" : "";
+    if (btnTrabajosNoruega) btnTrabajosNoruega.style.display = modoMin ? "none" : "";
     if (mainGrid) mainGrid.classList.toggle("main-grid--full", modoMin);
     if (bankTabHoras) bankTabHoras.textContent = modoMin ? "Tiempo Exceso Jornada" : "Horas TxT";
     if (modoMin && minAntes) minAntes.value = "0";
@@ -3417,6 +3442,52 @@ function controlarNotificaciones() {
     actualizarResumenDia();
   };
 
+  if (btnTrabajosNoruega) btnTrabajosNoruega.onclick = () => {
+    if (!fecha || !fecha.value) {
+      showToast("Selecciona primero un día en el calendario.", "error");
+      return;
+    }
+    if (!esGpTxT()) {
+      showToast("Trabajos en Noruega solo aplica a GP3 y GP4.", "error");
+      return;
+    }
+    if (state.config.trabajoATurnos) {
+      showToast("Desactiva el trabajo a turnos para marcar Trabajos en Noruega.", "error");
+      return;
+    }
+    const f = fecha.value;
+    const reg = state.registros[f];
+    if (reg && (reg.vacaciones || reg.libreDisposicion || reg.disfruteHorasExtra || reg.disfruteExcesoJornada || reg.licenciaRetribuida)) {
+      showToast("No se puede marcar Noruega en un día de Vacaciones, LD, Disfrute o Licencia.", "error");
+      return;
+    }
+    if (reg && reg.modoNoruega) {
+      showToast("Este día ya está marcado como Trabajos en Noruega.", "info");
+      return;
+    }
+    if (esDiaInvalidoParaNoruega(f)) {
+      showToast("Trabajos en Noruega no aplica en domingos ni festivos.", "error");
+      return;
+    }
+    const regNoruega = crearRegistroDiaNoruega(f, { manual: true });
+    if (!regNoruega) {
+      showToast("No se pudo marcar el día como Trabajos en Noruega.", "error");
+      return;
+    }
+    state.registros[f] = regNoruega;
+    saveState(state);
+    cargarFormularioDesdeRegistro(f);
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+    actualizarEstadoEliminar();
+    actualizarEstadoIniciarJornada();
+    actualizarResumenDia();
+    const dow = new Date(f + "T12:00:00").getDay();
+    const detalle = dow === 6 ? "8 h TxT" : "4 h TxT + 21 min exceso";
+    showToast("Día marcado como Trabajos en Noruega (" + detalle + ").", "success");
+  };
+
   if (modalLDAceptar) {
     modalLDAceptar.addEventListener("click", () => {
       const anioRaw = modalLDAnioLabel ? parseInt(modalLDAnioLabel.textContent, 10) : NaN;
@@ -3879,6 +3950,8 @@ function controlarNotificaciones() {
     const esDiaLD = !!(fecha && state.registros[fecha.value]?.libreDisposicion);
     const esDiaDisfruteHorasExtra = !!(fecha && state.registros[fecha.value]?.disfruteHorasExtra);
     const esDiaDisfruteExcesoJornada = !!(fecha && state.registros[fecha.value]?.disfruteExcesoJornada);
+    const esDiaNoruegaMarcado = !!(fecha && state.registros[fecha.value]?.modoNoruega);
+    const esDiaLicencia = !!(fecha && state.registros[fecha.value]?.licenciaRetribuida);
     const esDiaNoTrabajable = esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra || esDiaDisfruteExcesoJornada;
     if (entrada) entrada.disabled = esDiaNoTrabajable;
     if (salida) salida.disabled = esDiaNoTrabajable;
@@ -3889,6 +3962,13 @@ function controlarNotificaciones() {
     if (btnLD) btnLD.disabled = esDiaVacaciones || esDiaDisfruteHorasExtra || esDiaDisfruteExcesoJornada;
     if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.disabled = esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra || esDiaDisfruteExcesoJornada;
     if (btnDisfruteExcesoJornada) btnDisfruteExcesoJornada.disabled = esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra || esDiaDisfruteExcesoJornada;
+    if (btnTrabajosNoruega) {
+      btnTrabajosNoruega.disabled = !esGpTxT()
+        || state.config.trabajoATurnos === true
+        || esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra || esDiaDisfruteExcesoJornada
+        || esDiaLicencia || esDiaNoruegaMarcado
+        || !(fecha && fecha.value) || esDiaInvalidoParaNoruega(fecha.value);
+    }
 
     if (esDiaNoTrabajable) {
       if (btnIniciarJornada) {
@@ -3901,19 +3981,14 @@ function controlarNotificaciones() {
       return;
     }
 
-    const hoyCheck = getHoyISO();
     const regFecha = fecha && state.registros[fecha.value];
-    const esNoruegaAutoHoy = fecha
-      && fecha.value === hoyCheck
-      && regFecha
-      && regFecha.modoNoruega === true
-      && regFecha.noruegaAuto === true
-      && !regFecha.noruegaManual;
-    if (esNoruegaAutoHoy) {
+    const esDiaNoruega = !!(regFecha && regFecha.modoNoruega === true);
+    if (esDiaNoruega) {
       if (btnIniciarJornada) {
         btnIniciarJornada.hidden = false;
         btnIniciarJornada.disabled = true;
-        btnIniciarJornada.textContent = "Trabajos en Noruega (automático)";
+        const esAuto = regFecha.noruegaAuto === true && !regFecha.noruegaManual;
+        btnIniciarJornada.textContent = esAuto ? "Trabajos en Noruega (automático)" : "Trabajos en Noruega";
         btnIniciarJornada.classList.remove("btn-finalizar", "btn-continuar");
         btnIniciarJornada.classList.add("btn-iniciar");
       }
@@ -4040,6 +4115,8 @@ if (btnExcel) {
           tipoDia = "Disfr. exceso";
         } else if (r.licenciaRetribuida) {
           tipoDia = "Licencia retribuida";
+        } else if (r.modoNoruega) {
+          tipoDia = "Trabajos Noruega";
         } else {
           horaEntrada = r.entrada || "";
           horaSalida = r.salidaReal != null ? r.salidaReal : "";
@@ -4248,6 +4325,7 @@ if (btnInformePdf) {
       else if (r.disfruteHorasExtra) tipo = "Disfr. h. extra";
       else if (r.disfruteExcesoJornada) tipo = "Disfr. exceso";
       else if (r.licenciaRetribuida) tipo = "Licencia";
+      else if (r.modoNoruega) tipo = "Trabajos Noruega";
       const ent = r.entrada || "—";
       const sal = r.salidaReal != null ? r.salidaReal : "—";
       const trab = r.trabajadosMin != null ? (r.trabajadosMin / 60).toFixed(2) + " h" : "—";
