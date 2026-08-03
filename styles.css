@@ -4181,6 +4181,50 @@ body.dark .modal-extender-box {
   }
 }
 
+.modal-vacaciones-box {
+  max-width: 420px;
+}
+
+.modal-vacaciones-opciones {
+  border: none;
+  margin: 0.75rem 0 0.5rem;
+  padding: 0;
+}
+
+.modal-vacaciones-opciones legend {
+  margin-bottom: 0.5rem;
+}
+
+.modal-vacaciones-opcion {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0.45rem 0;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.modal-vacaciones-opcion input {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+.modal-vacaciones-rango {
+  margin-top: 0.25rem;
+}
+
+.modal-vacaciones-resumen {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.92;
+  min-height: 1.35em;
+}
+
+body.dark .modal-vacaciones-resumen {
+  opacity: 0.95;
+}
+
 .modal-extender-titulo {
   margin: 0 0 12px 0;
   font-size: 1.25rem;

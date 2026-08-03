@@ -14,10 +14,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">  
 
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="styles.css?v=9">
+<link rel="stylesheet" href="styles.css?v=11">
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=9"></script>
+<script type="module" src="app.js?v=11"></script>
 </head>
 
 <body>
@@ -273,6 +273,44 @@
     <div class="modal-extender-botones">
       <button type="button" id="modalFabricaCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
       <button type="button" id="modalFabricaSi" class="modal-extender-btn modal-extender-si">Sí, restaurar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Vacaciones (día o rango) -->
+<div id="modalVacaciones" class="modal-extender" role="dialog" aria-labelledby="modalVacacionesTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box modal-vacaciones-box">
+    <h3 id="modalVacacionesTitulo" class="modal-extender-titulo">Marcar vacaciones</h3>
+    <p id="modalVacacionesDiaSel" class="modal-extender-texto" style="font-weight:600;"></p>
+    <fieldset class="modal-vacaciones-opciones">
+      <legend class="config-label">¿Cómo quieres marcarlas?</legend>
+      <label class="modal-vacaciones-opcion">
+        <input type="radio" name="vacacionesModo" id="vacacionesModoDia" value="dia" checked>
+        <span>Solo el día seleccionado en el calendario</span>
+      </label>
+      <label class="modal-vacaciones-opcion">
+        <input type="radio" name="vacacionesModo" id="vacacionesModoRango" value="rango">
+        <span>Rango de fechas (solo días laborables)</span>
+      </label>
+    </fieldset>
+    <div id="modalVacacionesRangoWrap" class="modal-vacaciones-rango" hidden>
+      <div class="grid-2" style="margin:0.5rem 0;">
+        <div class="config-row">
+          <label class="config-label" for="vacacionesDesde">Desde</label>
+          <input type="date" id="vacacionesDesde" class="config-input config-input-date" aria-label="Fecha inicio vacaciones">
+        </div>
+        <div class="config-row">
+          <label class="config-label" for="vacacionesHasta">Hasta</label>
+          <input type="date" id="vacacionesHasta" class="config-input config-input-date" aria-label="Fecha fin vacaciones">
+        </div>
+      </div>
+      <p class="config-hint">Sábados, domingos y festivos del rango <strong>no</strong> se marcan ni se descuentan del saldo.</p>
+    </div>
+    <p id="modalVacacionesResumen" class="modal-vacaciones-resumen" aria-live="polite"></p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalVacacionesCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
+      <button type="button" id="modalVacacionesConfirmar" class="modal-extender-btn modal-extender-si">Confirmar</button>
     </div>
   </div>
 </div>
@@ -1269,7 +1307,7 @@
     return;
   }
 
-  const SW_URL = "./service-worker.js?v=9";
+  const SW_URL = "./service-worker.js?v=11";
   let pendingReload = false;
   var swReg = null;
   const banner = document.getElementById("swUpdateBanner");

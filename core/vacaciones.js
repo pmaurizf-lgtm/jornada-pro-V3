@@ -76,6 +76,43 @@ export function ensureAnioActual(state, anioActual) {
   state.vacacionesDiasPorAnio = { ...porAnio, [anioActual]: valor };
 }
 
+/**
+ * Recalcula el saldo por año a partir de los días marcados en el calendario.
+ * Corrige desajustes (p. ej. doble descuento al pulsar Vacaciones dos veces el mismo día).
+ * Devuelve true si hubo que ajustar.
+ */
+export function reconciliarSaldoVacaciones(state, fechaRef = new Date()) {
+  const anioActual = fechaRef.getFullYear();
+  ensureAnioActual(state, anioActual);
+  const anios = getAniosNoVencidos(anioActual, fechaRef);
+  const porAnio = { ...(state.vacacionesDiasPorAnio || {}) };
+  const regs = Object.values(state.registros || {}).filter((r) => r && r.vacaciones);
+  const sinAnio = regs.filter((r) => r.vacacionesDiaAnioDescontado == null).length;
+  let changed = false;
+
+  for (const y of anios) {
+    const key = String(y);
+    const exists = porAnio[key] !== undefined || porAnio[y] !== undefined;
+    // Solo reconciliar años ya presentes en el banco (o el año en curso, creado por ensureAnioActual).
+    if (!exists && y !== anioActual) continue;
+    const inicial = y === ANIO_MINIMO
+      ? (state.config?.vacacionesDiasPrevio ?? 0)
+      : DIAS_POR_ANIO;
+    let descontados = regs.filter((r) => String(r.vacacionesDiaAnioDescontado) === key).length;
+    if (y === anioActual) descontados += sinAnio;
+    const esperado = Math.max(0, inicial - descontados);
+    const actual = porAnio[key] ?? porAnio[y] ?? 0;
+    if (actual !== esperado) {
+      porAnio[key] = esperado;
+      if (porAnio[y] !== undefined && String(y) !== key) delete porAnio[y];
+      changed = true;
+    }
+  }
+
+  if (changed) state.vacacionesDiasPorAnio = porAnio;
+  return changed;
+}
+
 /** Años que se pueden consultar en el desplegable: anteriores al actual (y >= ANIO_MINIMO). */
 export function getAniosConsulta(anioActual) {
   const anios = [];

@@ -20,7 +20,8 @@ import {
   getDiasDisponiblesAnio,
   descontarDiaVacacion,
   devolverDiaVacacion,
-  ensureAnioActual
+  ensureAnioActual,
+  reconciliarSaldoVacaciones
 } from "./core/vacaciones.js";
 import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.js";
 
@@ -440,6 +441,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalPaseSinJustificar = document.getElementById("modalPaseSinJustificar");
   const modalPaseFinJornada = document.getElementById("modalPaseFinJornada");
   const modalConfirmarEliminar = document.getElementById("modalConfirmarEliminar");
+  const modalVacaciones = document.getElementById("modalVacaciones");
+  const modalVacacionesDiaSel = document.getElementById("modalVacacionesDiaSel");
+  const vacacionesModoDia = document.getElementById("vacacionesModoDia");
+  const vacacionesModoRango = document.getElementById("vacacionesModoRango");
+  const modalVacacionesRangoWrap = document.getElementById("modalVacacionesRangoWrap");
+  const vacacionesDesde = document.getElementById("vacacionesDesde");
+  const vacacionesHasta = document.getElementById("vacacionesHasta");
+  const modalVacacionesResumen = document.getElementById("modalVacacionesResumen");
+  const modalVacacionesCancelar = document.getElementById("modalVacacionesCancelar");
+  const modalVacacionesConfirmar = document.getElementById("modalVacacionesConfirmar");
   const modalEliminarSi = document.getElementById("modalEliminarSi");
   const modalEliminarCancelar = document.getElementById("modalEliminarCancelar");
   const modalConfirmarFabrica = document.getElementById("modalConfirmarFabrica");
@@ -830,7 +841,9 @@ function aplicarSimboloPlof(symbol) {
     } else if (newRegExc !== prevRegExc || !prevCorteExc) {
       state.config.regularizacionExcesoCorteFecha = hoyISO;
     }
-    state.config.vacacionesDiasPrevio = Math.max(0, parseInt(cfgVacacionesDiasPrevio?.value, 10) || 0);
+    const newVacPrevios = Math.max(0, parseInt(cfgVacacionesDiasPrevio?.value, 10) || 0);
+    const oldVacPrevios = state.config.vacacionesDiasPrevio ?? 0;
+    state.config.vacacionesDiasPrevio = newVacPrevios;
     state.config.recordatorioFicharHora = (cfgRecordatorioFichar && cfgRecordatorioFichar.value) ? cfgRecordatorioFichar.value : "";
     state.config.pinEnabled = cfgPinEnabled ? cfgPinEnabled.checked : false;
     state.config.modoVago = !!(cfgModoVago && cfgModoVago.checked);
@@ -843,11 +856,18 @@ function aplicarSimboloPlof(symbol) {
         return false;
       }
     }
-    if (state.vacacionesDiasPorAnio) {
-      state.vacacionesDiasPorAnio = { ...state.vacacionesDiasPorAnio, "2025": state.config.vacacionesDiasPrevio };
-    } else {
-      state.vacacionesDiasPorAnio = { "2025": state.config.vacacionesDiasPrevio };
+    // Solo tocar el saldo 2025 si cambia el valor previo o aún no existe (no resetear el remanente al guardar config).
+    const porVac = state.vacacionesDiasPorAnio && typeof state.vacacionesDiasPorAnio === "object"
+      ? { ...state.vacacionesDiasPorAnio }
+      : {};
+    if (porVac["2025"] === undefined && porVac[2025] === undefined) {
+      porVac["2025"] = newVacPrevios;
+    } else if (newVacPrevios !== oldVacPrevios) {
+      const actual2025 = porVac["2025"] ?? porVac[2025] ?? oldVacPrevios;
+      porVac["2025"] = Math.max(0, actual2025 + (newVacPrevios - oldVacPrevios));
+      if (porVac[2025] !== undefined) delete porVac[2025];
     }
+    state.vacacionesDiasPorAnio = porVac;
     const anioCurso = new Date().getFullYear();
     const ldPrev = Math.max(0, parseInt(cfgLDDiasPrevio?.value, 10) || 0);
     state.ldDiasPorAnio = state.ldDiasPorAnio && typeof state.ldDiasPorAnio === "object" ? { ...state.ldDiasPorAnio, [anioCurso]: ldPrev } : { [anioCurso]: ldPrev };
@@ -1564,6 +1584,11 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     const hoy = new Date();
     const anioActual = hoy.getFullYear();
     const anioAnterior = anioActual - 1;
+    try {
+      if (reconciliarSaldoVacaciones(state, hoy)) saveState(state);
+    } catch (e) {
+      console.warn("Reconciliar vacaciones:", e);
+    }
     const total = getTotalDiasDisponibles(state, hoy);
     if (bVacacionesTotal) {
       bVacacionesTotal.innerText = total + " días";
@@ -3298,17 +3323,62 @@ function controlarNotificaciones() {
   };
 
   if (btnVacaciones) btnVacaciones.onclick = () => {
-
-    if (!fecha.value) return;
+    if (!fecha.value) {
+      showToast("Selecciona primero un día en el calendario.", "error");
+      return;
+    }
     if (state.registros[fecha.value]?.libreDisposicion) return;
-
-    const anioDescontado = descontarDiaVacacion(state, fecha.value);
-    if (anioDescontado == null) {
-      showToast("No hay días de vacaciones disponibles. Revisa la pestaña Vacaciones/LD.", "error");
+    if (state.registros[fecha.value]?.disfruteHorasExtra || state.registros[fecha.value]?.disfruteExcesoJornada || state.registros[fecha.value]?.licenciaRetribuida) {
+      showToast("No se puede marcar vacaciones en un día de disfrute o licencia.", "error");
       return;
     }
 
-    state.registros[fecha.value] = {
+    // Ya marcado: quitar vacaciones y devolver el día al banco (evita doble descuento).
+    if (state.registros[fecha.value]?.vacaciones) {
+      devolverDiaVacacion(state, fecha.value);
+      delete state.registros[fecha.value];
+      saveState(state);
+      if (entrada) entrada.value = "";
+      if (salida) salida.value = "";
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+      actualizarEstadoEliminar();
+      actualizarEstadoIniciarJornada();
+      actualizarResumenDia();
+      showToast("Vacaciones quitadas; día devuelto al banco.", "success");
+      return;
+    }
+
+    abrirModalVacaciones();
+  };
+
+  function formatearFechaLarga(fechaISO) {
+    try {
+      return new Date(fechaISO + "T12:00:00").toLocaleDateString("es-ES", {
+        weekday: "long", day: "numeric", month: "long", year: "numeric"
+      });
+    } catch (e) {
+      return fechaISO || "";
+    }
+  }
+
+  /** Días laborables (lun–vie no festivos) inclusivos en [desdeISO, hastaISO]. */
+  function getLaborablesEnRango(desdeISO, hastaISO) {
+    if (!desdeISO || !hastaISO || desdeISO > hastaISO) return [];
+    const out = [];
+    let cur = desdeISO;
+    const maxIter = 400;
+    let iter = 0;
+    while (cur <= hastaISO && iter++ < maxIter) {
+      if (esLaborable(cur)) out.push(cur);
+      cur = nextDayISO(cur);
+    }
+    return out;
+  }
+
+  function crearRegistroVacaciones(anioDescontado) {
+    return {
       entrada: null,
       salidaReal: null,
       trabajadosMin: 0,
@@ -3321,7 +3391,22 @@ function controlarNotificaciones() {
       vacaciones: true,
       vacacionesDiaAnioDescontado: anioDescontado
     };
+  }
 
+  /** Marca un día como vacaciones descontando del banco. No actúa si ya es vacaciones. */
+  function marcarUnDiaVacaciones(fechaISO) {
+    const reg = state.registros[fechaISO];
+    if (reg && reg.vacaciones) return { ok: true, skipped: "yaVacaciones" };
+    if (reg && (reg.libreDisposicion || reg.disfruteHorasExtra || reg.disfruteExcesoJornada || reg.licenciaRetribuida)) {
+      return { ok: false, skipped: "conflicto", motivo: "conflicto" };
+    }
+    const anioDescontado = descontarDiaVacacion(state, fechaISO);
+    if (anioDescontado == null) return { ok: false, motivo: "sinSaldo" };
+    state.registros[fechaISO] = crearRegistroVacaciones(anioDescontado);
+    return { ok: true };
+  }
+
+  function refrescarTrasVacaciones() {
     saveState(state);
     renderCalendario();
     actualizarBanco();
@@ -3329,7 +3414,165 @@ function controlarNotificaciones() {
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
-  };
+    if (fecha && fecha.value) {
+      cargarFormularioDesdeRegistro(fecha.value);
+      renderFichajesDia(fecha.value);
+    }
+  }
+
+  function actualizarUIModalVacaciones() {
+    const modoRango = !!(vacacionesModoRango && vacacionesModoRango.checked);
+    if (modalVacacionesRangoWrap) modalVacacionesRangoWrap.hidden = !modoRango;
+    if (!modalVacacionesResumen) return;
+
+    if (!modoRango) {
+      const f = fecha && fecha.value;
+      if (!f) {
+        modalVacacionesResumen.textContent = "Selecciona un día en el calendario.";
+        return;
+      }
+      if (!esLaborable(f)) {
+        modalVacacionesResumen.textContent = "El día seleccionado es fin de semana o festivo: no se descontará del saldo de vacaciones.";
+        return;
+      }
+      const disponible = getTotalDiasDisponibles(state, new Date());
+      modalVacacionesResumen.textContent = "Se marcará 1 día laborable (saldo disponible: " + disponible + ").";
+      return;
+    }
+
+    const desde = vacacionesDesde && vacacionesDesde.value;
+    const hasta = vacacionesHasta && vacacionesHasta.value;
+    if (!desde || !hasta) {
+      modalVacacionesResumen.textContent = "Indica fecha de inicio y de fin.";
+      return;
+    }
+    if (desde > hasta) {
+      modalVacacionesResumen.textContent = "La fecha de inicio no puede ser posterior a la de fin.";
+      return;
+    }
+    const laborables = getLaborablesEnRango(desde, hasta);
+    const yaMarcados = laborables.filter((d) => state.registros[d]?.vacaciones).length;
+    const conflictos = laborables.filter((d) => {
+      const r = state.registros[d];
+      return r && !r.vacaciones && (r.libreDisposicion || r.disfruteHorasExtra || r.disfruteExcesoJornada || r.licenciaRetribuida);
+    }).length;
+    const aMarcar = laborables.length - yaMarcados - conflictos;
+    const disponible = getTotalDiasDisponibles(state, new Date());
+    let txt = "Días laborables en el rango: " + laborables.length + " → se descontarán " + Math.max(0, aMarcar) + " del saldo";
+    if (yaMarcados) txt += " (" + yaMarcados + " ya marcados)";
+    if (conflictos) txt += " (" + conflictos + " omitidos por LD/disfrute/licencia)";
+    txt += ". Disponible: " + disponible + ".";
+    modalVacacionesResumen.textContent = txt;
+  }
+
+  function abrirModalVacaciones() {
+    if (!modalVacaciones) return;
+    const f = fecha && fecha.value;
+    if (modalVacacionesDiaSel) {
+      modalVacacionesDiaSel.textContent = f
+        ? "Día del calendario: " + formatearFechaLarga(f)
+        : "No hay día seleccionado.";
+    }
+    if (vacacionesModoDia) vacacionesModoDia.checked = true;
+    if (vacacionesModoRango) vacacionesModoRango.checked = false;
+    if (vacacionesDesde) vacacionesDesde.value = f || "";
+    if (vacacionesHasta) vacacionesHasta.value = f || "";
+    actualizarUIModalVacaciones();
+    modalVacaciones.hidden = false;
+  }
+
+  function cerrarModalVacaciones() {
+    if (modalVacaciones) modalVacaciones.hidden = true;
+  }
+
+  function confirmarModalVacaciones() {
+    const modoRango = !!(vacacionesModoRango && vacacionesModoRango.checked);
+
+    if (!modoRango) {
+      const f = fecha && fecha.value;
+      if (!f) {
+        showToast("Selecciona primero un día en el calendario.", "error");
+        return;
+      }
+      if (!esLaborable(f)) {
+        showToast("No se pueden marcar vacaciones en fines de semana ni festivos.", "error");
+        return;
+      }
+      const res = marcarUnDiaVacaciones(f);
+      if (!res.ok) {
+        if (res.motivo === "sinSaldo") showToast("No hay días de vacaciones disponibles. Revisa la pestaña Vacaciones/LD.", "error");
+        else if (res.motivo === "conflicto") showToast("Ese día ya está marcado como LD, disfrute o licencia.", "error");
+        else showToast("No se pudo marcar el día como vacaciones.", "error");
+        return;
+      }
+      cerrarModalVacaciones();
+      refrescarTrasVacaciones();
+      showToast("Día marcado como vacaciones.", "success");
+      return;
+    }
+
+    const desde = vacacionesDesde && vacacionesDesde.value;
+    const hasta = vacacionesHasta && vacacionesHasta.value;
+    if (!desde || !hasta) {
+      showToast("Indica fecha de inicio y de fin del rango.", "error");
+      return;
+    }
+    if (desde > hasta) {
+      showToast("La fecha de inicio no puede ser posterior a la de fin.", "error");
+      return;
+    }
+
+    const laborables = getLaborablesEnRango(desde, hasta);
+    if (laborables.length === 0) {
+      showToast("En ese rango no hay días laborables (solo fines de semana o festivos).", "error");
+      return;
+    }
+
+    const pendientes = laborables.filter((d) => {
+      const r = state.registros[d];
+      if (r && r.vacaciones) return false;
+      if (r && (r.libreDisposicion || r.disfruteHorasExtra || r.disfruteExcesoJornada || r.licenciaRetribuida)) return false;
+      return true;
+    });
+
+    const disponible = getTotalDiasDisponibles(state, new Date());
+    if (pendientes.length > disponible) {
+      showToast("Saldo insuficiente: hacen falta " + pendientes.length + " días y solo hay " + disponible + ".", "error");
+      return;
+    }
+
+    let marcados = 0;
+    let omitidos = 0;
+    for (const d of laborables) {
+      const res = marcarUnDiaVacaciones(d);
+      if (res.ok && !res.skipped) marcados++;
+      else if (res.skipped === "yaVacaciones") { /* ok */ }
+      else if (res.skipped === "conflicto" || res.motivo === "conflicto") omitidos++;
+      else if (res.motivo === "sinSaldo") {
+        showToast("Se agotó el saldo al marcar vacaciones. Se marcaron " + marcados + " días.", "error");
+        cerrarModalVacaciones();
+        refrescarTrasVacaciones();
+        return;
+      }
+    }
+
+    cerrarModalVacaciones();
+    refrescarTrasVacaciones();
+    let msg = "Vacaciones: " + marcados + " día" + (marcados === 1 ? "" : "s") + " laborable" + (marcados === 1 ? "" : "s") + " marcado" + (marcados === 1 ? "" : "s") + ".";
+    if (omitidos) msg += " " + omitidos + " omitido" + (omitidos === 1 ? "" : "s") + " (LD/disfrute/licencia).";
+    showToast(msg, "success");
+  }
+
+  if (modalVacacionesCancelar) modalVacacionesCancelar.addEventListener("click", cerrarModalVacaciones);
+  if (modalVacacionesConfirmar) modalVacacionesConfirmar.addEventListener("click", confirmarModalVacaciones);
+  if (modalVacaciones) {
+    const backdropVac = modalVacaciones.querySelector(".modal-extender-backdrop");
+    if (backdropVac) backdropVac.addEventListener("click", cerrarModalVacaciones);
+  }
+  if (vacacionesModoDia) vacacionesModoDia.addEventListener("change", actualizarUIModalVacaciones);
+  if (vacacionesModoRango) vacacionesModoRango.addEventListener("change", actualizarUIModalVacaciones);
+  if (vacacionesDesde) vacacionesDesde.addEventListener("change", actualizarUIModalVacaciones);
+  if (vacacionesHasta) vacacionesHasta.addEventListener("change", actualizarUIModalVacaciones);
 
   function abrirModalLDAnio(anio) {
     if (modalLDAnioLabel) modalLDAnioLabel.textContent = anio;
@@ -3346,8 +3589,24 @@ function controlarNotificaciones() {
     if (!fecha.value) return;
     if (state.registros[fecha.value]?.vacaciones) return;
 
+    // Ya marcado: quitar LD y devolver el día (evita doble descuento).
+    if (state.registros[fecha.value]?.libreDisposicion) {
+      devolverDiaLD(state, fecha.value);
+      delete state.registros[fecha.value];
+      saveState(state);
+      if (entrada) entrada.value = "";
+      if (salida) salida.value = "";
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+      actualizarEstadoEliminar();
+      actualizarEstadoIniciarJornada();
+      actualizarResumenDia();
+      showToast("LD quitado; día devuelto al banco.", "success");
+      return;
+    }
+
     const anio = parseInt(fecha.value.slice(0, 4), 10);
-    const anioActual = new Date().getFullYear();
     if (state.ldDiasPorAnio?.[anio] === undefined) {
       abrirModalLDAnio(anio);
       return;
@@ -3380,6 +3639,7 @@ function controlarNotificaciones() {
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
+    showToast("Día marcado como Libre disposición.", "success");
   };
 
   if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.onclick = () => {
