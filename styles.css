@@ -2372,6 +2372,93 @@ body.dark .cal-day.festivo-nacional {
   background: rgba(0, 122, 255, 0.2);
 }
 
+.cal-day.multi-seleccionado {
+  outline: 2px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.28) !important;
+  box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.55);
+  position: relative;
+}
+
+.cal-day.multi-seleccionado::after {
+  content: "✓";
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #b45309;
+  line-height: 1;
+  pointer-events: none;
+}
+
+body.dark .cal-day.multi-seleccionado {
+  background: rgba(245, 158, 11, 0.32) !important;
+  outline-color: #fbbf24;
+}
+
+body.dark .cal-day.multi-seleccionado::after {
+  color: #fde68a;
+}
+
+.cal-seleccion-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.cal-seleccion-bar[hidden] {
+  display: none !important;
+}
+
+.cal-seleccion-count {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.cal-seleccion-hint {
+  margin: 0;
+  flex: 1 1 140px;
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.cal-seleccion-cancelar {
+  margin-left: auto;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body.dark .cal-seleccion-bar {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(251, 191, 36, 0.45);
+}
+
+body.dark .cal-seleccion-cancelar {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.calendar-card--seleccion-multiple .calendar-grid {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cal-day {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+}
+
 body.dark .cal-day.seleccionado {
   background: rgba(10, 132, 255, 0.25);
 }

@@ -14,10 +14,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">  
 
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="styles.css?v=11">
+<link rel="stylesheet" href="styles.css?v=12">
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=11"></script>
+<script type="module" src="app.js?v=12"></script>
 </head>
 
 <body>
@@ -993,6 +993,12 @@
         <button id="nextMes">▶</button>
       </div>
 
+      <div id="calSeleccionBar" class="cal-seleccion-bar" hidden>
+        <span id="calSeleccionCount" class="cal-seleccion-count">0 días seleccionados</span>
+        <p class="cal-seleccion-hint">Pulsa más días y luego Vacaciones, LD, etc. en Registro</p>
+        <button type="button" id="calSeleccionCancelar" class="cal-seleccion-cancelar">Cancelar</button>
+      </div>
+
       <div id="calendarGrid" class="calendar-grid"></div>
       <div id="emptyStateCalendar" class="empty-state empty-state--calendar" hidden>
         <p class="empty-state-text">Aún no hay registros este mes</p>
@@ -1307,7 +1313,7 @@
     return;
   }
 
-  const SW_URL = "./service-worker.js?v=11";
+  const SW_URL = "./service-worker.js?v=12";
   let pendingReload = false;
   var swReg = null;
   const banner = document.getElementById("swUpdateBanner");

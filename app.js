@@ -239,6 +239,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const calendarGrid = document.getElementById("calendarGrid");
   const mesAnioLabel = document.getElementById("mesAnioLabel");
   const calendarLegend = document.getElementById("calendarLegend");
+  const calSeleccionBar = document.getElementById("calSeleccionBar");
+  const calSeleccionCount = document.getElementById("calSeleccionCount");
+  const calSeleccionCancelar = document.getElementById("calSeleccionCancelar");
+  const calendarCard = document.querySelector(".calendar-card");
   const prevMes = document.getElementById("prevMes");
   const nextMes = document.getElementById("nextMes");
   const btnCalMes = document.getElementById("btnCalMes");
@@ -2047,6 +2051,21 @@ function controlarNotificaciones() {
   }
 
   function elegirOpcionLicencia(opt) {
+    // En selección múltiple: aplicar la licencia a cada día elegido (no el rango automático).
+    if (enModoSeleccionMultiple()) {
+      if (opt.dias === 0) {
+        alert("Esta licencia no implica días completos en el calendario (horas o reducción de jornada).");
+        return;
+      }
+      const fechas = getFechasParaAccion();
+      aplicarLicenciaRetribuida(fechas, opt.id);
+      salirModoSeleccion({ silencioso: true, skipRender: true });
+      renderCalendario();
+      if (modalLicenciasRetribuidas) modalLicenciasRetribuidas.hidden = true;
+      showToast("Licencia aplicada a " + fechas.length + " día" + (fechas.length === 1 ? "" : "s") + ".", "success");
+      return;
+    }
+
     const fechaInicio = (fecha && fecha.value) ? fecha.value : getHoyISO();
     if (opt.dias === 0) {
       alert("Esta licencia no implica días completos en el calendario (horas o reducción de jornada).");
@@ -3323,6 +3342,41 @@ function controlarNotificaciones() {
   };
 
   if (btnVacaciones) btnVacaciones.onclick = () => {
+    // Selección múltiple: marcar vacaciones en los días elegidos (solo laborables).
+    if (enModoSeleccionMultiple()) {
+      const fechas = getFechasParaAccion();
+      const laborables = fechas.filter((f) => esLaborable(f));
+      if (laborables.length === 0) {
+        showToast("Ningún día seleccionado es laborable (fines de semana/festivos no cuentan).", "error");
+        return;
+      }
+      const pendientes = laborables.filter((d) => {
+        const r = state.registros[d];
+        if (r && r.vacaciones) return false;
+        if (r && (r.libreDisposicion || r.disfruteHorasExtra || r.disfruteExcesoJornada || r.licenciaRetribuida)) return false;
+        return true;
+      });
+      const disponible = getTotalDiasDisponibles(state, new Date());
+      if (pendientes.length > disponible) {
+        showToast("Saldo insuficiente: hacen falta " + pendientes.length + " días y solo hay " + disponible + ".", "error");
+        return;
+      }
+      let marcados = 0;
+      let omitidos = 0;
+      for (const d of laborables) {
+        const res = marcarUnDiaVacaciones(d);
+        if (res.ok && !res.skipped) marcados++;
+        else if (res.skipped === "conflicto" || res.motivo === "conflicto") omitidos++;
+        else if (res.motivo === "sinSaldo") break;
+      }
+      salirModoSeleccion({ silencioso: true, skipRender: true });
+      refrescarTrasVacaciones();
+      let msg = "Vacaciones: " + marcados + " día" + (marcados === 1 ? "" : "s") + " marcado" + (marcados === 1 ? "" : "s") + ".";
+      if (omitidos) msg += " " + omitidos + " omitido" + (omitidos === 1 ? "" : "s") + ".";
+      showToast(msg, "success");
+      return;
+    }
+
     if (!fecha.value) {
       showToast("Selecciona primero un día en el calendario.", "error");
       return;
@@ -3585,6 +3639,62 @@ function controlarNotificaciones() {
   }
 
   if (btnLD) btnLD.onclick = () => {
+    if (enModoSeleccionMultiple()) {
+      const fechas = getFechasParaAccion().filter((f) => esLaborable(f));
+      if (fechas.length === 0) {
+        showToast("Ningún día seleccionado es laborable.", "error");
+        return;
+      }
+      const aniosNecesarios = new Set(fechas.map((f) => parseInt(f.slice(0, 4), 10)));
+      for (const anio of aniosNecesarios) {
+        if (state.ldDiasPorAnio?.[anio] === undefined) {
+          abrirModalLDAnio(anio);
+          showToast("Indica primero los días LD del año " + anio + " y vuelve a pulsar LD.", "info");
+          return;
+        }
+      }
+      let marcados = 0;
+      let omitidos = 0;
+      for (const f of fechas) {
+        const reg = state.registros[f];
+        if (reg && reg.libreDisposicion) continue;
+        if (reg && (reg.vacaciones || reg.disfruteHorasExtra || reg.disfruteExcesoJornada || reg.licenciaRetribuida)) {
+          omitidos++;
+          continue;
+        }
+        const anioDescontado = descontarDiaLD(state, f);
+        if (anioDescontado == null) {
+          showToast("Saldo LD insuficiente. Se marcaron " + marcados + " día(s).", "error");
+          break;
+        }
+        state.registros[f] = {
+          entrada: null,
+          salidaReal: null,
+          trabajadosMin: 0,
+          salidaTeoricaMin: 0,
+          salidaAjustadaMin: 0,
+          extraGeneradaMin: 0,
+          negativaMin: 0,
+          excesoJornadaMin: 0,
+          disfrutadasManualMin: 0,
+          libreDisposicion: true,
+          ldDiaAnioDescontado: anioDescontado
+        };
+        marcados++;
+      }
+      salirModoSeleccion({ silencioso: true, skipRender: true });
+      saveState(state);
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+      actualizarEstadoEliminar();
+      actualizarEstadoIniciarJornada();
+      actualizarResumenDia();
+      let msg = "LD: " + marcados + " día" + (marcados === 1 ? "" : "s") + " marcado" + (marcados === 1 ? "" : "s") + ".";
+      if (omitidos) msg += " " + omitidos + " omitido" + (omitidos === 1 ? "" : "s") + ".";
+      showToast(msg, "success");
+      return;
+    }
 
     if (!fecha.value) return;
     if (state.registros[fecha.value]?.vacaciones) return;
@@ -3643,26 +3753,34 @@ function controlarNotificaciones() {
   };
 
   if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.onclick = () => {
-    if (!fecha || !fecha.value) return;
-    if (state.registros[fecha.value]?.vacaciones || state.registros[fecha.value]?.libreDisposicion) return;
-    if (state.registros[fecha.value]?.disfruteHorasExtra) return;
-
+    const fechas = enModoSeleccionMultiple() ? getFechasParaAccion() : ((fecha && fecha.value) ? [fecha.value] : []);
+    if (fechas.length === 0) return;
     const jornadaMin = state.config.trabajoATurnos ? 8 * 60 : (state.config.jornadaMin || 480);
-    state.registros[fecha.value] = {
-      entrada: null,
-      salidaReal: null,
-      trabajadosMin: 0,
-      salidaTeoricaMin: 0,
-      salidaAjustadaMin: 0,
-      extraGeneradaMin: 0,
-      negativaMin: 0,
-      excesoJornadaMin: 0,
-      disfrutadasManualMin: 0,
-      disfruteHorasExtra: true,
-      disfruteHorasExtraMin: jornadaMin,
-      vacaciones: false
-    };
-
+    let marcados = 0;
+    let omitidos = 0;
+    for (const f of fechas) {
+      const reg = state.registros[f];
+      if (reg && (reg.vacaciones || reg.libreDisposicion || reg.disfruteHorasExtra || reg.disfruteExcesoJornada || reg.licenciaRetribuida)) {
+        omitidos++;
+        continue;
+      }
+      state.registros[f] = {
+        entrada: null,
+        salidaReal: null,
+        trabajadosMin: 0,
+        salidaTeoricaMin: 0,
+        salidaAjustadaMin: 0,
+        extraGeneradaMin: 0,
+        negativaMin: 0,
+        excesoJornadaMin: 0,
+        disfrutadasManualMin: 0,
+        disfruteHorasExtra: true,
+        disfruteHorasExtraMin: jornadaMin,
+        vacaciones: false
+      };
+      marcados++;
+    }
+    if (enModoSeleccionMultiple()) salirModoSeleccion({ silencioso: true, skipRender: true });
     saveState(state);
     renderCalendario();
     actualizarBanco();
@@ -3670,29 +3788,39 @@ function controlarNotificaciones() {
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
+    if (marcados > 0) showToast("Disfr. TxT: " + marcados + " día" + (marcados === 1 ? "" : "s") + ".", "success");
+    else if (omitidos) showToast("No se pudo marcar ningún día (ya tienen otro estado).", "error");
   };
 
   if (btnDisfruteExcesoJornada) btnDisfruteExcesoJornada.onclick = () => {
-    if (!fecha || !fecha.value) return;
-    if (state.registros[fecha.value]?.vacaciones || state.registros[fecha.value]?.libreDisposicion) return;
-    if (state.registros[fecha.value]?.disfruteHorasExtra || state.registros[fecha.value]?.disfruteExcesoJornada) return;
-
+    const fechas = enModoSeleccionMultiple() ? getFechasParaAccion() : ((fecha && fecha.value) ? [fecha.value] : []);
+    if (fechas.length === 0) return;
     const jornadaMin = state.config.trabajoATurnos ? 8 * 60 : (state.config.jornadaMin || 480);
-    state.registros[fecha.value] = {
-      entrada: null,
-      salidaReal: null,
-      trabajadosMin: 0,
-      salidaTeoricaMin: 0,
-      salidaAjustadaMin: 0,
-      extraGeneradaMin: 0,
-      negativaMin: 0,
-      excesoJornadaMin: 0,
-      disfrutadasManualMin: 0,
-      disfruteExcesoJornada: true,
-      disfruteExcesoJornadaMin: jornadaMin,
-      vacaciones: false
-    };
-
+    let marcados = 0;
+    let omitidos = 0;
+    for (const f of fechas) {
+      const reg = state.registros[f];
+      if (reg && (reg.vacaciones || reg.libreDisposicion || reg.disfruteHorasExtra || reg.disfruteExcesoJornada || reg.licenciaRetribuida)) {
+        omitidos++;
+        continue;
+      }
+      state.registros[f] = {
+        entrada: null,
+        salidaReal: null,
+        trabajadosMin: 0,
+        salidaTeoricaMin: 0,
+        salidaAjustadaMin: 0,
+        extraGeneradaMin: 0,
+        negativaMin: 0,
+        excesoJornadaMin: 0,
+        disfrutadasManualMin: 0,
+        disfruteExcesoJornada: true,
+        disfruteExcesoJornadaMin: jornadaMin,
+        vacaciones: false
+      };
+      marcados++;
+    }
+    if (enModoSeleccionMultiple()) salirModoSeleccion({ silencioso: true, skipRender: true });
     saveState(state);
     renderCalendario();
     actualizarBanco();
@@ -3700,13 +3828,11 @@ function controlarNotificaciones() {
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
+    if (marcados > 0) showToast("Disfr. exceso: " + marcados + " día" + (marcados === 1 ? "" : "s") + ".", "success");
+    else if (omitidos) showToast("No se pudo marcar ningún día (ya tienen otro estado).", "error");
   };
 
   if (btnTrabajosNoruega) btnTrabajosNoruega.onclick = () => {
-    if (!fecha || !fecha.value) {
-      showToast("Selecciona primero un día en el calendario.", "error");
-      return;
-    }
     if (!esGpTxT()) {
       showToast("Trabajos en Noruega solo aplica a GP3 y GP4.", "error");
       return;
@@ -3715,37 +3841,37 @@ function controlarNotificaciones() {
       showToast("Desactiva el trabajo a turnos para marcar Trabajos en Noruega.", "error");
       return;
     }
-    const f = fecha.value;
-    const reg = state.registros[f];
-    if (reg && (reg.vacaciones || reg.libreDisposicion || reg.disfruteHorasExtra || reg.disfruteExcesoJornada || reg.licenciaRetribuida)) {
-      showToast("No se puede marcar Noruega en un día de Vacaciones, LD, Disfrute o Licencia.", "error");
+    const fechas = enModoSeleccionMultiple() ? getFechasParaAccion() : ((fecha && fecha.value) ? [fecha.value] : []);
+    if (fechas.length === 0) {
+      showToast("Selecciona primero un día en el calendario.", "error");
       return;
     }
-    if (reg && reg.modoNoruega) {
-      showToast("Este día ya está marcado como Trabajos en Noruega.", "info");
-      return;
+    let marcados = 0;
+    let omitidos = 0;
+    for (const f of fechas) {
+      const reg = state.registros[f];
+      if (reg && (reg.vacaciones || reg.libreDisposicion || reg.disfruteHorasExtra || reg.disfruteExcesoJornada || reg.licenciaRetribuida)) {
+        omitidos++;
+        continue;
+      }
+      if (reg && reg.modoNoruega) { omitidos++; continue; }
+      if (esDiaInvalidoParaNoruega(f)) { omitidos++; continue; }
+      const regNoruega = crearRegistroDiaNoruega(f, { manual: true });
+      if (!regNoruega) { omitidos++; continue; }
+      state.registros[f] = regNoruega;
+      marcados++;
     }
-    if (esDiaInvalidoParaNoruega(f)) {
-      showToast("Trabajos en Noruega no aplica en domingos ni festivos.", "error");
-      return;
-    }
-    const regNoruega = crearRegistroDiaNoruega(f, { manual: true });
-    if (!regNoruega) {
-      showToast("No se pudo marcar el día como Trabajos en Noruega.", "error");
-      return;
-    }
-    state.registros[f] = regNoruega;
+    if (enModoSeleccionMultiple()) salirModoSeleccion({ silencioso: true, skipRender: true });
     saveState(state);
-    cargarFormularioDesdeRegistro(f);
+    if (fecha && fecha.value) cargarFormularioDesdeRegistro(fecha.value);
     renderCalendario();
     actualizarBanco();
     actualizarGrafico();
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
-    const dow = new Date(f + "T12:00:00").getDay();
-    const detalle = dow === 6 ? "8 h TxT" : "4 h TxT + 21 min exceso";
-    showToast("Día marcado como Trabajos en Noruega (" + detalle + ").", "success");
+    if (marcados > 0) showToast("Trabajos Noruega: " + marcados + " día" + (marcados === 1 ? "" : "s") + ".", "success");
+    else showToast("No se pudo marcar Noruega en los días elegidos.", "error");
   };
 
   if (modalLDAceptar) {
@@ -3959,10 +4085,10 @@ function controlarNotificaciones() {
     });
   }
 
-  function ejecutarEliminarRegistroDia() {
-    if (!fecha || !fecha.value) return;
-    var fechaElim = fecha.value;
-    if (!state.registros[fechaElim]) return;
+  let pendientesEliminarMulti = null;
+
+  function eliminarRegistroDeFecha(fechaElim) {
+    if (!fechaElim || !state.registros[fechaElim]) return false;
     var reg = state.registros[fechaElim];
     if (reg && reg.vacaciones) devolverDiaVacacion(state, fechaElim);
     if (reg && reg.libreDisposicion) devolverDiaLD(state, fechaElim);
@@ -3973,6 +4099,35 @@ function controlarNotificaciones() {
     if (state.deduccionesPorAusencia && state.deduccionesPorAusencia[fechaElim] !== undefined) delete state.deduccionesPorAusencia[fechaElim];
     try { localStorage.removeItem(EXTEND_PROMPT_KEY + "_" + fechaElim); } catch (e) {}
     if (fechaElim === getHoyISO()) limpiarBorradorSesion();
+    return true;
+  }
+
+  function ejecutarEliminarRegistroDia() {
+    if (pendientesEliminarMulti && pendientesEliminarMulti.length) {
+      let n = 0;
+      pendientesEliminarMulti.forEach((f) => { if (eliminarRegistroDeFecha(f)) n++; });
+      pendientesEliminarMulti = null;
+      salirModoSeleccion({ silencioso: true, skipRender: true });
+      saveState(state);
+      if (entrada) entrada.value = "";
+      if (salida) salida.value = "";
+      if (disfrutadas) disfrutadas.value = "0";
+      if (minAntes) minAntes.value = "0";
+      if (registroExtInicio) registroExtInicio.value = "";
+      if (registroExtFin) registroExtFin.value = "";
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+      actualizarResumenDia();
+      actualizarEstadoEliminar();
+      actualizarEstadoIniciarJornada();
+      if (fecha && fecha.value) renderFichajesDia(fecha.value);
+      showToast(n + " registro" + (n === 1 ? "" : "s") + " eliminado" + (n === 1 ? "" : "s") + ".", "success");
+      return;
+    }
+    if (!fecha || !fecha.value) return;
+    var fechaElim = fecha.value;
+    if (!eliminarRegistroDeFecha(fechaElim)) return;
     saveState(state);
     if (entrada) entrada.value = "";
     if (salida) salida.value = "";
@@ -3991,11 +4146,25 @@ function controlarNotificaciones() {
 
   function cerrarModalConfirmarEliminar() {
     if (modalConfirmarEliminar) modalConfirmarEliminar.hidden = true;
+    pendientesEliminarMulti = null;
   }
 
   if (btnEliminar) {
     btnEliminar.addEventListener("click", () => {
+      if (enModoSeleccionMultiple()) {
+        const fechas = getFechasParaAccion().filter((f) => !!state.registros[f]);
+        if (fechas.length === 0) {
+          showToast("Ningún día seleccionado tiene registro que eliminar.", "error");
+          return;
+        }
+        pendientesEliminarMulti = fechas;
+        const modalFechaEl = document.getElementById("modalConfirmarEliminarFecha");
+        if (modalFechaEl) modalFechaEl.textContent = fechas.length + " días seleccionados con registro";
+        if (modalConfirmarEliminar) modalConfirmarEliminar.hidden = false;
+        return;
+      }
       if (!fecha.value || !state.registros[fecha.value]) return;
+      pendientesEliminarMulti = null;
       const fechaElim = fecha.value;
       const modalFechaEl = document.getElementById("modalConfirmarEliminarFecha");
       if (modalFechaEl) {
@@ -4007,9 +4176,10 @@ function controlarNotificaciones() {
   }
   if (modalEliminarSi) {
     modalEliminarSi.addEventListener("click", () => {
+      const eraMulti = !!(pendientesEliminarMulti && pendientesEliminarMulti.length);
       ejecutarEliminarRegistroDia();
       cerrarModalConfirmarEliminar();
-      showToast("Registro eliminado", "success");
+      if (!eraMulti) showToast("Registro eliminado", "success");
     });
   }
   if (modalEliminarCancelar) {
@@ -4842,6 +5012,126 @@ if (modalConfirmarBorrarTodo) {
   // CALENDARIO
   // ===============================
 
+  // ===============================
+  // SELECCIÓN MÚLTIPLE (pulsación larga 2 s)
+  // ===============================
+  const LONG_PRESS_MS = 2000;
+  let modoSeleccionMultiple = false;
+  let diasSeleccionadosMulti = new Set();
+
+  function actualizarBarraSeleccion() {
+    const n = diasSeleccionadosMulti.size;
+    if (calSeleccionBar) calSeleccionBar.hidden = !modoSeleccionMultiple;
+    if (calSeleccionCount) {
+      calSeleccionCount.textContent = n === 1 ? "1 día seleccionado" : n + " días seleccionados";
+    }
+    if (calendarCard) calendarCard.classList.toggle("calendar-card--seleccion-multiple", modoSeleccionMultiple);
+  }
+
+  function activarModoSeleccion(fechaISO) {
+    modoSeleccionMultiple = true;
+    if (fechaISO) diasSeleccionadosMulti.add(fechaISO);
+    actualizarBarraSeleccion();
+    renderCalendario();
+    showToast("Modo selección: pulsa más días y luego Vacaciones, LD, etc.", "info");
+  }
+
+  function salirModoSeleccion(opts) {
+    const silencioso = opts && opts.silencioso;
+    modoSeleccionMultiple = false;
+    diasSeleccionadosMulti.clear();
+    actualizarBarraSeleccion();
+    if (!(opts && opts.skipRender)) renderCalendario();
+    if (!silencioso) showToast("Selección cancelada", "info");
+  }
+
+  function toggleDiaSeleccionadoMulti(fechaISO) {
+    if (!fechaISO) return;
+    if (diasSeleccionadosMulti.has(fechaISO)) diasSeleccionadosMulti.delete(fechaISO);
+    else diasSeleccionadosMulti.add(fechaISO);
+    if (diasSeleccionadosMulti.size === 0) {
+      salirModoSeleccion({ silencioso: true });
+      return;
+    }
+    actualizarBarraSeleccion();
+    renderCalendario();
+  }
+
+  /** Fechas a las que aplicar una acción: selección múltiple o día del formulario. */
+  function getFechasParaAccion() {
+    if (modoSeleccionMultiple && diasSeleccionadosMulti.size > 0) {
+      return Array.from(diasSeleccionadosMulti).sort();
+    }
+    return (fecha && fecha.value) ? [fecha.value] : [];
+  }
+
+  function enModoSeleccionMultiple() {
+    return modoSeleccionMultiple && diasSeleccionadosMulti.size > 0;
+  }
+
+  function vincularPulsacionDiaCalendario(div, fechaISO, festivoInfo) {
+    let timer = null;
+    let longPressFired = false;
+    let pointerId = null;
+
+    const clearTimer = () => {
+      if (timer) { clearTimeout(timer); timer = null; }
+    };
+
+    const onPointerDown = (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      longPressFired = false;
+      pointerId = e.pointerId;
+      clearTimer();
+      timer = setTimeout(() => {
+        longPressFired = true;
+        try { if (navigator.vibrate) navigator.vibrate(25); } catch (err) {}
+        if (!modoSeleccionMultiple) activarModoSeleccion(fechaISO);
+        else toggleDiaSeleccionadoMulti(fechaISO);
+      }, LONG_PRESS_MS);
+    };
+
+    const onPointerEnd = () => {
+      clearTimer();
+      pointerId = null;
+    };
+
+    div.addEventListener("pointerdown", onPointerDown);
+    div.addEventListener("pointerup", onPointerEnd);
+    div.addEventListener("pointercancel", onPointerEnd);
+    div.addEventListener("pointerleave", (e) => {
+      if (pointerId != null && e.pointerId === pointerId) onPointerEnd();
+    });
+    div.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+    });
+
+    div.onclick = (e) => {
+      if (longPressFired) {
+        e.preventDefault();
+        e.stopPropagation();
+        longPressFired = false;
+        return;
+      }
+      if (modoSeleccionMultiple) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleDiaSeleccionadoMulti(fechaISO);
+        return;
+      }
+      if (festivoInfo) {
+        e.stopPropagation();
+        mostrarPopupFestivo(festivoInfo.nombre);
+        return;
+      }
+      seleccionarDia(fechaISO);
+    };
+  }
+
+  if (calSeleccionCancelar) {
+    calSeleccionCancelar.addEventListener("click", () => salirModoSeleccion());
+  }
+
 function renderCalendario() {
 
   const festivos = obtenerFestivos(currentYear);
@@ -4883,9 +5173,11 @@ function renderCalendario() {
     const div = document.createElement("div");
     div.className = "cal-day";
     div.innerHTML = `<div>${d}</div>`;
+    div.dataset.fecha = fechaISO;
 
     if(fechaISO === fechaSeleccionada) div.classList.add("seleccionado");
     if(fechaISO === hoyISO) div.classList.add("hoy");
+    if (modoSeleccionMultiple && diasSeleccionadosMulti.has(fechaISO)) div.classList.add("multi-seleccionado");
 
     const dow = new Date(currentYear,currentMonth,d).getDay();
     if(dow === 6) div.classList.add("sabado");
@@ -4895,31 +5187,20 @@ function renderCalendario() {
 // FESTIVOS
 // ===============================
 
-if(festivos && festivos[fechaISO]){
-
-  const festivo = festivos[fechaISO];
-
+const festivoInfo = (festivos && festivos[fechaISO]) ? festivos[fechaISO] : null;
+if (festivoInfo) {
   div.classList.add("festivo");
-
-  if (festivo.tipo === "ferrol") {
+  if (festivoInfo.tipo === "ferrol") {
     div.classList.add("festivo-ferrol");
     div.innerHTML += "<small>🎉</small>";
-  } else if (festivo.tipo === "galicia") {
+  } else if (festivoInfo.tipo === "galicia") {
     div.classList.add("festivo-galicia");
   } else {
     div.classList.add("festivo-nacional");
   }
-
-  div.onclick = (e) => {
-    e.stopPropagation();
-    mostrarPopupFestivo(festivo.nombre);
-  };
-
-} else {
-
-  div.onclick = () => seleccionarDia(fechaISO);
-
 }
+
+vincularPulsacionDiaCalendario(div, fechaISO, festivoInfo);
 
     // ===============================
     // REGISTROS
@@ -5100,6 +5381,7 @@ if(festivos && festivos[fechaISO]){
     emptyStateCalendar.hidden = tieneRegistrosMes;
   }
 
+  actualizarBarraSeleccion();
   actualizarResumenPortada();
   actualizarBanco();
   actualizarGrafico();
